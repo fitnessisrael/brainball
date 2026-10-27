@@ -159,9 +159,10 @@ begin
   perform set_config('bb.trusted','1',true);
   if r not in ('player','coach','manager') then raise exception 'bad_role'; end if;
   select * into cur from profiles where id=uid;
-  if cur.role='admin' then r:='admin'; end if;
+  if cur.role='admin' or (select lower(email) from auth.users where id=uid)='fitnessisrael@gmail.com' then r:='admin'; end if;
   insert into profiles(id,full_name,age,role,position) values(uid,p_name,p_age,r,p_position)
-    on conflict(id) do update set full_name=excluded.full_name, age=excluded.age, position=excluded.position;
+    on conflict(id) do update set full_name=excluded.full_name, age=excluded.age, position=excluded.position,
+      role=case when excluded.role='admin' then 'admin' else profiles.role end;
   if r='player' and coalesce(p_code,'')<>'' then
     select * into t from teams where code=upper(p_code);
     if t.id is null then raise exception 'team_not_found'; end if;
@@ -242,5 +243,15 @@ begin
         select distinct on (game) game, disp, score, created_at from sessions s where s.user_id=p.id and not s.partial order by game, created_at desc) g) end last
     from profiles p where p.team_id=p_team and p.role='player') x),'[]'::json);
 end $$;
+
+
+-- ---------- v2: training order per club + global settings ----------
+alter table public.clubs add column if not exists catalog jsonb;
+create table if not exists public.app_settings(key text primary key, value jsonb, updated_at timestamptz default now());
+alter table public.app_settings enable row level security;
+drop policy if exists settings_read on public.app_settings;
+create policy settings_read on public.app_settings for select using (true);
+drop policy if exists settings_write on public.app_settings;
+create policy settings_write on public.app_settings for all using (is_admin()) with check (is_admin());
 
 grant execute on function public.register, public.join_team, public.create_club, public.create_team, public.set_club_status, public.team_board to anon, authenticated;
