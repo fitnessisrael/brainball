@@ -4,338 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>BrainBall App</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0B0B0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap">
-<style>
-/* Layout: phone-first brain-training app; neuron hero, rounded mesh cards, full-screen stage with big clock for every exercise */
-:root{
-  --bg:#0B0B0F; --surface:#15141D; --surface-2:#1F1D2B; --line:rgba(255,255,255,.08);
-  --fg:#F3F0FA; --muted:#A9A3BB; --dim:#6F6982;
-  --purple:#AA44FF; --magenta:#FF2BD6; --cyan:#00E0FF; --stim:#FF7A1A; --go:#3DF59A; --nogo:#FF4D6D; --yellow:#FFE14D;
-  --f-display:"Heebo",system-ui,sans-serif;
-  --f-body:"Heebo",system-ui,sans-serif;
-  --f-mono:"Outfit","Heebo",system-ui,sans-serif;
-  --r-card:30px; --r-tile:24px;
-  color-scheme:dark;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-[hidden]{display:none!important}
-html,body{height:100%;background:var(--bg);color:var(--fg)}
-body{margin:0;font-family:var(--f-body);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-h1,h2,h3{font-family:var(--f-display);font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.1;text-wrap:balance}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
-.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
-.grad{background:linear-gradient(100deg,var(--magenta),var(--purple) 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
-.app{position:relative;max-width:560px;margin:0 auto;min-height:100%;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(108px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-.app.flow .top,.app.flow~.tabs{display:none!important}
-.app.flow{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
-.top{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:6px 14px}
-.top img{height:30px;width:auto}
-.top-acts{display:flex;gap:8px}
-.icon-btn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.icon-btn svg{width:20px;height:20px}
-.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:700 18px var(--f-display);background:linear-gradient(135deg,var(--magenta),var(--purple));border:1px solid rgba(255,255,255,.25);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
-.view{display:none;position:relative;z-index:1;animation:in .2s ease}
-.view.on{display:block}
-@keyframes in{from{transform:translateY(6px)}}
-.h-sub{color:var(--muted);font-size:15px}
-.title{font-size:34px;margin:4px 0 18px}
-.sec{font-family:var(--f-display);font-weight:600;font-size:20px;margin:28px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.sec small{font:400 13px var(--f-body);color:var(--dim)}
-.note{font-size:14px;color:var(--dim)}
-
-/* buttons */
-.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 26px;border-radius:999px;border:1px solid transparent;font:600 18px var(--f-display);text-decoration:none;transition:transform .12s ease,box-shadow .2s ease,filter .2s ease;-webkit-user-select:none;user-select:none}
-.btn:active{transform:scale(.96)}
-.btn .ar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:16px;flex:none}
-.btn-g{color:#fff;background:linear-gradient(135deg,#FF3FDC 0%,#C247FF 50%,#7B3BFF 100%);border-color:rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -3px 0 rgba(0,0,0,.18),0 14px 34px -12px rgba(255,43,214,.75)}
-.btn-g:hover{filter:brightness(1.06)}
-.btn-g .ar{background:rgba(255,255,255,.22)}
-.btn-w{color:#0B0B0F;background:linear-gradient(180deg,#fff,#E9E4F7);border-color:rgba(255,255,255,.6);box-shadow:inset 0 -3px 0 rgba(0,0,0,.08),0 12px 28px -14px rgba(0,0,0,.6)}
-.btn-w .ar{background:#0B0B0F;color:#fff}
-.btn-o{color:var(--fg);background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-.btn-o:hover{background:rgba(255,255,255,.1)}
-.btn-xl{min-height:70px;font-size:22px}
-.btn[disabled]{opacity:.35;cursor:default;transform:none}
-.btn.full{width:100%}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{min-height:46px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:var(--surface);font:500 16px var(--f-body);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-.chip[aria-pressed=true]{background:linear-gradient(135deg,rgba(255,63,220,.28),rgba(123,59,255,.28));border-color:var(--magenta);color:#fff}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;padding:6px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
-.seg button{min-height:48px;border:0;border-radius:999px;background:none;font:600 16px var(--f-display);color:var(--muted)}
-.seg button[aria-pressed=true]{color:#fff;background:linear-gradient(135deg,#FF3FDC,#7B3BFF);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 18px -8px rgba(255,43,214,.8)}
-
-/* neurons hero */
-#neuro{position:absolute;inset:0 0 auto 0;height:420px;width:100%;z-index:0;pointer-events:none;opacity:.75;-webkit-mask-image:linear-gradient(#000 60%,transparent);mask-image:linear-gradient(#000 60%,transparent)}
-
-.mesh{position:relative;overflow:hidden;border-radius:var(--r-card);padding:22px;isolation:isolate;background:#1a1426}
-.mesh::before{content:"";position:absolute;inset:-35%;z-index:-1;filter:blur(38px);background:var(--m,radial-gradient(circle at 75% 25%,var(--magenta),transparent 40%),radial-gradient(circle at 20% 70%,var(--purple),transparent 45%),radial-gradient(circle at 85% 90%,var(--cyan),transparent 35%));animation:float 14s ease-in-out infinite alternate}
-@keyframes float{to{transform:translate(8%,6%) rotate(12deg)}}
-.k{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;opacity:.85}
-.prog-list{display:grid;gap:8px;margin:14px 0 16px}
-.prog-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08);text-align:right;width:100%}
-.prog-item .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#0B0B0F;font:700 15px var(--f-display);flex:none}
-.prog-item.done .n{background:var(--go)}
-.prog-item b{font-family:var(--f-display);font-weight:600}
-.prog-item span{margin-inline-start:auto;font-size:13px;opacity:.8}
-.areas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.tile{border-radius:var(--r-tile);padding:14px;background:var(--surface);border:1px solid var(--line);min-width:0}
-.tile .v{font-family:var(--f-mono);font-weight:700;font-size:21px;direction:ltr;text-align:right}
-.tile .l{font-size:13px;color:var(--muted)}
-.invite{display:flex;align-items:center;gap:14px;margin-top:14px;padding:16px 18px;border-radius:var(--r-card);background:linear-gradient(135deg,rgba(0,224,255,.14),rgba(170,68,255,.14));border:1px solid rgba(0,224,255,.25)}
-.invite b{font-family:var(--f-display);font-size:18px;display:block}
-.invite .btn{margin-inline-start:auto;min-height:46px;padding:0 18px;font-size:16px}
-
-/* catalog */
-.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.gcard{position:relative;overflow:hidden;border-radius:var(--r-card);min-height:178px;padding:74px 16px 16px;border:1px solid rgba(255,255,255,.08);text-align:right;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate;background:#16131f;width:100%;min-width:0;transition:transform .12s ease}
-.gcard:active{transform:scale(.98)}
-.gcard::before{content:"";position:absolute;inset:-40%;z-index:-1;filter:blur(28px);background:var(--m);opacity:.95}
-.gcard::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(transparent 35%,rgba(0,0,0,.45))}
-.gcard .ico{position:absolute;top:14px;right:16px;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.92);color:#0B0B0F;font:700 22px var(--f-display);box-shadow:0 6px 18px -6px rgba(0,0,0,.5)}
-.gcard .tag{position:absolute;top:20px;left:14px;font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(0,0,0,.38);backdrop-filter:blur(6px)}
-.gcard h3{font-size:20px}
-.gcard .area-l{font-size:12px;opacity:.85;margin-bottom:2px}
-.gcard p{margin:4px 0 0;font-size:13px;opacity:.9;line-height:1.35}
-.gcard .last{margin-top:8px;align-self:flex-start;font-family:var(--f-mono);font-size:12px;background:rgba(0,0,0,.4);padding:3px 10px;border-radius:999px;direction:ltr}
-.gcard.wide{grid-column:1/-1;min-height:150px}
-.hero-card{min-height:220px;margin-bottom:12px}
-.hero-card h3{font-size:28px}
-.hero-card p{font-size:15px;max-width:30em}
-.hero-card .cta{margin-top:12px;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;background:#fff;color:#0B0B0F;font:600 16px var(--f-display)}
-
-.hw{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:999px;background:rgba(0,224,255,.08);border:1px solid rgba(0,224,255,.3);margin-bottom:14px}
-.hw b{font-family:var(--f-display)}
-.hw .btn{min-height:42px;padding:0 18px;font-size:15px;margin-inline-start:auto}
-.hist{display:grid;gap:10px}
-.hcard{border-radius:var(--r-tile);padding:16px;background:var(--surface);border:1px solid var(--line)}
-.hcard-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.hcard-h b{font-family:var(--f-display);font-weight:600;font-size:18px}
-.hcard .big{font-family:var(--f-mono);font-weight:700;font-size:28px;direction:ltr;text-align:right}
-.hcard svg{width:100%;height:64px;display:block;margin-top:8px}
-.hrow{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);padding-top:8px;border-top:1px solid var(--line);margin-top:8px}
-.empty{padding:28px 20px;text-align:center;color:var(--muted);border:1px dashed rgba(255,255,255,.14);border-radius:var(--r-tile)}
-
-.field-row{display:grid;gap:8px;margin-bottom:16px}
-.field-row>span{font-size:14px;color:var(--muted)}
-select,input[type=text],input[type=number]{font:500 17px var(--f-body);color:var(--fg);background:var(--surface);border:1px solid rgba(255,255,255,.14);border-radius:18px;min-height:54px;padding:0 18px;width:100%}
-input[type=range]{width:100%;accent-color:var(--magenta)}
-.box{border-radius:var(--r-tile);padding:18px;background:var(--surface);border:1px solid var(--line);margin-bottom:14px}
-.linkbox{display:flex;gap:8px;margin-top:10px}
-.linkbox input{direction:ltr;font-family:var(--f-mono);font-size:13px}
-.check{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--muted);margin:6px 0 16px}
-.check input{width:22px;height:22px;accent-color:var(--magenta);flex:none;margin-top:2px}
-.ferr{color:#ff8fa8;font-size:14px;min-height:1.2em;margin-bottom:8px}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:16px}.kv dt{color:var(--muted)}.kv dd{margin:0}
-.code{font-family:var(--f-mono);font-size:28px;font-weight:700;letter-spacing:.2em;direction:ltr;text-align:center;padding:14px;border-radius:999px;background:var(--surface-2);margin:10px 0}
-.back{border:0;background:none;color:var(--muted);font-size:15px;padding:10px 0;min-height:44px}
-
-/* intro slides */
-.slide{display:flex;flex-direction:column;min-height:calc(100dvh - 60px);padding-top:10px}
-.slide .art{position:relative;flex:1;min-height:300px;border-radius:40px;overflow:hidden;isolation:isolate;background:#120f1a;display:grid;place-items:center}
-.slide .art::before{content:"";position:absolute;inset:-30%;z-index:-1;filter:blur(46px);background:var(--m);animation:float 12s ease-in-out infinite alternate}
-.slide .art img{width:72%;filter:drop-shadow(0 10px 30px rgba(0,0,0,.4))}
-.slide .art .big{font:700 clamp(110px,34vw,180px) var(--f-display);line-height:1;color:#fff}
-.slide h1{font-size:32px;margin:24px 0 8px}
-.slide p{color:var(--muted);margin:0 0 20px}
-.dots{display:flex;gap:6px;margin-bottom:18px}
-.dots i{width:8px;height:8px;border-radius:99px;background:rgba(255,255,255,.2);transition:width .2s}
-.dots i.on{width:26px;background:var(--magenta)}
-.slide-acts{display:grid;grid-template-columns:auto 1fr;gap:10px}
-.roles3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.roles3 button{min-height:84px;border-radius:24px;border:1px solid rgba(255,255,255,.14);background:var(--surface);display:grid;place-items:center;align-content:center;gap:4px;font:600 16px var(--f-display)}
-.roles3 button span{font-size:26px;line-height:1}
-.roles3 button[aria-pressed=true]{border-color:var(--magenta);background:linear-gradient(135deg,rgba(255,63,220,.22),rgba(123,59,255,.22))}
-.sa-link{display:block;margin:14px auto 0;border:0;background:none;color:var(--dim);font-size:14px;min-height:44px}
-
-/* admin */
-.adm{display:grid;gap:8px}
-.adm-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
-.adm-row.off{opacity:.45}
-.adm-row .dotc{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:700 16px var(--f-display);color:#0B0B0F}
-.adm-row b{font-family:var(--f-display);font-weight:600;display:block;line-height:1.2}
-.adm-row small{color:var(--dim);font-size:12px}
-.mv{display:flex;gap:4px}
-.mv button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2)}
-.mv button[disabled]{opacity:.3}
-.sw{position:relative;width:54px;height:32px;border-radius:999px;border:0;background:#3a3648;transition:background .15s}
-.sw::after{content:"";position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:right .15s}
-.sw[aria-checked=true]{background:var(--go)}.sw[aria-checked=true]::after{right:26px}
-
-/* demo player (every exercise) */
-.demo{position:relative;aspect-ratio:16/10;border-radius:var(--r-card);overflow:hidden;background:#000;display:grid;place-items:center;transition:background .2s;max-width:100%;border:1px solid rgba(255,255,255,.08)}
-.demo .badge{position:absolute;top:12px;right:12px;font-size:12px;padding:4px 12px;border-radius:999px;background:rgba(0,0,0,.45);color:#fff;z-index:2}
-.demo .sym{font:700 clamp(80px,28vw,150px) var(--f-display);line-height:1}
-.demo-cap{text-align:center;font:600 18px var(--f-display);margin:10px 0 4px;min-height:1.4em}
-.dm{position:absolute;inset:0;display:grid;place-items:center}
-.dm-t{font:600 26px var(--f-display);color:var(--dim)}
-.dm-dot{width:34%;aspect-ratio:1;border-radius:50%;background:#1a0b00;display:grid;place-items:center}
-.dm-dot::after{content:"";width:40%;aspect-ratio:1;border-radius:50%;background:var(--stim)}
-.dm-hand{position:absolute;font-size:46px;bottom:12%;left:58%;animation:tap .6s ease-in-out infinite alternate}
-@keyframes tap{to{transform:translateY(-10px) scale(.92)}}
-.dm-wave{position:absolute;font-size:60px;bottom:14%;animation:wave .35s ease-in-out infinite alternate;transform-origin:70% 90%}
-@keyframes wave{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
-.dm-ms{font:700 46px var(--f-mono);color:#fff;direction:ltr}
-.dm-btns{position:absolute;bottom:10px;inset-inline:0;display:flex;justify-content:center;gap:10px;direction:ltr}
-.dm-btns i{font-style:normal;width:54px;height:40px;border-radius:999px;border:2px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:20px;color:#fff}
-.dm-btns i.on{border-color:var(--go);background:rgba(61,245,154,.25)}
-.dm-balls{position:absolute;inset:10%}
-.dm-balls b{position:absolute;width:24px;height:24px;border-radius:50%;background:#d9d4e8;animation:drift 2.4s ease-in-out infinite alternate}
-.dm-balls b.t{background:var(--magenta)}
-@keyframes drift{to{transform:translate(var(--dx),var(--dy))}}
-.dm-big{font:700 64px var(--f-display);color:#0B0B0F}
-.dm-check{position:absolute;font:700 64px var(--f-display);color:var(--go);text-shadow:0 0 24px rgba(61,245,154,.6)}
-.dm-person{position:absolute;bottom:6%;font-size:84px;line-height:1}
-.dm-ball{position:absolute;font-size:34px;animation:juggle .55s ease-in-out infinite alternate}
-@keyframes juggle{from{transform:translateY(0)}to{transform:translateY(-46px)}}
-.dm-count{position:absolute;top:12px;left:14px;font:700 34px var(--f-mono);color:#fff;direction:ltr}
-.dm-frame{position:absolute;inset:8% 26%;border:3px dashed rgba(61,245,154,.8);border-radius:22px}
-
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;justify-content:center;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(transparent,rgba(11,11,15,.95) 35%)}
-.tabs nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;max-width:520px;padding:6px;border-radius:999px;background:rgba(30,28,41,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:0 18px 40px -18px rgba(0,0,0,.8)}
-.tabs button{border:0;background:none;border-radius:999px;padding:8px 0;font-size:13px;font-weight:500;color:var(--muted);display:grid;justify-items:center;gap:2px}
-.tabs button svg{width:22px;height:22px}
-.tabs button[aria-current=page]{background:linear-gradient(135deg,rgba(255,63,220,.25),rgba(123,59,255,.25));color:var(--fg)}
-
-/* share sheet */
-.sheet{position:fixed;inset:0;z-index:80;display:grid;place-items:end center;background:rgba(0,0,0,.6);backdrop-filter:blur(6px)}
-.sheet>div{width:100%;max-width:560px;border-radius:32px 32px 0 0;padding:26px max(20px,env(safe-area-inset-right,0px)) calc(26px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));background:var(--surface-2);display:grid;gap:10px}
-
-/* stage */
-#play{position:fixed;inset:0;z-index:50;background:#0d0c12;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-.hud{display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));z-index:6;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
-.hud .x,.hud .snd{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(20,18,28,.6);color:#fff;display:grid;place-items:center;flex:none;backdrop-filter:blur(8px)}
-.hud .snd svg{width:20px;height:20px}
-.prog{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;direction:ltr}
-.prog i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--magenta),var(--cyan));transition:width .2s}
-.clock{font:700 clamp(30px,8vw,46px) var(--f-mono);color:#fff;direction:ltr;padding:2px 16px;border-radius:999px;background:rgba(20,18,28,.6);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px);line-height:1.25;flex:none}
-#play.bare .hud{position:absolute;inset:0 0 auto;background:none}
-#stage{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 max(20px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));overflow:hidden}
-#stage.full{padding:0}
-#stage.scroll{justify-content:flex-start;overflow-y:auto;padding-top:6px}
-.st-big{font:700 clamp(30px,8vw,52px) var(--f-display)}
-.st-sub{color:var(--muted);margin-top:10px;max-width:28em}
-.st-ms{font-family:var(--f-mono);font-weight:700;font-size:clamp(56px,16vw,96px);direction:ltr}
-.fill{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.dot{width:min(46vw,220px);aspect-ratio:1;border-radius:50%;background:#1a0b00;display:grid;place-items:center}
-.dot::after{content:"";width:38%;aspect-ratio:1;border-radius:50%;background:var(--stim)}
-.arrow{width:min(52vw,240px);height:auto}
-.choices{position:absolute;inset-inline:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));direction:ltr}
-.choices.two{grid-template-columns:1fr 1fr}
-.choices.four{grid-template-columns:repeat(3,1fr);grid-template-areas:". u ." "l d r";max-width:420px;margin:0 auto}
-.cbtn{min-height:80px;border-radius:999px;border:2px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-.cbtn svg{width:42px;height:42px}
-.fix{font-family:var(--f-mono);font-size:44px;color:var(--dim)}
-.flank{position:absolute;opacity:.45}
-.intro{width:100%;max-width:460px;text-align:right;padding-bottom:10px}
-.intro h2{font-size:32px;margin-bottom:4px}
-.intro .area{display:inline-block;font-size:13px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--cyan);margin-bottom:8px}
-.intro .tagline{color:var(--muted);margin:0 0 14px}
-.intro ol{padding-inline-start:20px;color:var(--muted);margin:12px 0;font-size:15px}
-.intro li{margin-bottom:4px}
-.lv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.lv button{min-height:66px;border-radius:24px;border:1px solid rgba(255,255,255,.14);background:var(--surface);display:grid;align-content:center;gap:2px}
-.lv button b{font-family:var(--f-display);font-weight:600}
-.lv button small{font-family:var(--f-mono);font-size:11px;color:var(--dim);direction:ltr}
-.lv button[aria-pressed=true]{border-color:var(--magenta);background:linear-gradient(135deg,rgba(255,63,220,.22),rgba(123,59,255,.22))}
-.res{width:100%;max-width:460px}
-.res .k{color:var(--cyan)}
-.res .main{font-family:var(--f-mono);font-weight:700;font-size:clamp(60px,19vw,100px);line-height:1;direction:ltr;margin:10px 0 2px}
-.res .cap{color:var(--muted);margin-bottom:18px}
-.res .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:right;margin-bottom:16px}
-.res .acts{display:grid;gap:10px}
-.delta{display:inline-block;padding:6px 14px;border-radius:999px;font-size:14px;margin-bottom:14px}
-.delta.up{background:rgba(61,245,154,.14);color:var(--go)}.delta.dn{background:rgba(255,122,26,.14);color:var(--stim)}
-.flash-ok{box-shadow:inset 0 0 0 6px var(--go)}.flash-no{box-shadow:inset 0 0 0 6px var(--nogo)}
-canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
-.cvbar{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));inset-inline:16px;display:flex;justify-content:center;gap:10px;z-index:3}
-.cvmsg{position:absolute;top:84px;inset-inline:16px;text-align:center;font:600 22px var(--f-display);z-index:3;pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.6)}
-.okmark{position:absolute;inset:0;display:grid;place-items:center;z-index:4;pointer-events:none}
-.okmark div{font:700 clamp(120px,36vw,200px) var(--f-display);color:var(--go);text-shadow:0 0 40px rgba(61,245,154,.7);animation:pop .5s ease-out both;line-height:1;text-align:center}
-.okmark small{display:block;font:700 34px var(--f-mono);color:#fff;direction:ltr}
-@keyframes pop{from{transform:scale(.4);opacity:0}60%{transform:scale(1.1);opacity:1}to{transform:scale(1)}}
-.fscreen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.fscreen .sym{font-family:var(--f-display);font-weight:700;line-height:1;font-size:min(66vw,66vh)}
-.cd{font:700 min(50vw,50vh) var(--f-display);line-height:1}
-.ring{position:absolute;inset:0}
-.ring button{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05)}
-.pitch{width:100%;max-width:520px;border-radius:24px;display:block}
-.qtext{font:600 21px var(--f-display);margin:14px 0 12px}
-.opts{display:grid;gap:8px;width:100%;max-width:520px}
-.opt{min-height:54px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:var(--surface);text-align:right;padding:8px 20px;font-size:16px}
-.opt.ok{border-color:var(--go);background:rgba(61,245,154,.14)}.opt.no{border-color:var(--nogo);background:rgba(255,77,109,.14)}
-.tbar{width:100%;max-width:520px;height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:12px;direction:ltr}
-.tbar i{display:block;height:100%;background:var(--cyan);width:100%}
-.breath{width:min(64vw,300px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,var(--cyan),var(--purple) 55%,var(--magenta));box-shadow:0 0 80px rgba(170,68,255,.6);transform:scale(.55)}
-.camv{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:16px;width:110px;height:82px;border-radius:20px;object-fit:cover;transform:scaleX(-1);z-index:3;border:2px solid rgba(255,255,255,.35)}
-.meter{position:absolute;bottom:calc(108px + env(safe-area-inset-bottom,0px));left:16px;width:110px;height:8px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden;z-index:3;direction:ltr}
-.meter i{display:block;height:100%;background:var(--go);width:0}
-.pv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-.bigcount{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));inset-inline:0;text-align:center;font:700 clamp(90px,26vw,170px) var(--f-mono);color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.6);z-index:4;line-height:1}
-.bigcount.bump{animation:pop .35s ease-out}
-.callout{position:absolute;top:22%;inset-inline:0;display:grid;place-items:center;z-index:4;pointer-events:none}
-.callout span{min-width:44vw;padding:10px 26px;border-radius:40px;font:700 clamp(70px,22vw,150px) var(--f-display);line-height:1.1;text-align:center}
-.recdot{position:absolute;top:calc(74px + env(safe-area-inset-top,0px));right:18px;z-index:6;display:flex;align-items:center;gap:6px;font:600 14px var(--f-body);color:#fff;background:rgba(0,0,0,.5);padding:4px 12px;border-radius:999px}
-.recdot i{width:10px;height:10px;border-radius:50%;background:#ff3b3b;animation:blink 1s infinite}
-@keyframes blink{50%{opacity:.2}}
-
-/* v4: icons, motion graphics, team */
-.ico svg,.dotc svg{width:24px;height:24px}
-.tag svg{width:12px;height:12px;vertical-align:-1px}
-.slide .art .big svg{width:min(42vw,200px);height:auto;stroke-width:1.2;color:#fff;filter:drop-shadow(0 10px 30px rgba(0,0,0,.35))}
-.roles3 button svg{width:30px;height:30px;stroke-width:1.6}
-.ic{display:inline-grid;place-items:center}.ic svg{width:20px;height:20px}
-.skel{height:78%;overflow:visible}
-.skel .bone{stroke:#00E0FF;stroke-width:4;stroke-linecap:round;fill:none}
-.skel .jt{fill:#FF2BD6}
-.skel .head{fill:none;stroke:#00E0FF;stroke-width:4}
-.skel .leg{transform-origin:38px 55px;transform-box:view-box}
-.kick .leg{animation:kick .55s ease-in-out infinite alternate}
-@keyframes kick{to{transform:rotate(-38deg)}}
-.dm-ballsvg{position:absolute;width:30px;height:30px}
-.bounce{animation:bounce .55s ease-in-out infinite alternate}
-@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-58px)}}
-.slideX{animation:slideX .9s ease-in-out infinite alternate}
-@keyframes slideX{from{transform:translateX(-26px)}to{transform:translateX(26px)}}
-.runL{animation:runL 1.6s ease-in-out infinite alternate}
-@keyframes runL{to{transform:translateX(-90px)}}
-.rip{position:absolute;width:70px;height:70px;border-radius:50%;border:3px solid #fff;animation:rip 1s ease-out infinite}
-@keyframes rip{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}
-.dm-hand{position:absolute;color:#fff;width:84px;height:84px;filter:drop-shadow(0 6px 18px rgba(0,0,0,.4))}
-.dm-hand svg{width:100%;height:100%;stroke-width:1.6}
-.waving{animation:wave .32s ease-in-out infinite alternate;transform-origin:50% 90%}
-.lens{position:absolute;top:10px;left:50%;margin-left:-14px;width:28px;height:28px;border-radius:50%;background:#000;border:3px solid #444}
-.ring{position:relative}
-.dring{width:96px;height:96px;flex:none}
-.mesh-row{display:flex;align-items:center;gap:16px}
-.team-strip{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:999px;background:var(--surface);border:1px solid var(--line);margin-bottom:12px}
-.team-strip b{font-family:var(--f-display)}
-.team-strip .mono{margin-inline-start:auto;color:var(--cyan);letter-spacing:.15em}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.dash{display:grid;gap:8px}
-.drow{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px 14px;border-radius:24px;background:var(--surface);border:1px solid var(--line)}
-.av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:800 16px var(--f-display);background:linear-gradient(135deg,#2a2440,#1b1a26);border:1px solid rgba(255,255,255,.12)}
-.av.on{background:linear-gradient(135deg,var(--magenta),var(--purple))}
-.drow b{display:block;font-family:var(--f-display);font-weight:700;line-height:1.2}
-.drow small{color:var(--dim);font-size:12px}
-.drow .num{text-align:center;font:700 20px var(--f-mono);line-height:1}.drow .num small{display:block;font:400 11px var(--f-body)}
-.mini-acts{display:flex;gap:6px}
-.mini-acts a,.mini-acts button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--fg)}
-.mini-acts svg{width:18px;height:18px}
-.hwlist{display:grid;gap:8px;margin-top:10px}
-.hwi{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;background:var(--surface-2);font-size:15px}
-.hwi .ok{color:var(--go);margin-inline-start:auto}
-.gate{max-width:420px;text-align:center;display:grid;gap:14px;justify-items:center}
-.gate .lensbig{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#2b2540,#0f0e15);border:1px solid rgba(255,255,255,.14);box-shadow:0 0 60px rgba(170,68,255,.35)}
-.gate .lensbig svg{width:46px;height:46px;stroke-width:1.5}
-.switchrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:24px;background:var(--surface);border:1px solid var(--line);margin-bottom:10px}
-@media (max-width:360px){.games{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-</style>
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <canvas id="neuro" aria-hidden="true"></canvas>
@@ -343,7 +19,8 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
   <div class="top">
     <img src="logo.png" alt="BrainBall">
     <div class="top-acts">
-      <button class="icon-btn" data-share="app" aria-label="שתף עם חבר"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+      <button class="icon-btn bell" id="bellBtn" data-go="inbox" aria-label="התראות" hidden><span class="ic" data-i="bell"></span><b id="bellN" hidden>0</b></button>
+      <button class="icon-btn" data-share="app" aria-label="שתף עם חבר"><span class="ic" data-i="share"></span></button>
       <button class="avatar" id="avatar" aria-label="החשבון שלי">B</button>
     </div>
   </div>
@@ -359,36 +36,63 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
     </div>
   </section>
 
-  <!-- REGISTER -->
+  <!-- REGISTER / LOGIN -->
   <section class="view" id="v-start">
-    <img src="logo.png" alt="BrainBall" style="display:block;width:min(240px,64%);margin:18px auto 8px">
+    <img src="logo.png" alt="BrainBall" class="reg-logo">
     <h1 class="title" style="text-align:center;margin-bottom:4px" id="regTitle">נרשמים פעם אחת, מתאמנים תמיד</h1>
-    <p class="h-sub" style="text-align:center;margin:0 0 20px">חינם. לוקח 20 שניות.</p>
+    <p class="h-sub" style="text-align:center;margin:0 0 18px" id="regSub">חינם. לוקח 20 שניות.</p>
     <form id="dForm" novalidate>
-      <div class="field-row"><span>שם מלא</span><input type="text" id="dName" autocomplete="name" placeholder="איך קוראים לך?"></div>
-      <div class="field-row"><span>גיל</span><input type="number" id="dAge" inputmode="numeric" min="6" max="80" placeholder="לדוגמה 15"></div>
-      <div class="field-row"><span>קבוצה</span><input type="text" id="dTeam" placeholder="שם הקבוצה או המועדון"></div>
-      <div class="field-row"><span>אני</span>
+      <div class="field-row" id="rowRole"><span>אני</span>
         <div class="roles3" id="dRole">
           <button type="button" data-r="player" aria-pressed="true"><span class="ic" data-i="player"></span>שחקן</button>
           <button type="button" data-r="coach" aria-pressed="false"><span class="ic" data-i="coach"></span>מאמן</button>
-          <button type="button" data-r="manager" aria-pressed="false"><span class="ic" data-i="club"></span>מנהל</button>
+          <button type="button" data-r="manager" aria-pressed="false"><span class="ic" data-i="club"></span>מנהל מועדון</button>
         </div>
       </div>
-      <div class="field-row" id="rowCode"><span>קוד קבוצה (אם המאמן שלח לך)</span><input type="text" id="dCode" autocomplete="off" placeholder="לדוגמה K7Q2MX" style="direction:ltr;text-align:right;text-transform:uppercase;letter-spacing:.12em"></div>
-      <label class="check"><input type="checkbox" id="dTerms"><span>מאשר את תנאי השימוש ומדיניות הפרטיות</span></label>
+      <div class="field-row" id="rowName"><span>שם מלא</span><input type="text" id="dName" autocomplete="name" placeholder="איך קוראים לך?"></div>
+      <div class="row2 tight" id="rowAgePos">
+        <div class="field-row"><span>גיל</span><input type="number" id="dAge" inputmode="numeric" min="6" max="80" placeholder="15"></div>
+        <div class="field-row"><span>תפקיד במגרש</span><select id="dPos"><option value="">לא חובה</option><option>שוער</option><option>בלם</option><option>מגן</option><option>קשר אחורי</option><option>קשר התקפי</option><option>כנף</option><option>חלוץ</option></select></div>
+      </div>
+      <div class="field-row" id="rowCode"><span id="lCode">קוד קבוצה (אם המאמן שלח לך)</span><input type="text" id="dCode" autocomplete="off" placeholder="לדוגמה K7Q2MX" class="code-in"></div>
+      <div class="field-row" id="rowTeam"><span>הקבוצה שלך (לא חובה)</span><input type="text" id="dTeam" placeholder="שם הקבוצה או המועדון"></div>
+      <div id="rowStaff" hidden>
+        <div class="field-row"><span>אימייל</span><input type="text" id="dEmail" inputmode="email" autocomplete="email" placeholder="name@email.com" class="ltr"></div>
+        <div class="field-row"><span>סיסמה</span><input type="password" id="dPass" autocomplete="current-password" placeholder="לפחות 6 תווים" class="ltr"></div>
+      </div>
+      <div id="rowNewClub" hidden>
+        <button type="button" class="link-btn" id="dNoCode">אין לי קוד. אני רוצה לפתוח מועדון חדש</button>
+        <div id="newClubBox" hidden>
+          <div class="field-row"><span>שם המועדון</span><input type="text" id="dClubName" placeholder="לדוגמה ביתר טוברוק"></div>
+          <div class="field-row"><span>לוגו המועדון (לא חובה)</span><label class="file-pick"><input type="file" id="dLogo" accept="image/*"><span class="ic" data-i="image"></span><span id="dLogoTxt">בחר תמונה</span></label></div>
+          <p class="note">הבקשה תעבור לאישור מנהל המערכת.</p>
+        </div>
+      </div>
+      <label class="check" id="rowTerms"><input type="checkbox" id="dTerms"><span>מאשר את תנאי השימוש ומדיניות הפרטיות</span></label>
       <div class="ferr" id="dErr" aria-live="polite"></div>
-      <button class="btn btn-g btn-xl full" type="submit">יאללה, לאימון <span class="ar">←</span></button>
+      <button class="btn btn-g btn-xl full" type="submit" id="dSubmit">יאללה, לאימון <span class="ar">←</span></button>
     </form>
-    <button class="sa-link" id="saLink">כניסת מנהל מערכת</button>
+    <div class="reg-links"><button class="link-btn" id="dLogin">כבר רשום כמאמן או מנהל? התחברות</button><button class="link-btn dim" id="saLink">כניסת מנהל מערכת</button></div>
   </section>
 
-  <!-- HOME -->
+  <!-- PENDING APPROVAL -->
+  <section class="view" id="v-pending">
+    <div class="gate" style="margin:40px auto">
+      <div class="lensbig"><span class="ic" data-i="lock"></span></div>
+      <h1 class="title" style="margin:0">הבקשה התקבלה</h1>
+      <p class="st-sub" style="margin:0" id="pendTxt">מנהל המערכת יאשר את המועדון בקרוב. בינתיים אפשר להתאמן כרגיל.</p>
+      <button class="btn btn-g full" data-go="train">להתאמן בינתיים</button>
+      <button class="btn btn-o full" id="pendRefresh">בדוק שוב</button>
+    </div>
+  </section>
+
+  <!-- HOME (player) -->
   <section class="view" id="v-home">
     <div class="h-sub" id="hello">היי</div>
     <h1 class="title">המוח שלך מוכן?</h1>
     <div id="teamStrip"></div>
     <div id="hwBanner"></div>
+    <div id="inboxPreview"></div>
     <div class="mesh">
       <div class="mesh-row">
         <svg class="dring" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF3FDC"/><stop offset=".55" stop-color="#AA44FF"/><stop offset="1" stop-color="#00E0FF"/></linearGradient></defs><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="10"/><circle id="ringArc" cx="50" cy="50" r="42" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 264" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .8s ease"/><text id="ringTxt" x="50" y="58" text-anchor="middle" font-family="Outfit" font-weight="700" font-size="24" fill="#fff">0/3</text></svg>
@@ -397,10 +101,15 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
       <div class="prog-list" id="progList"></div>
       <button class="btn btn-w" id="progGo">לתרגיל הבא <span class="ar">←</span></button>
     </div>
-    <div id="teamHw"></div>
     <div class="sec">התוצאות האחרונות <small>כל תחום בנפרד</small></div>
     <div class="areas" id="areas"></div>
     <div class="invite"><div><b>מי מהחברים הכי מהיר?</b><span class="h-sub">שלח להם את BrainBall ותראו</span></div><button class="btn btn-g" data-share="app">הזמן חבר</button></div>
+  </section>
+
+  <!-- INBOX (player notifications) -->
+  <section class="view" id="v-inbox">
+    <h1 class="title">ההתראות שלי</h1>
+    <div class="hwlist" id="inboxList"></div>
   </section>
 
   <!-- TRAIN -->
@@ -413,33 +122,37 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
   <section class="view" id="v-stats">
     <h1 class="title">ביצועים</h1>
     <p class="note" style="margin-top:-8px">כל תוצאה מושווית רק לאותו תרגיל ובאותה רמה. אתה מול עצמך.</p>
+    <div class="stat-sum" id="statSum"></div>
     <div class="hist" id="histList"></div>
   </section>
 
-  <!-- COACH -->
+  <!-- COACH: one team -->
   <section class="view" id="v-coach">
+    <button class="back" id="coachBack" hidden>→ חזרה למועדון</button>
     <div class="h-sub" id="coachHello"></div>
-    <h1 class="title">אזור המאמן</h1>
-    <div class="mesh" style="--m:radial-gradient(circle at 80% 20%,var(--purple),transparent 45%),radial-gradient(circle at 15% 85%,var(--cyan),transparent 45%)">
-      <div class="k">TEAM CODE</div>
-      <div class="code" id="tCode" style="background:rgba(0,0,0,.35);margin:8px 0">------</div>
-      <h2 id="tName" style="font-size:24px;margin-bottom:12px"></h2>
-      <div class="row2"><a class="btn btn-w" id="tWaAll" target="_blank" rel="noopener"><span class="ic" data-i="chat"></span>הזמנה לקבוצה</a><button class="btn btn-o" id="tCopy">העתק קישור</button></div>
+    <h1 class="title" id="coachTitle">הקבוצה שלי</h1>
+    <div class="mesh team-hero" style="--m:radial-gradient(circle at 80% 20%,var(--purple),transparent 45%),radial-gradient(circle at 15% 85%,var(--cyan),transparent 45%)">
+      <div class="k">קוד הצטרפות לשחקנים</div>
+      <div class="code" id="tCode">------</div>
+      <div class="row2"><a class="btn btn-w" id="tWaAll" target="_blank" rel="noopener"><span class="ic" data-i="chat"></span>הזמנה לקבוצה</a><button class="btn btn-o" id="tCopy"><span class="ic" data-i="copy"></span>העתק קישור</button></div>
     </div>
-    <div class="sec">השחקנים שלי <small id="dashNote"></small></div>
-    <div class="dash" id="dash"></div>
-    <div class="box" style="margin-top:12px">
-      <h3 style="font-size:19px;margin-bottom:10px">הוספת שחקן</h3>
-      <div class="row2"><input type="text" id="pName" placeholder="שם השחקן" aria-label="שם השחקן"><input type="text" id="pPhone" inputmode="tel" placeholder="050-0000000" aria-label="טלפון" style="direction:ltr;text-align:right"></div>
-      <div class="ferr" id="pErr"></div>
-      <button class="btn btn-g full" id="pAdd"><span class="ic" data-i="plus"></span>הוסף לרשימה</button>
-      <p class="note" style="margin:8px 0 0">אחרי ההוספה לוחצים על כפתור הוואטסאפ ליד השחקן, והוא מקבל הזמנה אישית עם הקוד.</p>
-    </div>
+    <div class="sec">טבלת שחקנים <small id="dashNote"></small></div>
+    <div class="board-wrap"><table class="board" id="board"></table></div>
+    <div class="sec">שליחת משימה</div>
     <div class="box">
-      <h3 style="font-size:19px;margin-bottom:10px">שיעורי בית לקבוצה</h3>
+      <div class="field-row"><span>למי</span><select id="taskTo"></select></div>
       <div class="row2" style="margin-bottom:10px"><select id="hwGame" aria-label="תרגיל"></select><select id="hwLevel" aria-label="רמה"><option value="beginner">מתחילים</option><option value="plus" selected>בינוני</option><option value="pro">מקצוענים</option></select></div>
-      <a class="btn btn-g full" id="hwSend" target="_blank" rel="noopener"><span class="ic" data-i="chat"></span>שלח משימה בוואטסאפ</a>
+      <div class="field-row"><span>הערה (לא חובה)</span><input type="text" id="taskNote" placeholder="לדוגמה: 3 פעמים עד יום חמישי"></div>
+      <button class="btn btn-g full" id="taskSend"><span class="ic" data-i="send"></span>שלח משימה</button>
+      <div class="ferr" id="taskErr"></div>
       <div class="hwlist" id="hwList"></div>
+    </div>
+    <div class="sec">הזמנת שחקנים בוואטסאפ</div>
+    <div class="box">
+      <div class="row2"><input type="text" id="pName" placeholder="שם השחקן" aria-label="שם השחקן"><input type="text" id="pPhone" inputmode="tel" placeholder="050-0000000" aria-label="טלפון" class="ltr"></div>
+      <div class="ferr" id="pErr"></div>
+      <button class="btn btn-o full" id="pAdd"><span class="ic" data-i="plus"></span>הוסף לרשימה</button>
+      <div class="dash" id="rosterList" style="margin-top:10px"></div>
     </div>
     <div class="mesh" style="--m:radial-gradient(circle at 70% 30%,var(--stim),transparent 40%),radial-gradient(circle at 20% 80%,var(--magenta),transparent 45%)">
       <div class="k">FIELD MODE</div>
@@ -449,46 +162,62 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
     </div>
   </section>
 
-  <!-- CLUB -->
+  <!-- CLUB MANAGER -->
   <section class="view" id="v-club">
-    <div class="h-sub" id="clubHello"></div>
-    <h1 class="title" id="clubName">המועדון שלי</h1>
-    <div class="areas">
-      <div class="tile"><div class="v">0</div><div class="l">קבוצות</div></div>
-      <div class="tile"><div class="v">0</div><div class="l">מאמנים</div></div>
-      <div class="tile"><div class="v">0</div><div class="l">שחקנים</div></div>
+    <div class="club-head"><img id="clubLogo" alt="" hidden><div><div class="h-sub" id="clubHello"></div><h1 class="title" id="clubName" style="margin:0">המועדון שלי</h1></div></div>
+    <div id="clubPending"></div>
+    <div class="areas" id="clubTiles"></div>
+    <div class="sec">מחלקות וקבוצות <small>כל מחלקה עם מאמן משלה</small></div>
+    <div class="teams" id="clubTeams"></div>
+    <div class="box" style="margin-top:12px">
+      <h3 style="font-size:19px;margin-bottom:10px">מחלקה חדשה</h3>
+      <div class="row2"><input type="text" id="ctName" placeholder="לדוגמה נערים א" aria-label="שם המחלקה"><button class="btn btn-g" id="ctAdd"><span class="ic" data-i="plus"></span>הוסף</button></div>
+      <div class="ferr" id="ctErr"></div>
     </div>
-    <div class="mesh" style="margin-top:14px;--m:radial-gradient(circle at 75% 25%,var(--purple),transparent 45%),radial-gradient(circle at 20% 80%,var(--cyan),transparent 45%)">
-      <h2 style="font-size:26px;margin:0 0 6px">סדר האימונים במועדון</h2>
-      <p style="margin:0 0 14px;opacity:.9">אתה מחליט מה השחקנים רואים, באיזה סדר, ומה מוסתר.</p>
-      <button class="btn btn-w" data-go="admin">ניהול אימונים <span class="ar">←</span></button>
-    </div>
-    <div class="box" style="margin-top:14px"><h3 style="font-size:20px">קוד הצטרפות למועדון</h3><div class="code" id="clubCode">------</div><p class="note" style="margin:0">יעבוד אחרי חיבור השרת.</p></div>
-    <div style="display:grid;gap:10px"><button class="btn btn-o full" data-go="field">מסך מגרש</button><button class="btn btn-o full" data-go="coach">שיעורי בית</button></div>
+    <div class="row2"><button class="btn btn-o" data-go="order"><span class="ic" data-i="sliders"></span>סדר האימונים</button><button class="btn btn-o" data-go="field"><span class="ic" data-i="display"></span>מסך מגרש</button></div>
   </section>
 
-  <!-- ADMIN -->
-  <section class="view" id="v-admin">
-    <button class="back" id="admBack">→ חזרה</button>
-    <h1 class="title" id="admTitle">ניהול אימונים</h1>
-    <p class="h-sub" style="margin:-8px 0 16px">חצים משנים סדר. המתג מסתיר או מציג. שלושת הראשונים בלי מצלמה ובלי מגרש הם "תוכנית היום".</p>
+  <!-- SYSTEM ADMIN -->
+  <section class="view" id="v-sys">
+    <div class="h-sub">מנהל מערכת</div>
+    <h1 class="title">BrainBall · ניהול</h1>
+    <div class="areas" id="sysTiles"></div>
+    <div class="sec">מועדון חדש</div>
+    <div class="box">
+      <div class="field-row"><span>שם המועדון</span><input type="text" id="scName" placeholder="לדוגמה ביתר טוברוק"></div>
+      <div class="field-row"><span>לוגו</span><label class="file-pick"><input type="file" id="scLogo" accept="image/*"><span class="ic" data-i="image"></span><span id="scLogoTxt">בחר תמונה</span></label></div>
+      <div class="field-row"><span>מחלקות (כל שורה מחלקה)</span><textarea id="scTeams" rows="4" placeholder="נערים א&#10;נערים ב&#10;ילדים א"></textarea></div>
+      <button class="btn btn-g full" id="scAdd"><span class="ic" data-i="plus"></span>צור מועדון וקודים</button>
+      <div class="ferr" id="scErr"></div>
+    </div>
+    <div class="sec">מועדונים <small id="sysNote"></small></div>
+    <div class="teams" id="sysClubs"></div>
+    <button class="btn btn-o full" data-go="order" style="margin-top:12px"><span class="ic" data-i="sliders"></span>סדר האימונים לכל המערכת</button>
+  </section>
+
+  <!-- TRAINING ORDER -->
+  <section class="view" id="v-order">
+    <button class="back" data-go="home">→ חזרה</button>
+    <h1 class="title" id="admTitle">סדר האימונים</h1>
+    <p class="h-sub" style="margin:-8px 0 16px">חצים משנים סדר. המתג מסתיר או מציג. שלושת הראשונים בלי מצלמה ובלי מגרש הם "תוכנית היום" של השחקנים.</p>
     <div class="adm" id="admList"></div>
     <button class="btn btn-o full" id="admReset" style="margin-top:14px">חזרה לסדר המקורי</button>
-    <p class="note" style="text-align:center">נשמר כרגע במכשיר הזה. אחרי חיבור השרת יחול על כל המועדון.</p>
+    <p class="note" style="text-align:center" id="admNote"></p>
   </section>
 
   <!-- ACCOUNT -->
   <section class="view" id="v-account">
     <h1 class="title">החשבון שלי</h1>
     <div class="box"><dl class="kv" id="accKv"></dl></div>
+    <div class="switchrow" id="accShareRow" hidden><div><b style="font-family:var(--f-display)">שיתוף תוצאות עם המאמן</b><div class="note" id="accTeam"></div></div><button class="sw" role="switch" id="accShare" aria-label="שיתוף תוצאות עם המאמן"></button></div>
+    <div class="box" id="accJoin" hidden><h3 style="font-size:18px;margin-bottom:8px">הצטרפות לקבוצה</h3><div class="row2"><input type="text" id="accCode" placeholder="קוד קבוצה" class="code-in"><button class="btn btn-g" id="accJoinBtn">הצטרף</button></div><div class="ferr" id="accErr"></div></div>
     <div style="display:grid;gap:10px">
-      <button class="btn btn-g full" data-share="app">שתף את BrainBall עם חבר</button>
-      <button class="btn btn-o full" id="accHome" data-go="home" hidden></button>
-      <button class="btn btn-o full" id="accAdmin" data-go="admin" hidden>ניהול אימונים</button>
+      <button class="btn btn-g full" data-share="app"><span class="ic" data-i="share"></span>שתף את BrainBall עם חבר</button>
+      <button class="btn btn-o full" id="accHome" hidden></button>
       <button class="btn btn-o full" id="accEdit">עריכת פרטים</button>
-      <div class="switchrow" id="accShareRow" hidden><div><b style="font-family:var(--f-display)">שיתוף תוצאות עם המאמן</b><div class="note" id="accTeam"></div></div><button class="sw" role="switch" id="accShare" aria-label="שיתוף תוצאות עם המאמן"></button></div>
+      <button class="btn btn-o full" id="accOut"><span class="ic" data-i="logout"></span>התנתקות</button>
     </div>
-    <p class="note" style="margin-top:14px">הפרטים והתוצאות שמורים כרגע רק במכשיר הזה.</p>
+    <p class="note" style="margin-top:14px" id="accSync"></p>
   </section>
 
   <!-- FIELD SETUP -->
@@ -503,21 +232,26 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
     <div class="field-row"><span>רמה</span><div class="seg" id="fLevel"><button data-v="beginner">מתחילים</button><button data-v="plus">בינוני</button><button data-v="pro">מקצוענים</button></div><span class="note" id="lvNote"></span></div>
     <div class="field-row"><span>החלפה כל</span><div class="seg" id="fPace"><button data-v="1000">שנייה</button><button data-v="2000">2 שניות</button><button data-v="3000">3 שניות</button></div></div>
     <button class="btn btn-g btn-xl full" id="fStart">התחל אימון <span class="ar">←</span></button>
-    <button class="back" id="fMoreBtn" aria-expanded="false" style="width:100%;color:var(--cyan)">הגדרות נוספות</button>
+    <button class="link-btn" id="fMoreBtn" aria-expanded="false" style="width:100%;margin:6px 0">הגדרות נוספות</button>
     <div class="box" id="fMore" hidden>
       <div class="field-row"><span>מה יופיע על המסך</span><div class="chips" id="fTypes"><button class="chip" data-t="colors">צבעים</button><button class="chip" data-t="arrows">חיצים</button><button class="chip" data-t="numbers">מספרים</button></div></div>
+      <div class="field-row"><span>אילו צבעים בסט</span><div class="swatches" id="fColors"></div></div>
+      <div class="field-row"><span>מספרים</span><div class="seg" id="fNums"><button data-v="4">1-4</button><button data-v="6">1-6</button><button data-v="9">1-9</button></div></div>
+      <div class="field-row"><span>חיצים</span><div class="chips"><button class="chip" id="fDiag" aria-pressed="false">להוסיף חיצים באלכסון</button></div></div>
       <div class="field-row" id="rowSets"><span>מספר סטים: <b class="mono" id="fSetsV">1</b></span><input type="range" id="fSets" min="1" max="6" value="1"></div>
       <div class="field-row" id="rowRest"><span>מנוחה בין סטים: <b class="mono" id="fRestV">30</b> שניות</span><input type="range" id="fRest" min="10" max="120" step="5" value="30"></div>
       <div class="field-row"><span>מעבר</span><div class="chips"><button class="chip" id="fTap" aria-pressed="false">מעבר בלחיצה על המסך</button></div></div>
+      <div class="field-row"><span>הסטים השמורים שלי</span><div class="chips" id="fSaved"></div>
+        <div class="row2"><input type="text" id="fSetName" placeholder="שם לסט, לדוגמה חימום נערים"><button class="btn btn-o" id="fSetSave">שמור סט</button></div></div>
     </div>
   </section>
 </div>
 
 <div class="tabs"><nav aria-label="ניווט ראשי">
-  <button data-go="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>בית</button>
-  <button data-go="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>אימונים</button>
-  <button data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>ביצועים</button>
-  <button data-go="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>חשבון</button>
+  <button data-go="home"><span class="ic" data-i="home"></span>בית</button>
+  <button data-go="train"><span class="ic" data-i="target"></span>אימונים</button>
+  <button data-go="stats"><span class="ic" data-i="chart"></span>ביצועים</button>
+  <button data-go="account"><span class="ic" data-i="user"></span>חשבון</button>
 </nav></div>
 
 <div id="play" hidden>
@@ -533,750 +267,17 @@ canvas.cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
   <button class="btn btn-o full" id="shClose">סגור</button>
 </div></div>
 
-<script>
-/* ================= helpers & storage ================= */
-const S={get(k,d){try{const v=localStorage.getItem('bb_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('bb_'+k,JSON.stringify(v))}catch(e){}}};
-let profile=S.get('profile2',null),hist=S.get('hist',[]);
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const rnd=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.random()*a.length|0];
-const median=a=>{if(!a.length)return null;const s=[...a].sort((p,q)=>p-q),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
-const mean=a=>a.length?a.reduce((p,q)=>p+q,0)/a.length:0;
-const sd=a=>{if(a.length<2)return 0;const m=mean(a);return Math.sqrt(a.reduce((p,q)=>p+(q-m)**2,0)/(a.length-1))};
-const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const mmss=s=>{s=Math.max(0,Math.round(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`};
-const LV={beginner:'מתחילים',plus:'בינוני',pro:'מקצוענים'};
-const ROLE={player:'שחקן',coach:'מאמן',manager:'מנהל מועדון',admin:'מנהל מערכת'};
-const AREAS={field:'מגרש וכדור',speed:'מהירות תגובה',decision:'קבלת החלטות',attention:'קשב ומודעות',focus:'מיקוד ורוגע'};
-const G=(a,b)=>`radial-gradient(circle at 78% 25%,${a},transparent 45%),radial-gradient(circle at 20% 80%,${b},transparent 50%)`;
-const LOGO=new Image();LOGO.src='logo.png';
+<div class="sheet" id="pSheet" hidden><div id="pSheetBody"></div></div>
 
-/* ================= sound ================= */
-let sndOn=S.get('snd',true),AC=null;
-function ac(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
-function tone(f,d=.12,v=.25,type='sine'){if(!sndOn)return;const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+d+.03)}
-const sfx={tick:()=>tone(660,.14,.32),go:()=>tone(1046,.32,.38),ok:()=>{tone(880,.08,.22);setTimeout(()=>tone(1320,.14,.22),70)},bad:()=>tone(200,.2,.25,'triangle'),pop:()=>tone(990,.08,.3,'square'),swap:()=>tone(880,.1,.22)};
-function ambient(){const a=ac();if(!a||!sndOn)return null;const out=a.createGain();out.gain.setValueAtTime(0,a.currentTime);out.gain.linearRampToValueAtTime(.09,a.currentTime+2);
-  const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=700;lp.connect(out);out.connect(a.destination);
-  const os=[110,164.8,220.4,277.2].map((f,i)=>{const o=a.createOscillator();o.type='sine';o.frequency.value=f;o.detune.value=i*4;const g=a.createGain();g.gain.value=i===3?.08:.25;o.connect(g).connect(lp);o.start();return o});
-  return{stop(){try{out.gain.linearRampToValueAtTime(0,a.currentTime+.6);setTimeout(()=>os.forEach(o=>{try{o.stop()}catch(e){}}),700)}catch(e){}}}}
-function breathSnd(dur,inhale){const a=ac();if(!a||!sndOn)return;const len=Math.floor(a.sampleRate*dur),b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
-  const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=inhale?1100:650;f.Q.value=.6;const g=a.createGain(),t=a.currentTime;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.045,t+dur*(inhale?.7:.2));g.gain.linearRampToValueAtTime(0,t+dur);s.connect(f).connect(g).connect(a.destination);s.start()}
-const SPK_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>';
-const SPK_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
-function paintSnd(){$('#sndBtn').innerHTML=sndOn?SPK_ON:SPK_OFF;$('#sndBtn').setAttribute('aria-label',sndOn?'השתק סאונד':'הפעל סאונד')}
-$('#sndBtn').onclick=()=>{sndOn=!sndOn;S.set('snd',sndOn);paintSnd();if(!sndOn&&RUN?.amb){RUN.amb.stop();RUN.amb=null}else if(sndOn&&RUN?.wantAmb&&!RUN.amb)RUN.amb=ambient()};
-paintSnd();
-
-/* ================= icons ================= */
-const ICONS={
- bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
- arrows:'<path d="M7 7h13M16 3l4 4-4 4M17 17H4M8 13l-4 4 4 4"/>',
- target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/>',
- stop:'<path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><path d="M8.5 12h7"/>',
- pitch:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><circle cx="12" cy="12" r="2.5"/>',
- flame:'<path d="M12 3c.5 3.5 5 5.5 5 10.5a5 5 0 0 1-10 0c0-2.5 1.5-3.5 2-6 1.5 1 2.5 2.3 2.5 4"/>',
- scan:'<circle cx="11" cy="11" r="6.5"/><path d="M20.5 20.5L16 16"/>',
- eye:'<path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
- display:'<rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M12 16v4M8 20h8M10 8.5l3.5 1.5L10 11.5z"/>',
- ball:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5l3.8 2.8-1.5 4.4H9.7l-1.5-4.4z"/><path d="M12 3v4.5M15.8 10.3l4.4-1.5M14.3 14.7l2.7 3.8M9.7 14.7L7 18.5M8.2 10.3L3.8 8.8"/>',
- grid:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
- spark:'<path d="M12 2v5M12 17v5M2 12h5M17 12h5M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/>',
- feet:'<path d="M7.5 3C6 3 5 5.5 5 8.5S6 13 7.5 13 10 11.5 10 8.5 9 3 7.5 3zM16.5 9C15 9 14 11.5 14 14.5s1 4.5 2.5 4.5 2.5-1.5 2.5-4.5-1-5.5-2.5-5.5z"/><path d="M5.5 16h4M14.5 22h4"/>',
- wind:'<path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>',
- camera:'<path d="M4 7.5h3L9 4.5h6l2 3h3V19H4z"/><circle cx="12" cy="13" r="3.8"/>',
- player:'<circle cx="14.5" cy="4" r="2"/><path d="M7 21l3.2-6 3.3 2.2V22M5 11.5l4.2-4 4.3 1.8 3 3.2M10.2 15l-1.8-4.2"/>',
- coach:'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V2.5h6V4M8.5 10h7M8.5 14h7M8.5 18h4"/>',
- club:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
- check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
- chat:'<path d="M4 20l1.4-4.2A8 8 0 1 1 8.3 19z"/><path d="M9 10.5c.3 1.8 2.2 3.7 4 4l1.2-1.2 1.8 1-.6 1.5c-3.4.2-6.8-3.2-6.6-6.6l1.5-.6 1 1.8z"/>',
- plus:'<path d="M12 5v14M5 12h14"/>',
- trash:'<path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"/>',
- hand:'<path d="M7 11.5V5.5a1.5 1.5 0 0 1 3 0v5M10 10V3.5a1.5 1.5 0 0 1 3 0V10M13 10.5V4.5a1.5 1.5 0 0 1 3 0V11M16 11.5V8a1.5 1.5 0 0 1 3 0v6a7 7 0 0 1-7 7h-.8a6.2 6.2 0 0 1-5.2-2.9L3.4 13.8a1.6 1.6 0 0 1 2.6-1.8L7 13.5"/>',
- cone:'<path d="M12 3l6.5 16h-13z"/><path d="M8.7 11h6.6M7.2 15h9.6M3 21h18"/>',
-};
-const I=(n,cls='')=>`<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
-const SKEL=(cls='')=>`<svg class="skel ${cls}" viewBox="0 0 60 110" aria-hidden="true"><circle class="head" cx="30" cy="10" r="7"/><path class="bone" d="M30 18v37M18 25h24M18 25l-6 17 2 16M42 25l6 17-2 16M22 55h16M22 55l-2 25v24"/><g class="leg"><path class="bone" d="M38 55l2 25v24"/><circle class="jt" cx="40" cy="80" r="3"/><circle class="jt" cx="40" cy="104" r="3"/></g><g><circle class="jt" cx="18" cy="25" r="3"/><circle class="jt" cx="42" cy="25" r="3"/><circle class="jt" cx="12" cy="42" r="3"/><circle class="jt" cx="48" cy="42" r="3"/><circle class="jt" cx="22" cy="55" r="3"/><circle class="jt" cx="38" cy="55" r="3"/><circle class="jt" cx="20" cy="80" r="3"/><circle class="jt" cx="20" cy="104" r="3"/></g></svg>`;
-const BALL=(cls='',st='')=>`<svg class="dm-ballsvg ${cls}" style="${st}" viewBox="0 0 24 24" fill="#fff" stroke="#0B0B0F" stroke-width="1.4" stroke-linejoin="round"><circle cx="12" cy="12" r="10.5"/><path d="M12 7.5l3.8 2.8-1.5 4.4H9.7l-1.5-4.4z" fill="#0B0B0F"/></svg>`;
-function paintIcons(root=document){root.querySelectorAll('[data-i]').forEach(e=>{if(!e.firstChild)e.innerHTML=I(e.dataset.i)})}
-
-/* ================= catalog ================= */
-const ARW={left:'M70 50H22m0 0l20-20M22 50l20 20',right:'M30 50h48m0 0L58 30m20 20L58 70',up:'M50 78V22m0 0L30 42m20-20l20 20',down:'M50 22v56m0 0L30 58m20 20l20-20'};
-const ACOL={left:'#00E0FF',right:'#FF2BD6',up:'#3DF59A',down:'#FFE14D'};
-const arrowSVG=(d,c,cls='arrow')=>`<svg class="${cls}" viewBox="0 0 100 100" aria-label="${d}"><path d="${ARW[d]}" stroke="${c}" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const CAT={
- field:{name:'רצף עם כדור',area:'field',ico:'display',m:G('#FF7A1A','#FFE14D'),desc:'המסך זורק צבע, חץ או מספר. אתה עונה עם הכדור.',field:true},
- juggle:{name:'הקפצות מול המצלמה',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'המצלמה רואה אותך וסופרת כל הקפצה. כמה תגיע?',cam:true,pose:'juggle',rec:true,
-   tagline:'מתרחקים, נכנסים למסגרת ומקפיצים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
-   levels:{beginner:{sec:30,lbl:''},plus:{sec:60,lbl:''},pro:{sec:null,lbl:''}},
-   how:['מעמידים את הטלפון על חצובה או נשענים לקיר, מסך אליך.','מתרחקים 2 עד 3 מטר עד שכל הגוף נכנס למסגרת הירוקה.','מקפיצים. כל הקפצה נספרת עם צליל. אפשר להקליט עד דקה.']},
- reaction:{name:'זמן תגובה',area:'speed',ico:'bolt',m:G('#FF7A1A','#FF2BD6'),desc:'כתום על המסך? אצבע למטה. כמה מהר אתה באמת?',
-   tagline:'מבחן התגובה הקלאסי. אתה מול השעון.',
-   levels:{beginner:{n:10,lbl:'10 ניסיונות'},plus:{n:20,lbl:'20 ניסיונות'},pro:{n:30,lbl:'30 · הערכה'}},
-   how:['מחכים. כשהמסך הופך לכתום, נוגעים בכל מקום.','נגיעה לפני הכתום לא נספרת.','3 ניסיונות ראשונים הם חימום.'],run:runReaction},
- choice:{name:'בחירה מהירה',area:'decision',ico:'arrows',m:G('#00E0FF','#AA44FF'),desc:'חץ קופץ, אתה בוחר כיוון. בלי לחשוב פעמיים.',
-   tagline:'העיניים רואות, האצבע מחליטה.',
-   levels:{beginner:{opts:2,n:20,win:4000,lbl:'חץ כל 4 שנ\''},plus:{opts:4,n:30,win:3000,lbl:'חץ כל 3 שנ\''},pro:{opts:4,n:30,win:2000,flank:true,lbl:'חץ כל 2 שנ\''}},
-   how:['במרכז מופיע חץ.','לוחצים על הכפתור עם אותו כיוון. הכפתורים לא זזים.','מהירות ודיוק נספרים יחד.'],run:runChoice},
- colortask:{name:'משימת הצבעים',area:'speed',ico:'grid',m:G('#FF2BD6','#FFE14D'),desc:'צבע על המסך, ספרינט לקונוס, יד למצלמה. השעון רץ.',cam:true,
-   tagline:'ריצה, החלטה ועצירה בלי לגעת במסך.',
-   levels:{beginner:{n:6,lbl:'6 סבבים'},plus:{n:10,lbl:'10 סבבים'},pro:{n:14,lbl:'14 סבבים'}},
-   how:['מניחים 4 קונוסים: תכלת, ורוד, ירוק, צהוב. הטלפון על חצובה.','מופיע צבע. רצים לקונוס בצבע הזה וחוזרים.','מקרבים את היד למצלמה, והשעון נעצר לבד.'],run:runColorTask},
- strobe:{name:'Ronaldo Strobe',area:'speed',ico:'spark',m:G('#FFE14D','#AA44FF'),desc:'הבזקים בכל הצבעים. רק על ירוק מנופפים.',cam:true,
-   tagline:'כמו רונאלדו באימון: עיניים חדות, יד מהירה.',
-   levels:{beginner:{n:8,flash:600,lbl:'הבזק 0.6s'},plus:{n:10,flash:400,lbl:'0.4s'},pro:{n:12,flash:250,lbl:'0.25s'}},
-   how:['עומדים מול הטלפון במרחק של מטר בערך.','צבעים מהבהבים. מופיע ירוק? מרימים יד ומנופפים.','נפנוף על צבע אחר נחשב מוקדם מדי.'],run:runStrobe},
- tracking:{name:'מעקב אובייקטים',area:'attention',ico:'target',m:G('#AA44FF','#00E0FF'),desc:'עיניים על הוורודים. הם זזים, אתה לא מאבד אותם.',
-   tagline:'כמו לעקוב אחרי 3 שחקנים בבת אחת.',
-   levels:{beginner:{k:2,n:6,dur:6,spd:.12,lbl:'2 מתוך 6'},plus:{k:3,n:8,dur:8,spd:.18,lbl:'3 מתוך 8'},pro:{k:4,n:8,dur:10,spd:.24,lbl:'4 מתוך 8'}},
-   how:['כמה כדורים נצבעים בוורוד לשתי שניות.','הצבע נעלם וכולם זזים. עוקבים בעיניים.','כשהם עוצרים, בוחרים את הוורודים ולוחצים אישור.'],run:runTracking},
- gonogo:{name:'עצור או פעל',area:'decision',ico:'stop',m:G('#3DF59A','#FF4D6D'),desc:'ירוק זה כן. אדום זה לא. השליטה אצלך.',
-   tagline:'לדעת מתי לא לזוז זה חצי מהמשחק.',
-   levels:{beginner:{n:40,win:1200,lbl:'40 · 1.2s'},plus:{n:60,win:900,lbl:'60 · 0.9s'},pro:{n:80,win:700,lbl:'80 · 0.7s'}},
-   how:['עיגול ירוק: נוגעים מהר.','איקס אדום: לא נוגעים בכלל.','רוב הזמן יופיע ירוק, אז האדום יתפוס אותך לא מוכן.'],run:runGoNoGo},
- scenarios:{name:'תרחישי משחק',area:'decision',ico:'pitch',m:G('#3DF59A','#00E0FF'),desc:'רגע אמיתי מהמגרש. מה ההחלטה הכי חכמה?',
-   tagline:'קוראים את המשחק לפני שהוא קורה.',
-   levels:{beginner:{n:8,t:15,lbl:'15 שנ\' לתשובה'},plus:{n:8,t:10,lbl:'10 שנ\''},pro:{n:8,t:6,lbl:'6 שנ\''}},
-   how:['אתה בלבן, חברים בתכלת, יריבים בוורוד.','קוראים את המצב ובוחרים החלטה.','אחרי כל תשובה יש הסבר קצר.'],run:runScenarios},
- warmup:{name:'חימום מוח לפני משחק',area:'decision',ico:'flame',m:G('#FFE14D','#FF2BD6'),desc:'5 החלטות מהירות. עולים למגרש חדים.',
-   tagline:'3 דקות בחדר ההלבשה, והראש כבר במשחק.',
-   levels:{beginner:{n:5,t:10,lbl:'10 שנ\''},plus:{n:5,t:7,lbl:'7 שנ\''},pro:{n:5,t:5,lbl:'5 שנ\''}},
-   how:['חמישה מצבי משחק מהירים.','בוחרים לפני שהזמן נגמר.','מושלם לפני שריקת הפתיחה.'],run:runScenarios},
- sweeper:{name:'ה-Sweeper',area:'attention',ico:'scan',m:G('#00E0FF','#3DF59A'),desc:'אחד מהם לא שייך. תמצא אותו לפני כולם.',
-   tagline:'סריקה מהירה של כל המגרש.',
-   levels:{beginner:{sec:60,start:1,lbl:'דקה'},plus:{sec:120,start:3,lbl:'2 דקות'},pro:{sec:180,start:5,lbl:'3 דקות'}},
-   how:['הרבה כדורים זזים. אחד מהם בצבע או בגודל אחר.','נוגעים בשונה: +10. טעות: -5.','כל 3 הצלחות הרמה עולה.'],run:runSweeper},
- periph:{name:'ראייה היקפית',area:'attention',ico:'eye',m:G('#AA44FF','#FF7A1A'),desc:'עיניים למרכז, הראש קולט הכל מסביב.',
-   tagline:'לראות את החבר הפנוי בלי להזיז את הראש.',
-   levels:{beginner:{n:16,flash:300,lbl:'הבזק 0.3s'},plus:{n:20,flash:180,lbl:'0.18s'},pro:{n:24,flash:100,lbl:'0.1s'}},
-   how:['מסתכלים רק על הנקודה הלבנה במרכז.','עיגול מהבהב לרגע באחד הכיוונים.','לוחצים איפה שהוא הופיע.'],run:runPeriph},
- feetcall:{name:'רגל לרגל + קריאות',area:'field',ico:'feet',m:G('#FFE14D','#00E0FF'),desc:'מסירות רגל לרגל וצועקים מה שקופץ על המסך.',cam:true,pose:'feet',
-   tagline:'הרגליים עובדות, הראש קורא, הפה צועק.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
-   levels:{beginner:{sec:30,call:2500,lbl:''},plus:{sec:60,call:1800,lbl:''},pro:{sec:null,call:1200,lbl:''}},
-   how:['טלפון על חצובה, כל הגוף בתוך המסגרת.','מעבירים את הכדור מרגל לרגל במקום, מהר.','צבע או מספר קופצים למעלה: צועקים אותם בקול.']},
- breath:{name:'נשימה ומיקוד',area:'focus',ico:'wind',m:G('#00E0FF','#AA44FF'),desc:'דקה של שקט לפני הסערה. נושמים ונכנסים לפוקוס.',
-   tagline:'לב רגוע, ראש צלול.',lvNames:{beginner:'דקה',plus:'2 דקות',pro:'3 דקות'},
-   levels:{beginner:{min:1,lbl:''},plus:{min:2,lbl:''},pro:{min:3,lbl:''}},
-   how:['יושבים או עומדים בנוח.','שואפים כשהעיגול גדל, עוצרים, ונושפים כשהוא קטן.','4 שניות שאיפה, 2 עצירה, 6 נשיפה.'],run:runBreath},
-};
-CAT.juggle.run=runPose;CAT.feetcall.run=runPose;
-const DEFAULT_ORDER=['field','juggle','reaction','choice','colortask','strobe','tracking','gonogo','scenarios','warmup','sweeper','periph','feetcall','breath'];
-function catCfg(){const c=S.get('catalog3',null)||{order:DEFAULT_ORDER,hidden:[]};const o=c.order.filter(id=>CAT[id]);DEFAULT_ORDER.forEach(id=>{if(!o.includes(id))o.push(id)});return{order:o,hidden:c.hidden||[]}}
-const visible=()=>{const c=catCfg();return c.order.filter(id=>!c.hidden.includes(id))};
-
-/* ================= demos (first screen of every exercise) ================= */
-const balls=(arr)=>`<div class="dm-balls">${arr.map(([x,y,t,dx,dy])=>`<b class="${t?'t':''}" style="left:${x}%;top:${y}%;--dx:${dx}px;--dy:${dy}px"></b>`).join('')}</div>`;
-const miniPitch='<svg viewBox="0 0 300 192" style="width:86%;direction:ltr"><rect width="300" height="192" rx="18" fill="#0f2a1e"/><g fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"><rect x="6" y="6" width="288" height="180" rx="10"/><line x1="150" y1="6" x2="150" y2="186"/></g><circle cx="210" cy="60" r="10" fill="#fff"/><circle cx="260" cy="110" r="8" fill="#00E0FF"/><circle cx="235" cy="80" r="8" fill="#FF2BD6"/><path d="M215 66L255 104" stroke="#3DF59A" stroke-width="4" stroke-dasharray="8 6"/></svg>';
-const HAND=(cls='',st='')=>`<span class="dm-hand ${cls}" style="${st}">${I('hand')}</span>`;
-const RIP=(st='')=>`<span class="rip" style="${st}"></span>`;
-const CONE=c=>`<svg viewBox="0 0 24 24" style="position:absolute;left:12%;bottom:16%;width:46px;height:46px"><path d="M12 3l6.5 16h-13z" fill="${c}"/><path d="M3 20.5h18" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
-const DEMOS={
- reaction:[['#121118','<span class="dm-t">המתן...</span>','מחכים בסבלנות',1300],['#FF7A1A','<span class="dm-dot"></span>'+RIP('left:58%;top:58%'),'כתום? נוגעים!',1000],['#121118','<span class="dm-ms">247 ms</span>','זה הזמן שלך',1300]],
- choice:[['#111017',arrowSVG('left',ACOL.left,'')+'<div class="dm-btns"><i class="on">←</i><i>→</i></div>','חץ שמאלה? כפתור שמאל',1500],['#111017',arrowSVG('right',ACOL.right,'')+'<div class="dm-btns"><i>←</i><i class="on">→</i></div>','חץ ימינה? כפתור ימין',1500]],
- gonogo:[['#111017','<svg viewBox="0 0 100 100" style="width:34%"><circle cx="50" cy="50" r="46" fill="#3DF59A"/></svg>'+RIP(),'ירוק = נוגעים',1300],['#111017','<svg viewBox="0 0 100 100" style="width:34%"><path d="M18 18L82 82M82 18L18 82" stroke="#FF4D6D" stroke-width="16" stroke-linecap="round"/></svg>','אדום = לא זזים',1300]],
- scenarios:[['#111017',miniPitch,'קוראים את המצב',1500],['#111017','<div style="display:grid;gap:8px;width:80%"><div class="opt" style="min-height:40px">מכדררים לבד</div><div class="opt ok" style="min-height:40px">מוסרים לחבר הפנוי</div></div>','בוחרים את ההחלטה הכי חכמה',1600]],
- tracking:[['#111017',balls([[10,20,1,0,0],[60,10,0,0,0],[30,60,1,0,0],[80,55,0,0,0],[50,40,0,0,0],[15,75,0,0,0]]),'זוכרים את הוורודים',1500],['#111017',balls([[10,20,0,90,40],[60,10,0,-70,60],[30,60,0,80,-50],[80,55,0,-90,-30],[50,40,0,40,50],[15,75,0,60,-60]]),'כולם זזים, אתה עוקב',2400],['#111017',balls([[40,35,1,0,0],[85,45,0,0,0],[60,20,1,0,0],[20,50,0,0,0],[70,75,0,0,0],[35,80,0,0,0]]).replace(/class="t"/g,'class="t" style="background:#3DF59A"'),'בוחרים אותם בסוף',1400]],
- sweeper:[['#111017',balls([[10,20,0,0,0],[35,15,0,0,0],[60,25,0,0,0],[85,20,0,0,0],[20,60,0,0,0],[45,55,0,0,0],[70,65,1,0,0],[90,70,0,0,0]]).replace('class="t"','class="t" style="background:#FFE14D;transform:scale(1.35)"'),'מי פה לא שייך?',1600],['#111017','<span class="dm-check">✓ +10</span>','מצאת. הרמה עולה',1200]],
- periph:[['#111017','<span style="width:16px;height:16px;border-radius:50%;background:#fff"></span>','עיניים על הנקודה',1200],['#111017','<span style="width:16px;height:16px;border-radius:50%;background:#fff"></span><span style="position:absolute;right:10%;top:16%;width:40px;height:40px;border-radius:50%;background:#FF2BD6"></span>','משהו הבהב בצד...',600],['#111017','<span style="width:16px;height:16px;border-radius:50%;background:#fff"></span><span style="position:absolute;right:10%;top:16%;width:44px;height:44px;border-radius:50%;border:3px solid #3DF59A"></span>'+RIP('right:9%;top:13%'),'לוחצים איפה שזה היה',1400]],
- colortask:[['#3DF59A','<span class="dm-big">ירוק</span>','מופיע צבע',1200],['#111017',CONE('#3DF59A')+'<div class="runL" style="position:absolute;right:16%;bottom:6%;height:80%">'+SKEL()+'</div>','ספרינט לקונוס הירוק וחזרה',1700],['#111017','<span class="lens"></span>'+HAND('','top:18%')+'<span class="dm-count">4.82</span>','יד קרובה למצלמה. השעון עוצר',1700]],
- strobe:[['#FF2BD6','','פלאש...',500],['#000','','',300],['#00E0FF','','עוד פלאש... לא זזים',500],['#000','','',300],['#3DF59A',HAND('waving'),'ירוק? מרימים יד ומנופפים',1600]],
- juggle:[['#111017','<span class="dm-frame"></span><div style="position:absolute;bottom:4%;height:84%;display:grid;place-items:end center">'+SKEL()+'</div>','נכנסים למסגרת עם כל הגוף',1700],['#111017','<div style="position:absolute;bottom:4%;height:84%;width:40%;display:grid;place-items:end center">'+SKEL('kick')+BALL('bounce','left:58%;bottom:34%')+'</div><span class="dm-count">12</span>','מקפיצים. המצלמה סופרת',2200]],
- feetcall:[['#111017','<div style="position:absolute;bottom:4%;height:80%;width:40%;display:grid;place-items:end center">'+SKEL()+BALL('slideX','left:38%;bottom:2%')+'</div><span style="position:absolute;top:8%;padding:0 22px;border-radius:30px;background:#FF2BD6;font:800 44px Outfit;color:#fff">7</span>','רגל לרגל, וצועקים: "שבע!"',1700],['#111017','<div style="position:absolute;bottom:4%;height:80%;width:40%;display:grid;place-items:end center">'+SKEL()+BALL('slideX','left:38%;bottom:2%')+'</div><span style="position:absolute;top:8%;width:90px;height:52px;border-radius:30px;background:#00E0FF"></span>','צבע? צועקים: "תכלת!"',1700]],
- breath:[['#111017','<span class="breath" style="width:42%;transform:scale(1);transition:transform 1.2s"></span>','שאיפה...',1400],['#111017','<span class="breath" style="width:42%;transform:scale(.55)"></span>','נשיפה ארוכה...',1600]],
-};
-DEMOS.warmup=DEMOS.scenarios;
-let demoTimer=null;
-function playDemo(box,cap,frames){clearTimeout(demoTimer);let i=0;const step=()=>{const [bg,html,c,ms]=frames[i%frames.length];box.style.background=bg;box.innerHTML='<span class="badge">הדגמה</span><div class="dm">'+html+'</div>';cap.textContent=c;i++;demoTimer=setTimeout(step,ms)};step()}
-
-/* ================= routing ================= */
-let hwTask=null;const FLOW=['intro','start'];
-function go(v){
-  if(!$('#v-'+v))v='home';
-  if(!profile&&!FLOW.includes(v))v=S.get('introSeen',false)?'start':'intro';
-  if(v==='start'&&!profile&&!S.get('introSeen',false))v='intro';
-  const tab=v;
-  if(v==='home'&&profile?.role==='coach')v='coach';
-  if(v==='home'&&profile?.role==='manager')v='club';
-  if(v==='home'&&profile?.role==='admin')v='admin';
-  if(v==='admin'&&!['manager','admin'].includes(profile?.role))v='home';
-  $('.app').classList.toggle('flow',FLOW.includes(v));
-  ({account:renderAccount,club:renderClub,admin:renderAdmin,stats:renderStats,train:renderCatalog,home:renderHome,coach:renderCoach,field:renderField,intro:renderIntro,start:renderReg})[v]?.();
-  $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
-  $$('.tabs button').forEach(b=>{if(b.dataset.go===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
-  if(location.hash!=='#'+tab&&!location.hash.startsWith('#hw-'))history.replaceState(null,'','#'+tab);
-  neuro.toggle(['home','coach','club','intro','start'].includes(v));
-  window.scrollTo(0,0);
-}
-document.addEventListener('click',e=>{const sh=e.target.closest('[data-share]');if(sh){shareApp();return}
-  const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return}
-  const o=e.target.closest('[data-open]');if(o)openItem(o.dataset.open)});
-function openItem(id,lv){if(CAT[id].field)go('field');else openIntro(id,lv)}
-
-/* ---------- neurons background ---------- */
-const neuro=(()=>{const c=$('#neuro'),x=c.getContext('2d');let w,h,pts=[],on=false,raf=0;const d=devicePixelRatio||1,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function size(){w=c.width=c.clientWidth*d;h=c.height=c.clientHeight*d;const n=Math.round(Math.min(46,c.clientWidth/10));pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3*d,vy:(Math.random()-.5)*.3*d,p:Math.random()*6}))}
-  function draw(t){x.clearRect(0,0,w,h);const L=120*d;for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1}
-    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],q=Math.hypot(a.x-b.x,a.y-b.y);if(q<L){x.strokeStyle=`rgba(190,110,255,${(1-q/L)*.4})`;x.lineWidth=d;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
-    for(const p of pts){const s=1.6+Math.sin(t/500+p.p)*.9;x.fillStyle='rgba(255,120,230,.9)';x.beginPath();x.arc(p.x,p.y,s*d,0,7);x.fill()}
-    if(on&&!reduce)raf=requestAnimationFrame(draw)}
-  addEventListener('resize',size);size();
-  return{toggle(v){if(v===on)return;on=v;c.style.display=v?'block':'none';cancelAnimationFrame(raf);if(v){size();raf=requestAnimationFrame(draw)}}}})();
-
-/* ---------- share ---------- */
-function appUrl(){return location.href.split('#')[0].replace(/app(\.html)?$/,'')}
-async function shareApp(extra){const text=(extra?extra+'\n':'')+'אני מאמן את המוח שלי ב-BrainBall תנסה לנצח אותי:';const url=appUrl();
-  try{if(navigator.share){await navigator.share({title:'BrainBall',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}
-  $('#shText').textContent=text+' '+url;$('#shWa').href='https://wa.me/?text='+encodeURIComponent(text+' '+url);$('#shareSheet').hidden=false;
-  $('#shCopy').onclick=()=>{try{navigator.clipboard.writeText(url).then(()=>{$('#shCopy').textContent='הועתק ✓'}).catch(()=>{})}catch(e){}}}
-$('#shClose').onclick=()=>{$('#shareSheet').hidden=true;$('#shCopy').textContent='העתק קישור'};
-$('#shareSheet').onclick=e=>{if(e.target.id==='shareSheet')$('#shareSheet').hidden=true};
-
-/* ---------- intro slides ---------- */
-const SLIDES=[
- {t:'המשחק מתחיל בראש',p:'BrainBall מאמן את מה שקורה לפני הנגיעה בכדור: לראות, להבין ולהחליט מהר.',img:true,m:G('#FF2BD6','#AA44FF')},
- {t:'כמה דקות ביום. ראש של מקצוען.',p:'תגובה, קשב וקבלת החלטות בתרגילים קצרים. אתה מול עצמך, ורואה את השיפור.',big:'bolt',m:G('#00E0FF','#AA44FF')},
- {t:'גם במגרש. גם מול המצלמה.',p:'מסך מגרש לכל הקבוצה, ומשחקים שהמצלמה רואה ומודדת בלי לגעת.',big:'ball',m:G('#FF7A1A','#FFE14D')}];
-let slide=0;
-function renderIntro(){const s=SLIDES[slide];$('#slT').textContent=s.t;$('#slP').textContent=s.p;$('#slImg').hidden=!s.img;$('#slBig').hidden=!!s.img;$('#slBig').innerHTML=s.big?I(s.big):'';$('#slArt').style.setProperty('--m',s.m);
-  $$('#slDots i').forEach((d,i)=>d.classList.toggle('on',i===slide));$('#slNext').innerHTML=slide<SLIDES.length-1?'הבא <span class="ar">←</span>':'בוא נתחיל <span class="ar">←</span>'}
-const endIntro=()=>{S.set('introSeen',true);go('start')};
-$('#slNext').onclick=()=>{if(slide<SLIDES.length-1){slide++;renderIntro()}else endIntro()};
-$('#slSkip').onclick=endIntro;
-
-/* ---------- registration ---------- */
-let regRole='player';
-function renderReg(){const p=profile||{};$('#regTitle').textContent=profile?'עריכת הפרטים':'נרשמים פעם אחת, מתאמנים תמיד';
-  $('#dName').value=p.name||'';$('#dAge').value=p.age||'';$('#dTeam').value=p.team||'';$('#dCode').value=p.teamCode||S.get('pendingJoin','')||'';$('#dTerms').checked=!!p.terms;$('#dErr').textContent='';
-  regRole=p.role&&p.role!=='admin'?p.role:'player';$('#rowCode').hidden=regRole!=='player';$$('#dRole button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.r===regRole))}
-$('#dRole').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;regRole=b.dataset.r;$$('#dRole button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#rowCode').hidden=regRole!=='player'};
-$('#saLink').onclick=()=>{regRole='admin';$$('#dRole button').forEach(x=>x.setAttribute('aria-pressed','false'));$('#regTitle').textContent='כניסת מנהל מערכת'};
-$('#dForm').addEventListener('submit',async e=>{e.preventDefault();const err=$('#dErr');
-  const v={name:$('#dName').value.trim(),age:+$('#dAge').value,team:$('#dTeam').value.trim(),terms:$('#dTerms').checked,role:regRole,teamCode:$('#dCode').value.trim().toUpperCase(),share:profile?.share??true};
-  if(!v.name){err.textContent='רגע, איך קוראים לך?';$('#dName').focus();return}
-  if(!v.age||v.age<6||v.age>80){err.textContent='צריך גיל בין 6 ל-80.';$('#dAge').focus();return}
-  if(!v.team&&v.role!=='admin'){err.textContent='איזו קבוצה? אפשר לכתוב "ללא".';$('#dTeam').focus();return}
-  if(!v.terms){err.textContent='צריך לאשר את התנאים כדי להמשיך.';return}
-  if(v.teamCode){const t=await Team.get(v.teamCode).catch(()=>null);if(!t&&Team.online()){err.textContent='לא מצאנו קבוצה עם הקוד הזה. בדוק עם המאמן.';$('#dCode').focus();return}if(t&&!v.team)v.team=t.name}
-  const first=!profile;profile=v;S.set('profile2',profile);S.set('pendingJoin','');$('#avatar').textContent=v.name.trim()[0];
-  if(v.teamCode)Team.join(v.teamCode,{device:DEV,name:v.name,age:v.age}).catch(()=>{});
-  go(first?'train':'account')});
-
-/* ================= team (server when configured, this device otherwise) ================= */
-// Fill these after creating the Supabase project; until then everything stays on this device.
-const CFG={url:'',key:''};
-const DEV=S.get('dev',null)||(()=>{const d='d'+Math.random().toString(36).slice(2,12);S.set('dev',d);return d})();
-const genCode=()=>Array.from({length:6},()=>'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.random()*31|0]).join('');
-const L={all(){return S.get('teams',{})},get(c){return this.all()[c]||null},put(c,t){const a=this.all();a[c]=t;S.set('teams',a)}};
-async function sb(path,opt={}){const r=await fetch(CFG.url+'/rest/v1/'+path,{...opt,headers:{apikey:CFG.key,Authorization:'Bearer '+CFG.key,'Content-Type':'application/json',Prefer:'return=representation'}});if(!r.ok)throw new Error('http '+r.status);const t=await r.text();return t?JSON.parse(t):null}
-const Team={
-  online:()=>!!CFG.url,
-  async ensure(name,coach){let code=S.get('myTeam',null);if(code)return code;code=genCode();S.set('myTeam',code);L.put(code,{code,name,coach,roster:[],hw:[]});
-    if(this.online())await sb('teams',{method:'POST',body:JSON.stringify({code,name,coach})}).catch(()=>{});return code},
-  async get(code){if(this.online()){const r=await sb(`teams?code=eq.${encodeURIComponent(code)}&select=*`);return r?.[0]||null}return L.get(code)},
-  local(code){return L.get(code)||{code,roster:[],hw:[]}},
-  save(code,t){L.put(code,t)},
-  async addRoster(code,row){const t=this.local(code);t.roster.push(row);this.save(code,t);if(this.online())await sb('roster',{method:'POST',body:JSON.stringify({team_code:code,...row})}).catch(()=>{})},
-  async delRoster(code,i){const t=this.local(code);const [row]=t.roster.splice(i,1);this.save(code,t);if(this.online()&&row)await sb(`roster?team_code=eq.${code}&phone=eq.${encodeURIComponent(row.phone)}`,{method:'DELETE'}).catch(()=>{})},
-  async join(code,m){if(this.online())await sb('members',{method:'POST',headers:{Prefer:'resolution=merge-duplicates'},body:JSON.stringify({team_code:code,device:m.device,name:m.name,age:m.age})})},
-  async members(code){return this.online()?await sb(`members?team_code=eq.${code}&select=*`):[]},
-  async results(code){return this.online()?await sb(`results?team_code=eq.${code}&select=*&order=date.desc&limit=2000`):[]},
-  async push(code,row){if(this.online())await sb('results',{method:'POST',body:JSON.stringify({team_code:code,device:DEV,...row})})},
-  async addHw(code,hw){const t=this.local(code);t.hw.unshift(hw);this.save(code,t);if(this.online())await sb('homework',{method:'POST',body:JSON.stringify({team_code:code,...hw})}).catch(()=>{})},
-  async hw(code){if(this.online())return await sb(`homework?team_code=eq.${code}&select=*&order=created.desc&limit=20`);return this.local(code).hw},
-};
-function syncResult(h){if(profile?.teamCode&&profile.share!==false)Team.push(profile.teamCode,{name:profile.name,game:h.id,level:h.level,score:h.primary,disp:h.disp,date:new Date(h.date).toISOString()}).catch(()=>{})}
-const waNum=p=>{let d=String(p).replace(/\D/g,'');if(d.startsWith('0'))d='972'+d.slice(1);return d};
-const joinLink=code=>appUrl()+'app.html#join-'+code;
-
-/* ================= views ================= */
-function lastOf(id){for(let i=hist.length-1;i>=0;i--)if(hist[i].id===id)return hist[i];return null}
-function card(id,wide){const g=CAT[id],l=lastOf(id);
-  return `<button class="gcard${wide?' wide':''}" style="--m:${g.m}" data-open="${id}"><span class="ico" aria-hidden="true">${I(g.ico)}</span>${g.cam?'<span class="tag">'+I('camera')+' מצלמה</span>':''}<small class="area-l">${AREAS[g.area]}</small><h3>${g.name}</h3><p>${g.desc}</p>${l?`<span class="last">${esc(l.disp)}</span>`:''}</button>`}
-function renderCatalog(){const ids=visible();if(!ids.length){$('#catalog').innerHTML='<div class="empty">כל האימונים מוסתרים כרגע.</div>';return}
-  let html='';const rest=[...ids];
-  if(rest[0]&&CAT[rest[0]].field){const g=CAT[rest.shift()];html+=`<button class="gcard wide hero-card" style="--m:${g.m}" data-open="field"><span class="ico">${I(g.ico)}</span><span class="tag">מצב מגרש · לכל הקבוצה</span><h3>${g.name}</h3><p>שים את הטלפון או הטאבלט על חצובה. החלט מראש על פעולה לכל צבע, מספר או חץ, או צעק אותם תוך כדי התרגיל.</p><span class="cta">פתח מסך מגרש ←</span></button>`}
-  html+=`<div class="games">${rest.map((id,i)=>card(id,rest.length%2&&i===rest.length-1)).join('')}</div>`;$('#catalog').innerHTML=html}
-const today=()=>new Date().toDateString();
-function program(){return visible().filter(id=>!CAT[id].field&&!CAT[id].cam).slice(0,3)}
-function renderHome(){
-  $('#hello').textContent=profile?.name?`היי ${profile.name.split(' ')[0]}`:'היי';
-  const prog=program(),done=new Set(hist.filter(h=>new Date(h.date).toDateString()===today()).map(h=>h.id)),n=prog.filter(id=>done.has(id)).length;
-  $('#ringArc').setAttribute('stroke-dasharray',`${264*n/Math.max(1,prog.length)} 264`);$('#ringTxt').textContent=`${n}/${prog.length}`;
-  $('#progList').innerHTML=prog.map((id,i)=>`<button class="prog-item${done.has(id)?' done':''}" data-open="${id}"><span class="n">${done.has(id)?'✓':i+1}</span><b>${CAT[id].name}</b><span>${AREAS[CAT[id].area]}</span></button>`).join('');
-  const next=prog.find(id=>!done.has(id));
-  $('#progGo').innerHTML=next?'לתרגיל הבא <span class="ar">←</span>':'סגרת את הטבעת להיום';$('#progGo').disabled=!next;$('#progGo').onclick=()=>next&&openItem(next);
-  $('#areas').innerHTML=['speed','decision','attention'].map(a=>{const h=[...hist].reverse().find(x=>CAT[x.id]?.area===a);
-    return `<div class="tile"><div class="v">${h?esc(h.disp):'-'}</div><div class="l">${AREAS[a]}${h?' · '+CAT[h.id].name:''}</div></div>`}).join('');
-  const tc=profile?.teamCode;$('#teamStrip').innerHTML=tc?`<div class="team-strip">${I('club')}<b>${esc(profile.team||'הקבוצה')}</b><span class="note">${profile.share===false?'התוצאות לא משותפות':'התוצאות משותפות עם המאמן'}</span><span class="mono">${tc}</span></div>`:'';
-  $('#teamHw').innerHTML='';
-  if(tc)Team.hw(tc).then(list=>{list=(list||[]).slice(0,3);if(!list.length)return;
-    $('#teamHw').innerHTML=`<div class="sec">משימות מהמאמן</div><div class="hwlist">${list.map(h=>{const ok=hist.some(x=>x.id===h.game&&x.level===h.level&&x.date>=new Date(h.created).getTime());return `<button class="hwi" data-open="${h.game}" style="border:0;width:100%;text-align:right">${I(CAT[h.game]?.ico||'bolt')}<span>${CAT[h.game]?.name||h.game} · ${LV[h.level]}</span><span class="ok">${ok?'בוצע ✓':'לביצוע ←'}</span></button>`}).join('')}</div>`}).catch(()=>{});
-  const hb=$('#hwBanner');
-  if(hwTask&&CAT[hwTask.id]&&!S.get('hwdone_'+hwTask.key,false)){hb.innerHTML=`<div class="hw"><div><b>משימה מהמאמן</b><div class="h-sub">${CAT[hwTask.id].name} · ${LV[hwTask.level]}</div></div><button class="btn btn-g" id="hwStart">יאללה</button></div>`;$('#hwStart').onclick=()=>openIntro(hwTask.id,hwTask.level)}else hb.innerHTML='';
-}
-function spark(vals,lowerBetter){if(vals.length<2)return'';const w=300,h=64,p=8,mn=Math.min(...vals),mx=Math.max(...vals),r=mx-mn||1;
-  const pts=vals.map((v,i)=>[p+i*(w-2*p)/(vals.length-1),lowerBetter?p+(v-mn)/r*(h-2*p):h-p-(v-mn)/r*(h-2*p)]);const line=pts.map(q=>q.join(',')).join(' '),last=pts[pts.length-1];
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="direction:ltr"><defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#AA44FF" stop-opacity=".35"/><stop offset="1" stop-color="#AA44FF" stop-opacity="0"/></linearGradient></defs><polygon points="${p},${h} ${line} ${w-p},${h}" fill="url(#sg)"/><polyline points="${line}" fill="none" stroke="#00E0FF" stroke-width="2.5" vector-effect="non-scaling-stroke"/><circle cx="${last[0]}" cy="${last[1]}" r="4" fill="#00E0FF"/></svg>`}
-function renderStats(){const groups={};hist.forEach(h=>{if(!CAT[h.id])return;const k=h.id+'|'+h.level;(groups[k]=groups[k]||[]).push(h)});const keys=Object.keys(groups);
-  if(!keys.length){$('#histList').innerHTML='<div class="empty">עוד אין תוצאות.<br>אימון אחד, וזה מתחיל להתמלא.</div>';return}
-  $('#histList').innerHTML=keys.map(k=>{const a=groups[k],l=a[a.length-1],[id,lv]=k.split('|'),ln=CAT[id].lvNames?.[lv]||LV[lv]||'';
-    return `<div class="hcard"><div class="hcard-h"><b>${CAT[id].name} · ${ln}</b><span class="note">${a.length} אימונים</span></div><div class="big">${esc(l.disp)}</div><div class="note">${esc(l.label)}</div>${l.src==='self_report'?'':spark(a.slice(-12).map(x=>x.primary),l.lowerBetter)}<div class="hrow"><span>אחרון: ${new Date(l.date).toLocaleDateString('he-IL')}</span><span>${l.src==='self_report'?'דיווח עצמי':l.src==='camera'?'מצלמה':'נמדד אוטומטית'}</span></div></div>`}).join('')}
-async function renderCoach(){const p=profile||{};$('#coachHello').textContent=p.name?`היי ${p.name.split(' ')[0]}`:'';
-  const code=await Team.ensure(p.team||'הקבוצה שלי',p.name||'');const t=Team.local(code);
-  $('#tCode').textContent=code;$('#tName').textContent=p.team||'הקבוצה שלי';
-  const msg=`היי! מצטרפים לקבוצה "${p.team||''}" ב-BrainBall, אפליקציית אימון מוח לשחקני כדורגל. קוד הקבוצה: ${code}\nנכנסים כאן: ${joinLink(code)}`;
-  $('#tWaAll').href='https://wa.me/?text='+encodeURIComponent(msg);
-  $('#tCopy').onclick=()=>{try{navigator.clipboard.writeText(joinLink(code)).then(()=>{$('#tCopy').textContent='הועתק ✓'}).catch(()=>{})}catch(e){}};
-  $('#hwGame').innerHTML=visible().filter(id=>!CAT[id].field).map(id=>`<option value="${id}">${CAT[id].name}</option>`).join('');
-  const hwMsg=()=>{const id=$('#hwGame').value,lv=$('#hwLevel').value;return `משימה מהמאמן ב-BrainBall: ${CAT[id].name}, רמת ${LV[id&&lv]||LV[lv]}.\nפותחים כאן: ${appUrl()}app.html#hw-${id}-${lv}`};
-  const setHw=()=>{$('#hwSend').href='https://wa.me/?text='+encodeURIComponent(hwMsg())};setHw();$('#hwGame').onchange=setHw;$('#hwLevel').onchange=setHw;
-  $('#hwSend').onclick=()=>{Team.addHw(code,{game:$('#hwGame').value,level:$('#hwLevel').value,created:new Date().toISOString()}).then(()=>renderHwList(code))};
-  renderHwList(code);renderDash(code,t);paintIcons($('#v-coach'))}
-async function renderHwList(code){const list=await Team.hw(code).catch(()=>[])||[];
-  $('#hwList').innerHTML=list.slice(0,6).map(h=>`<div class="hwi">${I(CAT[h.game]?.ico||'bolt')}<span>${CAT[h.game]?.name||h.game} · ${LV[h.level]}</span><span class="note" style="margin-inline-start:auto">${new Date(h.created).toLocaleDateString('he-IL')}</span></div>`).join('')}
-async function renderDash(code,t){const roster=t.roster||[];let members=[],results=[];
-  if(Team.online()){try{[members,results]=await Promise.all([Team.members(code),Team.results(code)])}catch(e){}}
-  const wk=Date.now()-7*864e5,norm=x=>String(x||'').trim().toLowerCase();
-  const names=[...new Set([...roster.map(r=>r.name),...members.map(m=>m.name)])];
-  $('#dashNote').textContent=Team.online()?`${members.length} מחוברים · ${roster.length} ברשימה`:'מצב מקומי עד חיבור השרת';
-  if(!names.length){$('#dash').innerHTML='<div class="empty">עוד אין שחקנים.<br>שלח את ההזמנה לקבוצה או הוסף שחקן למטה.</div>';return}
-  $('#dash').innerHTML=names.map(n=>{const r=roster.find(x=>norm(x.name)===norm(n)),m=members.find(x=>norm(x.name)===norm(n));
-    const rs=results.filter(x=>norm(x.name)===norm(n)),week=rs.filter(x=>new Date(x.date)>wk).length,last=rs[0];
-    const ri=roster.indexOf(r);const wa=r?`https://wa.me/${waNum(r.phone)}?text=${encodeURIComponent(`היי ${n}! המאמן מזמין אותך ל-BrainBall. קוד הקבוצה: ${code}\n${joinLink(code)}`)}`:'';
-    return `<div class="drow"><span class="av${m?' on':''}">${esc(n.trim()[0]||'?')}</span><div><b>${esc(n)}</b><small>${m?(last?`אחרון: ${CAT[last.game]?.name||''} · ${esc(last.disp)}`:'הצטרף, עוד לא התאמן'):'הוזמן, עוד לא הצטרף'}</small></div>
-      <div class="num">${week}<small>השבוע</small></div><div class="mini-acts">${wa?`<a href="${wa}" target="_blank" rel="noopener" aria-label="שלח בוואטסאפ">${I('chat')}</a>`:''}${r?`<button data-del="${ri}" aria-label="הסר">${I('trash')}</button>`:''}</div></div>`}).join('');
-  $('#dash').onclick=e=>{const b=e.target.closest('[data-del]');if(!b)return;Team.delRoster(code,+b.dataset.del).then(()=>renderDash(code,Team.local(code)))}}
-$('#pAdd').onclick=async()=>{const n=$('#pName').value.trim(),ph=$('#pPhone').value.trim(),err=$('#pErr');
-  if(!n){err.textContent='צריך שם.';return}if(waNum(ph).length<11){err.textContent='מספר טלפון לא תקין.';return}err.textContent='';
-  const code=S.get('myTeam');await Team.addRoster(code,{name:n,phone:ph});$('#pName').value='';$('#pPhone').value='';renderDash(code,Team.local(code))};
-function renderClub(){const p=profile||{};$('#clubHello').textContent='היי '+(p.name||'').split(' ')[0];$('#clubName').textContent=p.team||'המועדון שלי';
-  let c=S.get('clubcode',null);if(!c){c=Math.random().toString(36).slice(2,8).toUpperCase();S.set('clubcode',c)}$('#clubCode').textContent=c}
-function renderAccount(){const p=profile||{};$('#accKv').innerHTML=[['שם',p.name],['גיל',p.age],['קבוצה',p.team],['תפקיד',ROLE[p.role]]].filter(x=>x[1]).map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
-  $('#accAdmin').hidden=!['manager','admin'].includes(p.role);$('#accShareRow').hidden=!p.teamCode;$('#accTeam').textContent=p.teamCode?'קבוצה: '+p.teamCode:'';$('#accShare').setAttribute('aria-checked',String(p.share!==false));const hn={coach:'אזור המאמן',manager:'המועדון שלי'}[p.role];$('#accHome').hidden=!hn;$('#accHome').textContent=hn||''}
-$('#accEdit').onclick=()=>go('start');
-$('#accShare').onclick=()=>{profile.share=profile.share===false;S.set('profile2',profile);renderAccount()};
-$('#avatar').onclick=()=>go('account');
-
-/* ---------- admin ---------- */
-function renderAdmin(){const c=catCfg();$('#admTitle').textContent=profile?.role==='admin'?'ניהול מערכת · אימונים':'ניהול אימונים';
-  $('#admBack').hidden=profile?.role==='admin';$('#admBack').onclick=()=>go('home');
-  $('#admList').innerHTML=c.order.map((id,i)=>{const g=CAT[id],off=c.hidden.includes(id);
-    return `<div class="adm-row${off?' off':''}"><span class="dotc" style="background:${g.m.match(/#\w+/)[0]}">${I(g.ico)}</span><div><b>${g.name}</b><small>${AREAS[g.area]}${g.cam?' · מצלמה':''}</small></div>
-    <div class="mv"><button data-up="${id}" aria-label="למעלה" ${i===0?'disabled':''}>▲</button><button data-dn="${id}" aria-label="למטה" ${i===c.order.length-1?'disabled':''}>▼</button></div>
-    <button class="sw" role="switch" aria-checked="${!off}" aria-label="הצג ${g.name}" data-sw="${id}"></button></div>`}).join('')}
-$('#admList').onclick=e=>{const c=catCfg(),b=e.target.closest('button');if(!b)return;const id=b.dataset.up||b.dataset.dn||b.dataset.sw;if(!id)return;const i=c.order.indexOf(id);
-  if(b.dataset.up&&i>0)[c.order[i-1],c.order[i]]=[c.order[i],c.order[i-1]];
-  if(b.dataset.dn&&i<c.order.length-1)[c.order[i+1],c.order[i]]=[c.order[i],c.order[i+1]];
-  if(b.dataset.sw)c.hidden=c.hidden.includes(id)?c.hidden.filter(x=>x!==id):[...c.hidden,id];
-  S.set('catalog3',c);renderAdmin()};
-$('#admReset').onclick=()=>{S.set('catalog3',{order:DEFAULT_ORDER,hidden:[]});renderAdmin()};
-
-/* ================= play engine ================= */
-let RUN=null;const stage=$('#stage'),play=$('#play');
-function hud(t,p){$('#hudTxt').textContent=t||'';$('#progBar').style.width=((p||0)*100)+'%'}
-function clock(sec){const c=$('#clock');if(sec==null){c.hidden=true;return}c.hidden=false;c.textContent=mmss(sec)}
-function stageHTML(h,cls=''){stage.className=cls;stage.style.background='';stage.innerHTML=h}
-function newRun(){RUN={cancel:false,timers:[],fns:[],input:null,active:true};return RUN}
-function chk(){if(!RUN||RUN.cancel)throw'cancel'}
-const chkR=r=>{if(!r||r.cancel||r!==RUN)throw'cancel'};
-const sleep=ms=>{const r=RUN;return new Promise(res=>{r.timers.push(setTimeout(res,ms));r.fns.push(res)}).then(()=>chkR(r))};
-const frame=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r(performance.now()))));
-function waitInput(ms,accept=()=>true){const r=RUN;return new Promise(res=>{let done=false;
-  const fin=v=>{if(done)return;done=true;clearTimeout(to);if(r.input===h)r.input=null;res(v)};
-  const h=v=>{if(accept(v))fin(v)};r.input=h;const to=ms==null?null:setTimeout(()=>fin({timeout:true,t:performance.now()}),ms);r.fns.push(()=>fin({cancel:true}))}).then(v=>{chkR(r);return v})}
-let lastPt=null;
-stage.addEventListener('pointerdown',e=>{lastPt={x:e.clientX,y:e.clientY};if(!RUN||!RUN.input)return;const b=e.target.closest('[data-c]');
-  const now=performance.now(),t=(e.timeStamp>now-300&&e.timeStamp<=now)?e.timeStamp:now;RUN.input(b?{kind:'btn',v:b.dataset.c,t}:{kind:'tap',t});if(b)e.preventDefault()});
-function stopRun(){clearTimeout(demoTimer);if(!RUN)return;RUN.cancel=true;(RUN.timers||[]).forEach(clearTimeout);(RUN.fns||[]).forEach(f=>f());RUN.fns=[];if(RUN.raf)cancelAnimationFrame(RUN.raf);if(RUN.amb){RUN.amb.stop();RUN.amb=null}if(RUN.rec&&RUN.rec.state==='recording')try{RUN.rec.stop()}catch(e){}camStop()}
-function closePlay(){stopRun();RUN=null;play.hidden=true;play.classList.remove('bare');clock(null);document.body.style.overflow='';releaseWake();try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}
-  const v=$('.view.on')?.id?.slice(2);if(v)go(['coach','club','admin'].includes(v)?'home':v)}
-$('#quit').onclick=()=>{if(RUN&&RUN.onQuit){const f=RUN.onQuit;RUN.onQuit=null;f()}else closePlay()};
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&RUN&&RUN.active&&!RUN.bg){stopRun();RUN={cancel:true};clock(null);
-  stageHTML(`<div class="st-big">האימון נעצר</div><div class="st-sub">יצאת מהאפליקציה באמצע, אז התוצאה לא נשמרה.</div><div style="margin-top:20px"><button class="btn btn-g" id="bk">חזרה</button></div>`);$('#bk').onclick=closePlay}});
-let wake=null;async function keepAwake(){try{wake=await navigator.wakeLock?.request('screen')}catch(e){}}
-function releaseWake(){try{wake&&wake.release()}catch(e){}wake=null}
-
-function openIntro(id,lvForced){const g=CAT[id];let lv=lvForced||S.get('lv_'+id,'beginner');let rec=S.get('rec',false);
-  play.hidden=false;document.body.style.overflow='hidden';hud('',0);clock(null);
-  const ln=k=>g.lvNames?.[k]||LV[k];
-  stageHTML(`<div class="intro"><span class="area">${g.cam?'מצלמה · ':''}${AREAS[g.area]}</span><h2>${g.name}</h2><p class="tagline">${g.tagline||g.desc}</p>
-    <div class="demo" id="iDemo"></div><div class="demo-cap" id="iCap"></div>
-    <ol>${g.how.map(x=>`<li>${x}</li>`).join('')}</ol>
-    <div class="lv" id="lvSel">${Object.entries(g.levels).map(([k,v])=>`<button data-lv="${k}" aria-pressed="${k===lv}"><b>${ln(k)}</b>${v.lbl?`<small>${v.lbl}</small>`:''}</button>`).join('')}</div>
-    ${g.rec?`<div class="chips" style="margin-bottom:14px"><button class="chip" id="recChip" aria-pressed="${rec}">⏺ להקליט סרטון 9:16 (עד דקה)</button></div>`:''}
-    <button class="btn btn-g btn-xl full" id="goBtn">יאללה, מתחילים <span class="ar">←</span></button></div>`,'scroll');
-  playDemo($('#iDemo'),$('#iCap'),DEMOS[id]||[]);
-  $('#lvSel').onclick=e=>{const b=e.target.closest('[data-lv]');if(!b)return;lv=b.dataset.lv;$$('#lvSel button').forEach(x=>x.setAttribute('aria-pressed',x===b))};
-  if(g.rec)$('#recChip').onclick=()=>{rec=!rec;S.set('rec',rec);$('#recChip').setAttribute('aria-pressed',rec)};
-  $('#goBtn').onclick=()=>{ac();clearTimeout(demoTimer);S.set('lv_'+id,lv);start(id,lv,false,g.rec&&rec)}}
-async function countdown(el){for(const n of[3,2,1]){if(el)el.innerHTML=`<div class="cd grad">${n}</div>`;else stageHTML(`<div class="cd grad">${n}</div>`);sfx.tick();await sleep(800)}sfx.go()}
-async function runIt(id,lv,tapOnly,rec){newRun();RUN.tapOnly=tapOnly;RUN.recWanted=rec;keepAwake();const g=CAT[id];
-  if(g.cam&&!g.pose&&!tapOnly){await camGate();await camStart()}
-  if(!g.pose)await countdown();
-  const res=await g.run(g.levels[lv],id);RUN.active=false;camStop();clock(null);Object.assign(res,{id,level:lv,date:Date.now()});
-  if(g.cam&&!res.src)res.src=tapOnly?'auto':'camera';showResult(res)}
-async function start(id,lv,tapOnly=false,rec=false){
-  try{await runIt(id,lv,tapOnly,rec)}catch(e){clock(null);
-    if(e==='nocam'){camStop();const g=CAT[id];stageHTML(`<div class="st-big">המצלמה לא נפתחה</div><div class="st-sub">באייפון: הגדרות > Safari > מצלמה > אפשר. באנדרואיד: לחיצה על המנעול ליד הכתובת > הרשאות > מצלמה. בתצוגה המקדימה בתוך Claude המצלמה חסומה, היא תעבוד באתר החי.${g.pose?'':' בינתיים אפשר לשחק בנגיעה במסך.'}</div><div style="display:grid;gap:10px;margin-top:20px;width:100%;max-width:360px"><button class="btn btn-g" id="retry">נסה שוב</button>${g.pose?'':'<button class="btn btn-o" id="tapMode">שחק בנגיעה</button>'}<button class="btn btn-o" id="bk">חזרה</button></div>`);
-      $('#bk').onclick=closePlay;$('#retry').onclick=()=>start(id,lv,false,rec);if(!g.pose)$('#tapMode').onclick=()=>start(id,lv,true);return}
-    if(e!=='cancel')console.error(e)}}
-function practiceDone(){stageHTML(`<div class="st-big">החימום נגמר</div><div class="st-sub">מעכשיו זה נספר. בהצלחה!</div>`);return sleep(1200)}
-
-function showResult(r){hud('סיום',1);clock(null);const g=CAT[r.id];
-  const prev=[...hist].reverse().find(h=>h.id===r.id&&h.level===r.level);let delta='';
-  if(prev&&r.complete&&!r.flag&&r.unit!=null){const d=Math.round((r.primary-prev.primary)*100)/100,better=r.lowerBetter?d<0:d>0;
-    delta=d===0?`<span class="delta up">בדיוק כמו בפעם הקודמת</span>`:`<span class="delta ${better?'up':'dn'}">${better?'שיפור של':'שינוי של'} ${Math.abs(d)}${r.unit} מהפעם הקודמת${better?'':''}</span>`}
-  if(r.complete&&!r.flag){hist.push({id:r.id,level:r.level,date:r.date,primary:r.primary,disp:r.disp,label:r.label,lowerBetter:r.lowerBetter,src:r.src||'auto'});S.set('hist',hist);syncResult(hist[hist.length-1]);
-    if(hwTask&&hwTask.id===r.id&&hwTask.level===r.level)S.set('hwdone_'+hwTask.key,true)}
-  stageHTML(`<div class="res"><div class="k">${g.name} · ${g.lvNames?.[r.level]||LV[r.level]}</div><div class="main grad">${esc(r.disp)}</div>
-    <div class="cap">${r.flag||r.label}${!r.complete&&!r.flag?' · מדידה חלקית, לא נשמרה':''}</div>${delta}
-    <div class="grid">${(r.grid||[]).map(([a,b])=>`<div class="tile"><div class="l">${a}</div><div class="v" style="font-size:19px">${b}</div></div>`).join('')}</div>
-    <div class="acts">${r.extra||''}<button class="btn btn-g full" id="again">עוד סיבוב <span class="ar">↻</span></button><button class="btn btn-o full" id="dare">אתגר חבר</button><button class="btn btn-o full" id="fin">סיום</button></div></div>`,'scroll');
-  if(r.after)r.after();
-  $('#again').onclick=()=>start(r.id,r.level,!!RUN?.tapOnly,!!RUN?.recWanted);$('#fin').onclick=closePlay;$('#dare').onclick=()=>shareApp(`עשיתי ${r.disp} ב"${g.name}".`)}
-
-/* ---------- reaction ---------- */
-async function reactionTrial(){
-  stageHTML(`<div class="fill" style="background:#17161f"><div class="st-big" style="color:var(--dim)">המתן...</div></div>`);
-  let r=await waitInput(rnd(1500,4000),v=>v.kind==='tap');
-  if(!r.timeout){sfx.bad();stageHTML(`<div class="fill" style="background:#2a0f1c"><div class="st-big">מוקדם מדי</div><div class="st-sub">חכה לכתום.</div></div>`);await sleep(900);return{res:'false_start'}}
-  stageHTML(`<div class="fill" style="background:var(--stim)"><div class="dot"></div></div>`);const t0=await frame();chk();
-  r=await waitInput(2000,v=>v.kind==='tap');
-  if(r.timeout){stageHTML(`<div class="fill" style="background:#2a0f1c"><div class="st-big">פספסת</div></div>`);await sleep(800);return{res:'timeout'}}
-  const rt=Math.round(r.t-t0);
-  if(rt<100){stageHTML(`<div class="fill" style="background:#2a0f1c"><div class="st-big">ניחוש</div><div class="st-sub">פחות מ-100ms זה לא תגובה, זה מזל.</div></div>`);await sleep(900);return{res:'anticipation',rt}}
-  stageHTML(`<div class="fill" style="background:#17161f"><div class="st-ms">${rt}<small style="font-size:.3em"> ms</small></div></div>`);await sleep(600);return{res:'ok',rt}}
-async function runReaction(cfg){
-  for(let i=0;i<3;i++){hud('חימום '+(i+1)+'/3',0);await reactionTrial()}await practiceDone();
-  const tr=[],max=Math.ceil(cfg.n*1.5);let valid=0;
-  while(valid<cfg.n&&tr.length<max){hud(valid+'/'+cfg.n,valid/cfg.n);const t=await reactionTrial();tr.push(t);if(t.res==='ok')valid++}
-  const rts=tr.filter(t=>t.res==='ok').map(t=>t.rt),md=Math.round(median(rts)||0),c=k=>tr.filter(t=>t.res===k).length;
-  return{primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:valid>=cfg.n,label:`זמן התגובה החציוני שלך ב-${rts.length} ניסיונות`,
-    grid:[['ממוצע',Math.round(mean(rts))+' ms'],['הכי מהיר',(rts.length?Math.min(...rts):0)+' ms'],['יציבות',Math.round(sd(rts))+' ms'],['מוקדם / ניחוש',c('false_start')+c('anticipation')]]}}
-
-/* ---------- choice ---------- */
-function balanced(items,n){const a=[];for(let i=0;i<n;i++)a.push(items[i%items.length]);
-  for(let t=0;t<200;t++){shuffle(a);let ok=true;for(let i=3;i<a.length;i++)if(a[i]===a[i-1]&&a[i]===a[i-2]&&a[i]===a[i-3]){ok=false;break}if(ok)break}return a}
-function choiceBtns(dirs){return `<div class="choices ${dirs.length===2?'two':'four'}">`+dirs.map(d=>`<button class="cbtn" data-c="${d}" style="${dirs.length===4?'grid-area:'+d[0]+';':''}border-color:${ACOL[d]}66" aria-label="${d}">${arrowSVG(d,ACOL[d],'')}</button>`).join('')+'</div>'}
-async function choiceTrial(dirs,d,cfg,practice){const btns=choiceBtns(dirs);
-  stageHTML(`<div class="fill" style="padding-bottom:190px"><div class="fix">+</div></div>${btns}`);await sleep(rnd(400,700));
-  let fl='';if(cfg.flank){fl=[[18,22],[70,18],[14,58],[74,54]].map(([x,y])=>`<div class="flank" style="left:${x}%;top:${y}%"><svg style="width:54px;height:54px" viewBox="0 0 100 100"><path d="${ARW[pick(['left','right','up','down'])]}" stroke="#8b84a0" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`).join('')}
-  stageHTML(`<div class="fill" style="padding-bottom:190px">${fl}${arrowSVG(d,ACOL[d])}</div>${btns}`);const t0=await frame();chk();
-  const r=await waitInput(cfg.win,v=>v.kind==='btn');const res=r.timeout?'timeout':(r.v===d?'correct':'incorrect');
-  (res==='correct'?sfx.ok:sfx.bad)();stage.classList.add(res==='correct'?'flash-ok':'flash-no');await sleep(practice?450:220);stage.classList.remove('flash-ok','flash-no');
-  return{res,rt:r.timeout?null:Math.round(r.t-t0)}}
-async function runChoice(cfg){const dirs=cfg.opts===2?['left','right']:['left','up','down','right'];
-  const pr=balanced(dirs,4);for(let i=0;i<4;i++){hud('חימום '+(i+1)+'/4',0);await choiceTrial(dirs,pr[i],cfg,true)}await practiceDone();
-  const seq=balanced(dirs,cfg.n),tr=[];for(let i=0;i<seq.length;i++){hud((i+1)+'/'+seq.length,i/seq.length);tr.push(await choiceTrial(dirs,seq[i],cfg,false))}
-  const ok=tr.filter(t=>t.res==='correct'),acc=Math.round(ok.length/tr.length*100),md=Math.round(median(ok.map(t=>t.rt))||0);
-  return{primary:acc,disp:acc+'%',unit:'%',lowerBetter:false,complete:true,label:`דיוק. זמן תגובה חציוני בתשובות נכונות: ${md} ms`,
-    grid:[['נכונות',ok.length+'/'+tr.length],['זמן תגובה',md+' ms'],['טעויות',tr.filter(t=>t.res==='incorrect').length],['לא הספקת',tr.filter(t=>t.res==='timeout').length]]}}
-
-/* ---------- go / no-go ---------- */
-async function gngTrial(go,cfg,practice){stageHTML(`<div class="fill"></div>`);await sleep(rnd(500,1000));
-  stageHTML(`<div class="fill">${go?'<svg viewBox="0 0 100 100" style="width:min(50vw,220px)"><circle cx="50" cy="50" r="46" fill="#3DF59A"/></svg>':'<svg viewBox="0 0 100 100" style="width:min(50vw,220px)"><path d="M18 18L82 82M82 18L18 82" stroke="#FF4D6D" stroke-width="16" stroke-linecap="round"/></svg>'}</div>`);
-  const t0=await frame();chk();const r=await waitInput(cfg.win,v=>v.kind==='tap');
-  const res=go?(r.timeout?'miss':'hit'):(r.timeout?'correct_rejection':'false_alarm');
-  if(res==='false_alarm'||res==='miss'||practice){const good=res==='hit'||res==='correct_rejection';(good?sfx.ok:sfx.bad)();stage.classList.add(good?'flash-ok':'flash-no');await sleep(250);stage.classList.remove('flash-ok','flash-no')}
-  return{res,go,rt:r.timeout?null:Math.round(r.t-t0)}}
-async function runGoNoGo(cfg){const pr=shuffle([1,1,1,0,0]);for(let i=0;i<5;i++){hud('חימום '+(i+1)+'/5',0);await gngTrial(!!pr[i],cfg,true)}await practiceDone();
-  const nNo=Math.round(cfg.n*.3),seq=shuffle(Array(cfg.n-nNo).fill(1).concat(Array(nNo).fill(0))),tr=[];
-  for(let i=0;i<seq.length;i++){hud((i+1)+'/'+seq.length,i/seq.length);tr.push(await gngTrial(!!seq[i],cfg,false))}
-  const c=k=>tr.filter(t=>t.res===k).length,goN=tr.filter(t=>t.go).length,noN=tr.length-goN;
-  const hr=Math.round(c('hit')/goN*100),fa=Math.round(c('false_alarm')/noN*100),md=Math.round(median(tr.filter(t=>t.res==='hit').map(t=>t.rt))||0),none=c('hit')+c('false_alarm')===0;
-  return{primary:fa,disp:fa+'%',unit:'%',lowerBetter:true,complete:!none,flag:none?'לא נרשמה אף נגיעה, אז התוצאה לא נשמרה.':null,label:`נגיעות בטעות באדום (פחות זה יותר). פגיעות בירוק: ${hr}%`,
-    grid:[['פגיעות בירוק',c('hit')+'/'+goN],['נגיעות באדום',c('false_alarm')+'/'+noN],['זמן תגובה',md+' ms'],['פספוסי ירוק',c('miss')]]}}
-
-/* ---------- canvas helpers ---------- */
-function canvasStage(){stageHTML(`<canvas class="cv" id="cv"></canvas><div class="cvmsg" id="cvMsg"></div><div class="cvbar" id="cvBar"></div><div class="okmark" id="okm"></div>`,'full');
-  const cv=$('#cv'),cx=cv.getContext('2d'),dpr=devicePixelRatio||1,r=stage.getBoundingClientRect();cv.width=r.width*dpr;cv.height=r.height*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
-  return{cv,cx,W:r.width,H:r.height}}
-function animate(step){const r=RUN;return new Promise(res=>{let last=performance.now();const f=now=>{if(r.cancel)return res();const dt=Math.min(.05,(now-last)/1000);last=now;if(step(dt,now)===false)return res();r.raf=requestAnimationFrame(f)};r.raf=requestAnimationFrame(f)}).then(()=>chkR(r))}
-function moveBalls(bs,R,W,top,bot,speed,dt){for(const b of bs){b.x+=b.vx*speed*dt;b.y+=b.vy*speed*dt;
-  if(b.x<R){b.x=R;b.vx=Math.abs(b.vx)}if(b.x>W-R){b.x=W-R;b.vx=-Math.abs(b.vx)}if(b.y<top+R){b.y=top+R;b.vy=Math.abs(b.vy)}if(b.y>bot-R){b.y=bot-R;b.vy=-Math.abs(b.vy)}}}
-function spawn(n,R,W,top,bot){const bs=[];for(let i=0;i<n;i++){let b,t=0;do{b={x:rnd(R,W-R),y:rnd(top+R,bot-R)};t++}while(t<200&&bs.some(o=>Math.hypot(o.x-b.x,o.y-b.y)<R*2.6));const a=rnd(0,7);b.vx=Math.cos(a);b.vy=Math.sin(a);bs.push(b)}return bs}
-const nearest=(bs,x,y)=>{let best=null,bd=1e9;for(const b of bs){const d=Math.hypot(b.x-x,b.y-y);if(d<bd){bd=d;best=b}}return[best,bd]};
-
-/* ---------- tracking ---------- */
-async function runTracking(cfg){const {cv,cx,W,H}=canvasStage();const total=10,practice=2,rounds=[];
-  for(let rd=0;rd<total+practice;rd++){const isP=rd<practice;hud(isP?`חימום ${rd+1}/${practice}`:`סיבוב ${rd-practice+1}/${total}`,isP?0:(rd-practice)/total);
-    const short=Math.min(W,H-120),R=Math.max(short*.03,12),top=70,bot=H-96,bs=spawn(cfg.n,R+6,W,top,bot);bs.forEach((b,i)=>{b.t=i<cfg.k;b.sel=false});
-    const draw=mode=>{cx.clearRect(0,0,W,H);for(const b of bs){let c='#d9d4e8';if(mode==='show'&&b.t)c='#FF2BD6';if(mode==='pick'&&b.sel)c='#00E0FF';
-      if(mode==='reveal')c=b.t?(b.sel?'#3DF59A':'#FF2BD6'):(b.sel?'#FF4D6D':'#4b4660');cx.beginPath();cx.arc(b.x,b.y,R,0,7);cx.fillStyle=c;cx.fill();if(mode==='reveal'&&b.t){cx.lineWidth=3;cx.strokeStyle='#fff';cx.stroke()}}};
-    $('#cvMsg').textContent='זכור את הוורודים';$('#cvBar').innerHTML='';draw('show');await sleep(2000);$('#cvMsg').textContent='';
-    const end=performance.now()+cfg.dur*1000,speed=cfg.spd*short;
-    await animate((dt,now)=>{moveBalls(bs,R+6,W,top,bot,speed,dt);
-      for(let i=0;i<bs.length;i++)for(let j=i+1;j<bs.length;j++){const a=bs[i],c=bs[j],dx=c.x-a.x,dy=c.y-a.y,d=Math.hypot(dx,dy);
-        if(d<R*2.2&&d>0){const nx=dx/d,ny=dy/d,p=(a.vx-c.vx)*nx+(a.vy-c.vy)*ny;if(p>0){a.vx-=p*nx;a.vy-=p*ny;c.vx+=p*nx;c.vy+=p*ny}const n1=Math.hypot(a.vx,a.vy)||1,n2=Math.hypot(c.vx,c.vy)||1;a.vx/=n1;a.vy/=n1;c.vx/=n2;c.vy/=n2}}
-      draw('move');return now<end});
-    $('#cvMsg').textContent=`בחר ${cfg.k} כדורים`;$('#cvBar').innerHTML=`<button class="btn btn-g" data-c="ok" id="okB" disabled>אישור</button>`;draw('pick');
-    const deadline=performance.now()+15000;let confirmed=false;const cnt=()=>bs.filter(b=>b.sel).length;const ci=setInterval(()=>clock((deadline-performance.now())/1000),200);RUN.timers.push(ci);
-    while(!confirmed){const r=await waitInput(Math.max(0,deadline-performance.now()));if(r.timeout)break;
-      if(r.kind==='btn'){if(cnt()===cfg.k)confirmed=true;continue}
-      const rc=cv.getBoundingClientRect(),[b,d]=nearest(bs,lastPt.x-rc.left,lastPt.y-rc.top);
-      if(b&&d<Math.max(R*1.6,26)){if(b.sel)b.sel=false;else if(cnt()<cfg.k)b.sel=true}draw('pick');$('#okB').disabled=cnt()!==cfg.k}
-    clearInterval(ci);clock(null);const hit=bs.filter(b=>b.t&&b.sel).length;draw('reveal');(hit===cfg.k?sfx.ok:sfx.bad)();$('#cvMsg').textContent=confirmed?`${hit} מתוך ${cfg.k}`:'נגמר הזמן';$('#cvBar').innerHTML='';
-    if(!isP)rounds.push({hit,done:confirmed});await sleep(1300)}
-  const tg=rounds.reduce((p,r)=>p+r.hit,0),all=total*cfg.k,pct=Math.round(tg/all*100);stage.className='';
-  return{primary:pct,disp:pct+'%',unit:'%',lowerBetter:false,complete:true,label:`כדורים נכונים מתוך ${all} ב-${total} סיבובים`,
-    grid:[['כדורים נכונים',tg+'/'+all],['סיבובים מושלמים',rounds.filter(r=>r.hit===cfg.k&&r.done).length+'/'+total],['לא הושלמו בזמן',rounds.filter(r=>!r.done).length],['מהירות',cfg.spd]]}}
-
-/* ---------- sweeper ---------- */
-async function runSweeper(cfg){const {cv,cx,W,H}=canvasStage();let level=cfg.start,score=0,hits=0,miss=0,streak=0;const rts=[],end=performance.now()+cfg.sec*1000;
-  const short=Math.min(W,H-80),top=76,bot=H-20;
-  while(performance.now()<end){const n=Math.min(6+level*2,24),R=Math.max(short*(.055-level*.0025),15),odd=Math.random()*n|0;
-    const hueShift=Math.max(22,80-level*6),sizeMul=1+Math.max(.18,.55-level*.04),kind=pick(['hue','size','both']);
-    const bs=spawn(n,R*1.6,W,top,bot),hue=pick([280,200,320,150,30]);bs.forEach((b,i)=>{b.o=i===odd});const t0=performance.now();let picked=null;
-    const draw=()=>{cx.clearRect(0,0,W,H);for(const b of bs){const h=b.o&&kind!=='size'?hue+hueShift:hue,r=b.o&&kind!=='hue'?R*sizeMul:R;cx.beginPath();cx.arc(b.x,b.y,r,0,7);cx.fillStyle=`hsl(${h},90%,60%)`;cx.fill()}};
-    RUN.input=v=>{if(v.kind==='tap')picked=v};
-    await animate((dt,now)=>{moveBalls(bs,R*1.6,W,top,bot,short*(.07+level*.018),dt);draw();clock((end-now)/1000);hud(`רמה ${level} · ${score} נק'`,1-(end-now)/(cfg.sec*1000));return !picked&&now<end});
-    RUN.input=null;if(!picked)break;
-    const rc=cv.getBoundingClientRect(),[b,d]=nearest(bs,lastPt.x-rc.left,lastPt.y-rc.top);
-    if(b&&b.o&&d<R*2.2){score+=10;hits++;streak++;rts.push(performance.now()-t0);sfx.ok();const up=streak%3===0;if(up)level++;
-      $('#okm').innerHTML=`<div>✓<small>+10 · ${score}</small>${up?`<small style="color:var(--cyan)">רמה ${level}</small>`:''}</div>`;await sleep(650);$('#okm').innerHTML=''}
-    else{score=Math.max(0,score-5);miss++;streak=0;sfx.bad();$('#cvMsg').textContent=`-5 · ${score}`;await sleep(450);$('#cvMsg').textContent=''}}
-  stage.className='';clock(null);
-  return{primary:score,disp:score+' נק\'',unit:' נק\'',lowerBetter:false,complete:true,label:`ניקוד ב-${cfg.sec} שניות. הגעת לרמה ${level}`,
-    grid:[['זיהויים נכונים',hits],['טעויות',miss],['רמה אחרונה',level],['זמן זיהוי',(rts.length?(median(rts)/1000).toFixed(1):'-')+' s']]}}
-
-/* ---------- peripheral ---------- */
-async function runPeriph(cfg){const pos=Array.from({length:8},(_,i)=>{const a=i/8*Math.PI*2-Math.PI/2;return[50+Math.cos(a)*38,50+Math.sin(a)*38]});
-  const ring=sel=>`<div class="ring" style="position:absolute;inset:0">${pos.map(([x,y],i)=>`<button data-c="${i}" style="position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:${sel===i?'var(--go)':'rgba(255,255,255,.05)'};left:${x}%;top:${y}%" aria-label="מיקום ${i+1}"></button>`).join('')}</div>`;
-  const ctr=`<div style="position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px;border-radius:50%;background:#fff"></div>`;
-  const box=inner=>`<div style="position:relative;width:min(92vw,62vh);aspect-ratio:1">${ctr}${inner}</div>`;let ok=0;const rts=[];
-  for(let i=0;i<cfg.n+3;i++){const p=i<3;hud(p?`חימום ${i+1}/3`:`${i-2}/${cfg.n}`,p?0:(i-3)/cfg.n);const target=Math.random()*8|0;
-    stageHTML(box(''));await sleep(rnd(700,1300));const [x,y]=pos[target];
-    stageHTML(box(`<div style="position:absolute;left:${x}%;top:${y}%;width:46px;height:46px;margin:-23px;border-radius:50%;background:var(--magenta)"></div>`));
-    await sleep(cfg.flash);stageHTML(box(ring()));const t0=await frame();chkR(RUN);
-    const r=await waitInput(5000,v=>v.kind==='btn');const good=!r.timeout&&+r.v===target;(good?sfx.ok:sfx.bad)();
-    if(!p&&good){ok++;rts.push(r.t-t0)}
-    stageHTML(box(ring(target)+(good&&!p?`<div style="position:absolute;inset:0;display:grid;place-items:center;pointer-events:none"><span class="mono" style="font-size:26px;font-weight:700;color:#fff;margin-top:60px">${Math.round(r.t-t0)} ms</span></div>`:'')),good?'flash-ok':'flash-no');await sleep(550)}
-  const md=Math.round(mean(rts)),acc=Math.round(ok/cfg.n*100);
-  return{primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:rts.length>=Math.ceil(cfg.n/2),label:`זמן תגובה ממוצע לתשובה נכונה. דיוק ${acc}%`,
-    grid:[['דיוק',acc+'%'],['נכונות',ok+'/'+cfg.n],['הכי מהיר',(rts.length?Math.round(Math.min(...rts)):0)+' ms'],['משך הבזק',cfg.flash+' ms']]}}
-
-/* ---------- scenarios ---------- */
-const SCN=[
- {me:[72,14],ball:[74,17],team:[88,32],opp:[[78,22],[90,40],[84,28]],q:'אתה כנף ימין עם הכדור. המגן סוגר אותך, והחלוץ שלך פנוי ברחבה. מה עושים?',a:['בועטים לשער מהזווית','מוסרים לחלוץ הפנוי','מכדררים פנימה לתוך שני שחקנים','מחזירים לבלם'],c:1,e:'החלוץ פנוי במצב טוב יותר. מסירה מהירה מנצלת את הרגע לפני שההגנה מתארגנת.'},
- {me:[44,32],ball:[46,32],team:[[48,6],[30,50]],opp:[[40,32],[52,26]],q:'אתה קשר אחורי. מקבל כדור עם לחץ מאחור, והמגן השמאלי שלך פנוי באגף. מה הכי נכון?',a:['להסתובב מול הלחץ','נגיעה אחת לאגף הפנוי','לעצור את הכדור ולחכות','בעיטה ארוכה קדימה'],c:1,e:'כשיש לחץ מאחור, נגיעה אחת לשחקן פנוי שומרת על הכדור ומעבירה את המשחק לצד הנוח.'},
- {me:[22,32],ball:[30,30],team:[[34,50]],opp:[[31,30]],q:'אתה בלם אחרון. חלוץ יריב מגיע עם כדור ישר אליך. מה עושים?',a:['תיקול מיידי','לעכב, לסגור זווית ולחכות לעזרה','לרוץ לשער','לתת לו לעבור'],c:1,e:'כשאתה אחרון, תיקול שנכשל משאיר שער פתוח. לעכב ולהכווין לצד נותן לחברים זמן לחזור.'},
- {me:[70,30],ball:[72,30],team:[[72,46]],opp:[[82,38]],q:'שניים על אחד: אתה עם הכדור, חבר לצידך, מגן אחד ביניכם. מה עושים?',a:['מוסרים מוקדם לפני שהמגן מחליט','מושכים את המגן אליך ואז מוסרים','בועטים מיד','מכדררים לבד מסביב'],c:1,e:'כשהמגן מתחייב אליך, החבר נשאר פנוי לגמרי. מסירה מוקדמת מדי נותנת למגן לסגור את שניכם.'},
- {me:[6,32],ball:[24,34],team:[[20,20]],opp:[[36,36]],q:'אתה שוער. כדור עומק עובר את ההגנה, והחלוץ היריב רחוק יותר ממך. מה עושים?',a:['נשארים על הקו','יוצאים מהר ומסלקים או אוספים','צועקים לבלם וממתינים','רצים לפינה'],c:1,e:'אם אתה מגיע ראשון, יציאה מהירה מונעת מצב אחד על אחד. החלטה מאוחרת היא הסכנה הגדולה.'},
- {me:[56,32],ball:[50,32],team:[[48,32]],opp:[[54,22]],q:'אתה קשר התקפי, גב לשער. יריב מגיע משמאל, ויש מקום פתוח מימין. איך מקבלים?',a:['עוצרים ומגינים על הכדור','קבלה ברגל הרחוקה וסיבוב לימין','מחזירים מיד אחורה','קופצים לנגיחה'],c:1,e:'מבט לפני הקבלה מראה איפה הלחץ. קבלה ברגל הרחוקה מרחיקה את הכדור מהיריב ופותחת את המשחק קדימה.'},
- {me:[48,30],ball:[52,34],team:[[40,20],[38,44]],opp:[[52,36],[62,30]],q:'איבדתם כדור במרכז ואתה הכי קרוב. מה עושים מיד?',a:['חוזרים לעמדה','לחץ מיידי על השחקן עם הכדור','מבקשים עבירה מהשופט','עוצרים לנוח'],c:1,e:'השניות הראשונות אחרי איבוד הן הזמן הכי טוב לזכות שוב, לפני שהיריב מרים את הראש.'},
- {me:[82,40],ball:[92,8],team:[[92,8]],opp:[[86,36],[88,30]],q:'אתה חלוץ. הכנף שלך עומד להגביה מקו הרוחב. לאן רצים?',a:['עומדים במקום','ריצה לקורה הקרובה לפני המגן','חוזרים לקו האמצע','רצים לפינה'],c:1,e:'ריצה מתוזמנת לקורה הקרובה מקדימה את המגן ומשאירה אותו מאחור ברגע ההגבהה.'},
-];
-function pitchSVG(s){const P=([x,y])=>[x*3,y*3];const dots=(arr,f,r)=>(Array.isArray(arr[0])?arr:[arr]).map(p=>{const[x,y]=P(p);return `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`}).join('');
-  const[mx,my]=P(s.me),[bx,by]=P(s.ball);
-  return `<svg class="pitch" viewBox="0 0 300 192" style="direction:ltr"><rect width="300" height="192" rx="18" fill="#0f2a1e"/><g fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"><rect x="6" y="6" width="288" height="180" rx="10"/><line x1="150" y1="6" x2="150" y2="186"/><circle cx="150" cy="96" r="24"/><rect x="6" y="52" width="40" height="88"/><rect x="254" y="52" width="40" height="88"/></g>
-  ${dots(s.team,'#00E0FF',7)}${dots(s.opp,'#FF2BD6',7)}<circle cx="${mx}" cy="${my}" r="10" fill="#fff"/><circle cx="${mx}" cy="${my}" r="15" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="2"/><circle cx="${bx}" cy="${by}" r="4" fill="#FFE14D"/><text x="290" y="100" font-size="10" fill="rgba(255,255,255,.5)" text-anchor="end">שער יריב →</text></svg>`}
-async function runScenarios(cfg){const set=shuffle([...SCN]).slice(0,cfg.n);let ok=0;const times=[];
-  for(let i=0;i<set.length;i++){const s=set[i];hud(`${i+1}/${set.length}`,i/set.length);
-    stageHTML(`<div style="width:100%;max-width:520px;text-align:right">${pitchSVG(s)}<div class="qtext">${s.q}</div><div class="opts">${s.a.map((a,j)=>`<button class="opt" data-c="${j}">${a}</button>`).join('')}</div><div class="tbar"><i id="tb"></i></div></div>`,'scroll');
-    const tb=$('#tb');tb.style.transition=`width ${cfg.t}s linear`;await frame();tb.style.width='0%';const t0=performance.now();
-    const ci=setInterval(()=>clock(cfg.t-(performance.now()-t0)/1000),200);RUN.timers.push(ci);
-    const r=await waitInput(cfg.t*1000,v=>v.kind==='btn');clearInterval(ci);clock(null);const good=!r.timeout&&+r.v===s.c;if(good){ok++;times.push(r.t-t0)}(good?sfx.ok:sfx.bad)();
-    $$('.opt').forEach((b,j)=>{if(j===s.c)b.classList.add('ok');else if(!r.timeout&&j===+r.v)b.classList.add('no')});
-    stage.querySelector('.tbar').outerHTML=`<p class="st-sub" style="text-align:right;margin-top:12px"><b style="color:${good?'var(--go)':'var(--nogo)'}">${good?'בדיוק!':r.timeout?'נגמר הזמן.':'לא הפעם.'}</b> ${s.e}</p><button class="btn btn-g full" data-c="next" style="margin-top:8px">הבא <span class="ar">←</span></button>`;
-    await waitInput(null,v=>v.kind==='btn'&&v.v==='next')}
-  const pct=Math.round(ok/set.length*100);
-  return{primary:pct,disp:pct+'%',unit:'%',lowerBetter:false,complete:true,label:`החלטות נכונות מתוך ${set.length} מצבים`,grid:[['נכונות',ok+'/'+set.length],['זמן החלטה',times.length?(median(times)/1000).toFixed(1)+' s':'-']]}}
-
-/* ---------- breathing ---------- */
-async function runBreath(cfg){RUN.bg=true;RUN.wantAmb=true;RUN.amb=ambient();
-  stageHTML(`<div class="breath" id="br"></div><div class="st-big" id="brT" style="margin-top:28px">שאיפה</div><div class="st-sub" id="brS"></div>`);const br=$('#br'),t=$('#brT'),total=cfg.min*60,end=performance.now()+total*1000;let cycles=0;
-  const ci=setInterval(()=>{const left=(end-performance.now())/1000;clock(left);hud('',1-left/total)},250);RUN.timers.push(ci);
-  while(performance.now()<end){
-    t.textContent='שאיפה';$('#brS').textContent='דרך האף, לאט';br.style.transition='transform 4s ease-in-out';br.style.transform='scale(1)';breathSnd(4,true);await sleep(4000);
-    t.textContent='עצירה';$('#brS').textContent='';await sleep(2000);
-    t.textContent='נשיפה';$('#brS').textContent='דרך הפה, ארוך';br.style.transition='transform 6s ease-in-out';br.style.transform='scale(.55)';breathSnd(6,false);await sleep(Math.min(6000,Math.max(0,end-performance.now())));cycles++}
-  clearInterval(ci);if(RUN.amb){RUN.amb.stop();RUN.amb=null}sfx.go();
-  return{primary:cfg.min,disp:cfg.min+' min',lowerBetter:false,complete:true,src:'self_report',label:`${cycles} נשימות עמוקות. הראש צלול`,grid:[['נשימות',cycles],['קצב','4 · 2 · 6']]}}
-
-async function camGate(){const r=RUN;
-  stageHTML(`<div class="gate"><div class="lensbig">${I('camera')}</div><h2 style="font-size:28px">צריך את המצלמה שלך</h2><p class="st-sub" style="margin:0">המצלמה רואה את התנועה ומודדת לבד. שום דבר לא נשלח לשום מקום. הטלפון ישאל אותך, צריך ללחוץ "אישור".</p><button class="btn btn-g btn-xl full" data-c="allow">אפשר מצלמה <span class="ar">←</span></button></div>`,'scroll');
-  await waitInput(null,v=>v.kind==='btn'&&v.v==='allow');chkR(r)}
-/* ---------- simple camera (colour task, strobe) ---------- */
-let CAM=null;
-async function camStart(){try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:240},audio:false});
-  const v=document.createElement('video');v.className='camv';v.playsInline=true;v.muted=true;v.setAttribute('playsinline','');v.srcObject=s;await v.play();
-  const c=document.createElement('canvas');c.width=48;c.height=36;CAM={s,v,x:c.getContext('2d',{willReadFrequently:true}),prev:null}}catch(e){throw 'nocam'}}
-function camStop(){if(CAM){CAM.s.getTracks().forEach(t=>t.stop());CAM.v.remove();CAM=null}if(RUN?.stream){RUN.stream.getTracks().forEach(t=>t.stop());RUN.stream=null}}
-function camAttach(){if(CAM){stage.appendChild(CAM.v);CAM.v.play().catch(()=>{});const m=document.createElement('div');m.className='meter';m.innerHTML='<i id="mt"></i>';stage.appendChild(m)}}
-// normalised grey frame (divided by its own mean, so screen flashes do not count as motion)
-function camGrab(){CAM.x.drawImage(CAM.v,0,0,48,36);const d=CAM.x.getImageData(0,0,48,36).data,n=48*36,g=new Float32Array(n);let s=0;for(let i=0,j=0;j<n;i+=4,j++){g[j]=(d[i]+d[i+1]+d[i+2])/765;s+=g[j]}const m=s/n||1e-3;for(let j=0;j<n;j++)g[j]/=m;return{g,mean:m}}
-const fracDiff=(a,b,th)=>{let c=0;for(let j=0;j<a.length;j++)if(Math.abs(a[j]-b[j])>th)c++;return c/a.length};
-function meter(v){const mt=$('#mt');if(mt)mt.style.width=Math.min(100,v*160)+'%'}
-function tapCatch(){RUN.tapHit=null;RUN.input=v=>{if(v.kind==='tap')RUN.tapHit=v.t}}
-// waits until test(frame,state) is true twice in a row; tap works only without camera
-function camWait(ms,test,init){const r=RUN;return new Promise(res=>{const t0=performance.now();let hits=0;const st=init||{};const f=()=>{if(r.cancel)return res({cancel:true});const now=performance.now();
-  if(now-t0>ms)return res({timeout:true,t:now});if(RUN.tapHit&&!CAM){const t=RUN.tapHit;RUN.tapHit=null;return res({tap:true,t})}
-  if(CAM){const fr=camGrab();if(test(fr,st,now-t0)){if(++hits>=2)return res({cam:true,t:now})}else hits=0;st.prev=fr}
-  r.raf=requestAnimationFrame(f)};r.raf=requestAnimationFrame(f)}).then(v=>{chkR(r);return v})}
-
-/* ---------- colour task ---------- */
-async function runColorTask(cfg){const cols=[['#00E0FF','תכלת'],['#FF2BD6','ורוד'],['#3DF59A','ירוק'],['#FFE14D','צהוב']];const times=[];let prevC=null;
-  for(let i=0;i<cfg.n;i++){hud(`סבב ${i+1}/${cfg.n}`,i/cfg.n);let c;do{c=pick(cols)}while(c===prevC);prevC=c;const [col,name]=c;
-    stageHTML(`<div class="fill" style="background:${col}"><div class="st-big" style="color:#0B0B0F;font-size:clamp(60px,18vw,130px)">${name}</div><div class="st-sub" style="color:#0B0B0F;font-weight:600">רוץ! ${CAM?'בחזרה, יד קרובה למצלמה':'בחזרה, גע במסך'}</div></div>`,'full');camAttach();tapCatch();sfx.go();
-    const t0=performance.now();const ci=setInterval(()=>clock((performance.now()-t0)/1000),100);RUN.timers.push(ci);
-    // the reference frame is taken after 1.2s, once the player has left
-    const r=await camWait(40000,(fr,st,el)=>{if(el<1200)return false;if(!st.ref){st.ref=fr;return false}const near=fracDiff(fr.g,st.ref.g,.35);meter(near);return near>.55||fr.mean<st.ref.mean*.35});
-    clearInterval(ci);RUN.input=null;clock(null);
-    if(r.timeout){stageHTML(`<div class="st-big">דילגנו על הסבב</div>`);await sleep(900);continue}
-    const t=(r.t-t0)/1000;times.push(t);sfx.ok();stageHTML(`<div class="okmark"><div>✓<small>${t.toFixed(2)} s</small></div></div>`);
-    for(let k=3;k>0&&i<cfg.n-1;k--){await sleep(1000)}if(i===cfg.n-1)await sleep(1000)}
-  const tot=times.reduce((a,b)=>a+b,0),avg=times.length?tot/times.length:0;
-  return{primary:+avg.toFixed(2),disp:avg.toFixed(2)+' s',unit:' s',lowerBetter:true,complete:times.length>=Math.ceil(cfg.n*.7),label:`זמן ממוצע לסבב ב-${times.length} סבבים`,
-    grid:[['זמן כולל',tot.toFixed(1)+' s'],['הסבב הכי מהיר',(times.length?Math.min(...times):0).toFixed(2)+' s'],['סבבים',times.length+'/'+cfg.n]]}}
-
-/* ---------- Ronaldo strobe ---------- */
-async function runStrobe(cfg){const cols=['#FF2BD6','#00E0FF','#FFE14D','#AA44FF','#FF7A1A'];let ok=0,early=0,miss=0;const rts=[];
-  const wave=(fr,st)=>{if(!st.prev)return false;const m=fracDiff(fr.g,st.prev.g,.22);meter(m);return m>.07};
-  for(let i=0;i<cfg.n;i++){hud(`${i+1}/${cfg.n}`,i/cfg.n);const k=2+(Math.random()*4|0);
-    for(let j=0;j<k;j++){stageHTML(`<div class="fill" style="background:${pick(cols)}"></div>`,'full');camAttach();tapCatch();
-      const r=await camWait(cfg.flash,wave);if(!r.timeout){early++;sfx.bad();stageHTML(`<div class="st-big">מוקדם מדי</div><div class="st-sub">רק על ירוק.</div>`);await sleep(900)}
-      stageHTML(`<div class="fill" style="background:#000"></div>`,'full');camAttach();await sleep(rnd(300,700))}
-    stageHTML(`<div class="fill" style="background:var(--go)"></div>`,'full');camAttach();tapCatch();const t0=performance.now();
-    const r=await camWait(1800,wave);RUN.input=null;
-    if(r.timeout){miss++;sfx.bad();stageHTML(`<div class="st-big">פספסת את הירוק</div>`)}else{ok++;sfx.ok();const rt=Math.round(r.t-t0);rts.push(rt);stageHTML(`<div class="okmark"><div>✓<small>${rt} ms</small></div></div>`)}
-    await sleep(1000)}
-  const md=Math.round(median(rts)||0),acc=Math.round(ok/cfg.n*100);
-  return{primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:rts.length>=3,label:`זמן תגובה חציוני לירוק. דיוק ${acc}%`,grid:[['תגובות נכונות',ok+'/'+cfg.n],['מוקדם מדי',early],['פספוסים',miss],['הכי מהיר',(rts.length?Math.min(...rts):0)+' ms']]}}
-
-/* ---------- pose games: juggling + foot-to-foot calls ---------- */
-let POSE=null,POSE_ERR=false;
-const MP='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
-async function loadPose(){if(POSE)return POSE;if(POSE_ERR)throw 'nopose';
-  try{const v=await import(MP+'/vision_bundle.mjs');const fs=await v.FilesetResolver.forVisionTasks(MP+'/wasm');
-    const mk=d=>v.PoseLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',delegate:d},runningMode:'VIDEO',numPoses:1});
-    try{POSE=await mk('GPU')}catch(e){POSE=await mk('CPU')}return POSE}catch(e){POSE_ERR=true;throw 'nopose'}}
-const EDGES=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,31],[28,32]];
-async function runPose(cfg,id){const g=CAT[id];RUN.bg=true;
-  await camGate();let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false})}catch(e){throw 'nocam'}
-  RUN.stream=stream;play.classList.add('bare');
-  stageHTML(`<video class="pv" id="pv" playsinline muted></video><canvas class="cv" id="po"></canvas><div class="cvmsg" id="pm">מכין את הראייה הממוחשבת...</div><div class="callout" id="call"></div><div class="bigcount" id="pc" hidden>0</div>`,'full');
-  const v=$('#pv');v.srcObject=stream;await v.play();chk();
-  const cv=$('#po'),cx=cv.getContext('2d'),dpr=devicePixelRatio||1,rect=stage.getBoundingClientRect(),W=rect.width,H=rect.height;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
-  let pose=null;try{pose=await Promise.race([loadPose(),new Promise((_,rej)=>setTimeout(()=>rej('slow'),20000))])}catch(e){pose=null}chk();
-  const vw=v.videoWidth||640,vh=v.videoHeight||480,sc=Math.max(W/vw,H/vh),ox=(W-vw*sc)/2,oy=(H-vh*sc)/2;
-  const P=l=>[W-(l.x*vw*sc+ox),l.y*vh*sc+oy];
-  const guide={x:W*.14,y:H*.1,w:W*.72,h:H*.86};
-  const drawGuide=ok=>{cx.save();cx.setLineDash([14,10]);cx.lineWidth=4;cx.strokeStyle=ok?'#3DF59A':'rgba(255,255,255,.6)';cx.beginPath();cx.roundRect?cx.roundRect(guide.x,guide.y,guide.w,guide.h,28):cx.rect(guide.x,guide.y,guide.w,guide.h);cx.stroke();cx.restore()};
-  const drawSkel=lm=>{cx.lineWidth=5;cx.strokeStyle='#00E0FF';cx.lineCap='round';for(const[a,b]of EDGES){const A=lm[a],B=lm[b];if((A.visibility??1)<.4||(B.visibility??1)<.4)continue;const[ax,ay]=P(A),[bx,by]=P(B);cx.beginPath();cx.moveTo(ax,ay);cx.lineTo(bx,by);cx.stroke()}
-    cx.fillStyle='#FF2BD6';for(const i of[15,16,27,28,25,26]){const l=lm[i];if((l.visibility??1)<.4)continue;const[x,y]=P(l);cx.beginPath();cx.arc(x,y,7,0,7);cx.fill()}};
-  let lastTs=-1;const detect=()=>{if(!pose)return null;const ts=performance.now();if(ts<=lastTs)return null;lastTs=ts;try{const r=pose.detectForVideo(v,ts);return r.landmarks?.[0]||null}catch(e){return null}};
-  const msg=t=>{$('#pm').textContent=t};
-  /* 1. get into the frame */
-  if(pose){let okSince=0;msg('התרחק עד שכל הגוף בתוך המסגרת');
-    await animate(()=>{cx.clearRect(0,0,W,H);const lm=detect();let ok=false;
-      if(lm){drawSkel(lm);const need=[0,11,12,23,24,27,28].map(i=>lm[i]);const inside=need.every(l=>(l.visibility??1)>.5&&l.y>.02&&l.y<.98&&l.x>.03&&l.x<.97);const h=((lm[27].y+lm[28].y)/2)-lm[0].y;
-        ok=inside&&h>.4;msg(ok?'מעולה, תישאר ככה...':h>.9?'קצת יותר רחוק':'התרחק עד שכל הגוף בתוך המסגרת')}else msg('לא רואים אותך. תעמוד מול המצלמה');
-      drawGuide(ok);if(ok){okSince=okSince||performance.now();if(performance.now()-okSince>1500)return false}else okSince=0});
-  }else{msg('מצב פשוט: המצלמה סופרת תנועה. תעמוד 2-3 מטר מהמסך');drawGuide(true);await sleep(3500)}
-  msg('');cx.clearRect(0,0,W,H);
-  for(const n of[3,2,1]){$('#call').innerHTML=`<span class="grad" style="font-size:min(40vw,40vh)">${n}</span>`;sfx.tick();await sleep(800)}$('#call').innerHTML='';sfx.go();
-  /* 2. recording (9:16 with logo) */
-  let recUrl=null,recType='';const rc=document.createElement('canvas');rc.width=720;rc.height=1280;const rx=rc.getContext('2d');let recEnd=0,chunks=[];
-  if(RUN.recWanted&&window.MediaRecorder&&rc.captureStream){try{recType=['video/mp4','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
-    const mr=new MediaRecorder(rc.captureStream(30),recType?{mimeType:recType}:{});mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.onstop=()=>{recUrl=URL.createObjectURL(new Blob(chunks,{type:recType||'video/webm'}))};mr.start(500);RUN.rec=mr;recEnd=performance.now()+60000;
-    const d=document.createElement('div');d.className='recdot';d.id='recDot';d.innerHTML='<i></i>REC';stage.appendChild(d)}catch(e){RUN.rec=null}}
-  /* 3. count */
-  let reps=0;const t0=performance.now(),end=cfg.sec?t0+cfg.sec*1000:Infinity;const st={L:{base:null,up:false,t:0},R:{base:null,up:false,t:0},kL:false,kR:false};let prevG=null,lastMot=0,nextCall=0,lastSide='';
-  const pc=$('#pc');pc.hidden=false;
-  const count=()=>{reps++;pc.textContent=reps;pc.classList.remove('bump');void pc.offsetWidth;pc.classList.add('bump');sfx.pop()};
-  const CALLS=[['#00E0FF',''],['#FF2BD6',''],['#3DF59A',''],['#FFE14D',''],['','1'],['','2'],['','3'],['','4'],['','5'],['','7']];
-  let finished=false;RUN.onQuit=()=>{finished=true};
-  const small=document.createElement('canvas');small.width=48;small.height=36;const sx=small.getContext('2d',{willReadFrequently:true});
-  await animate(()=>{const now=performance.now();if(finished||now>=end)return false;
-    clock(cfg.sec?(end-now)/1000:(now-t0)/1000);hud('',cfg.sec?(now-t0)/(cfg.sec*1000):0);
-    if(g.pose==='feet'&&now>nextCall){let c;do{c=pick(CALLS)}while(c[1]===lastSide);lastSide=c[1];$('#call').innerHTML=`<span style="background:${c[0]||'rgba(0,0,0,.55)'};color:${c[0]?'transparent':'#fff'}">${c[1]||'●'}</span>`;nextCall=now+cfg.call}
-    cx.clearRect(0,0,W,H);const lm=detect();
-    if(lm){drawSkel(lm);const legL=Math.hypot(lm[23].x-lm[27].x,lm[23].y-lm[27].y)||.3;
-      for(const[k,ai,ki,hi]of[['L',27,25,23],['R',28,26,24]]){const s=st[k],a=lm[ai];if((a.visibility??1)<.4)continue;
-        s.base=s.base==null?a.y:Math.max(a.y,s.base-0.0015);const lift=s.base-a.y;
-        if(!s.up&&lift>legL*(g.pose==='feet'?.1:.2)&&now-s.t>230){s.up=true;s.t=now;if(g.pose!=='feet'||k!==st.lastFoot){count();st.lastFoot=k}}
-        else if(s.up&&lift<legL*.07)s.up=false;
-        const knee=lm[ki],hip=lm[hi],kUp=knee.y<hip.y+legL*.12;if(g.pose==='juggle'&&kUp&&!st['k'+k]&&now-s.t>230){count();s.t=now}st['k'+k]=kUp}}
-    else if(!pose){sx.drawImage(v,0,Math.floor(v.videoHeight*.55),v.videoWidth,Math.floor(v.videoHeight*.45),0,0,48,36);const d=sx.getImageData(0,0,48,36).data,gr=new Float32Array(1728);let s=0;for(let i=0,j=0;j<1728;i+=4,j++){gr[j]=(d[i]+d[i+1]+d[i+2])/765;s+=gr[j]}const m=s/1728||1e-3;for(let j=0;j<1728;j++)gr[j]/=m;
-      if(prevG){const mo=fracDiff(gr,prevG,.25);if(mo>.06&&now-lastMot>300){lastMot=now;count()}}prevG=gr}
-    if(RUN.rec&&RUN.rec.state==='recording'){if(now>recEnd){RUN.rec.stop();$('#recDot')?.remove()}else{const s2=Math.max(720/vw,1280/vh);rx.save();rx.translate(720,0);rx.scale(-1,1);rx.drawImage(v,(720-vw*s2)/2,(1280-vh*s2)/2,vw*s2,vh*s2);rx.restore();
-      rx.fillStyle='rgba(0,0,0,.35)';rx.fillRect(0,1080,720,200);rx.fillStyle='#fff';rx.font='700 120px "JetBrains Mono",monospace';rx.textAlign='center';rx.fillText(String(reps),360,1225);
-      if(LOGO.complete&&LOGO.naturalWidth){const lw=200,lh=lw*LOGO.naturalHeight/LOGO.naturalWidth;rx.drawImage(LOGO,720-lw-24,28,lw,lh)}}}
-  });
-  RUN.onQuit=null;$('#call').innerHTML='';
-  if(RUN.rec&&RUN.rec.state==='recording'){await new Promise(r=>{RUN.rec.addEventListener('stop',r,{once:true});RUN.rec.stop()})}
-  if(RUN.rec){await sleep(200);let tries=0;while(!recUrl&&tries++<20)await sleep(100)}
-  play.classList.remove('bare');const dur=Math.round((performance.now()-t0)/1000);
-  const ext=(recType||'').includes('mp4')?'mp4':'webm';
-  const res={primary:reps,disp:String(reps),unit:'',lowerBetter:false,complete:reps>0,src:'camera',label:`${g.pose==='feet'?'נגיעות':'הקפצות'} ב-${mmss(dur)} דקות${pose?'':' (מצב פשוט)'}`,
-    grid:[[g.pose==='feet'?'נגיעות':'הקפצות',reps],['זמן',mmss(dur)],['קצב לדקה',dur?Math.round(reps/dur*60):0],['זיהוי',pose?'גוף מלא':'תנועה']],flag:reps?null:'לא נספרו חזרות. בדוק שכל הגוף בתוך המסגרת ונסה שוב.'};
-  if(recUrl){res.extra=`<a class="btn btn-g full" href="${recUrl}" download="brainball-${id}.${ext}">שמור את הסרטון בטלפון <span class="ar">↓</span></a><button class="btn btn-o full" id="recShare">שתף את הסרטון</button>`;
-    res.after=()=>{$('#recShare').onclick=async()=>{try{const b=await fetch(recUrl).then(r=>r.blob());const f=new File([b],`brainball.${ext}`,{type:b.type});if(navigator.canShare?.({files:[f]}))await navigator.share({files:[f],title:'BrainBall'});else shareApp(`עשיתי ${reps} ב"${g.name}".`)}catch(e){}}}}
-  return res}
-
-/* ================= field mode ================= */
-const FIELD={colors:['#00E0FF','#FF2BD6','#3DF59A','#FFE14D','#FF7A1A'],arrows:['←','→','↑','↓'],numbers:['1','2','3','4']};
-const FLV={beginner:['colors'],plus:['colors','arrows'],pro:['colors','arrows','numbers']};
-const FLV_NOTE={beginner:'צבעים בלבד',plus:'צבעים וחיצים',pro:'צבעים, חיצים ומספרים'};
-let fCfg=Object.assign({mode:'timed',dur:45,level:'plus',pace:3000,types:null,sets:1,rest:30,tap:false},S.get('field3',{}));
-const fTypes=()=>fCfg.types||FLV[fCfg.level];
-function fPool(){const p=[];fTypes().forEach(t=>FIELD[t].forEach(v=>p.push({t,v})));return p}
-function fPaint(p,el,symEl){el.style.background=p.t==='colors'?p.v:'#0B0B0F';symEl.textContent=p.t==='colors'?'':p.v;symEl.style.color=p.t==='numbers'?'#00E0FF':'#fff'}
-let fDemo=null;
-function renderField(){
-  const set=(id,v)=>$$('#'+id+' [data-v]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v)===String(v)));
-  set('fMode',fCfg.mode);set('fDur',fCfg.dur);set('fLevel',fCfg.level);set('fPace',fCfg.pace);
-  $('#rowDur').hidden=fCfg.mode!=='timed';$('#rowSets').hidden=fCfg.mode!=='timed';$('#rowRest').hidden=fCfg.mode!=='timed'||fCfg.sets<2;
-  $('#lvNote').textContent=FLV_NOTE[fCfg.level]+(fCfg.types?' · שונה בהגדרות הנוספות':'');
-  $$('#fTypes .chip').forEach(b=>b.setAttribute('aria-pressed',fTypes().includes(b.dataset.t)));
-  $('#fSets').value=fCfg.sets;$('#fSetsV').textContent=fCfg.sets;$('#fRest').value=fCfg.rest;$('#fRestV').textContent=fCfg.rest;
-  $('#fTap').setAttribute('aria-pressed',fCfg.tap);$('#fStart').disabled=!fTypes().length;
-  clearInterval(fDemo);let prev=null;const step=()=>{const pool=fPool();if(!pool.length)return;let p;do{p=pick(pool)}while(pool.length>1&&p===prev);prev=p;fPaint(p,$('#demo'),$('#demoSym'))};
-  $('#demoLbl').textContent=`ככה זה ייראה: החלפה כל ${fCfg.pace/1000} ${fCfg.pace===1000?'שנייה':'שניות'}`;step();
-  fDemo=setInterval(()=>{if(!$('#v-field').classList.contains('on'))return clearInterval(fDemo);step()},fCfg.pace)}
-const saveF=()=>{S.set('field3',fCfg);renderField()};
-[['fMode','mode'],['fDur','dur'],['fLevel','level'],['fPace','pace']].forEach(([id,k])=>$('#'+id).onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;
-  fCfg[k]=['dur','pace'].includes(k)?+b.dataset.v:b.dataset.v;if(k==='level')fCfg.types=null;saveF()});
-$('#fTypes').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const cur=[...fTypes()],t=b.dataset.t;fCfg.types=cur.includes(t)?cur.filter(x=>x!==t):[...cur,t];saveF()};
-$('#fSets').oninput=e=>{fCfg.sets=+e.target.value;saveF()};$('#fRest').oninput=e=>{fCfg.rest=+e.target.value;saveF()};
-$('#fTap').onclick=()=>{fCfg.tap=!fCfg.tap;saveF()};
-$('#fMoreBtn').onclick=()=>{const m=$('#fMore');m.hidden=!m.hidden;$('#fMoreBtn').setAttribute('aria-expanded',String(!m.hidden));$('#fMoreBtn').textContent=m.hidden?'הגדרות נוספות':'הסתר הגדרות'};
-$('#fStart').onclick=async()=>{clearInterval(fDemo);ac();
-  try{await document.documentElement.requestFullscreen?.()}catch(e){}
-  play.hidden=false;play.classList.add('bare');document.body.style.overflow='hidden';newRun();RUN.bg=true;keepAwake();
-  const pool=fPool(),free=fCfg.mode==='free',sets=free?1:fCfg.sets;let shown=0,active=0,prev=null;const t00=performance.now();
-  const finish=()=>{play.classList.remove('bare');hud('סיום',1);clock(null);releaseWake();
-    stageHTML(`<div class="res"><div class="k">רצף עם כדור · ${LV[fCfg.level]}</div><div class="main grad">${mmss(active)}</div><div class="cap">${shown} החלפות · כל ${fCfg.pace/1000} שניות</div>
-      <p style="margin:0 0 10px">איך הלך?</p><div class="acts"><button class="btn btn-g full" data-rep="done">ביצעתי הכל</button><button class="btn btn-o full" data-rep="partial">חלקית</button><button class="btn btn-o full" data-rep="no">לא הפעם</button></div>
-      <p class="note" style="margin-top:12px">זה דיווח שלך. האפליקציה לא מודדת את העבודה עם הכדור.</p></div>`,'scroll');
-    stage.onclick=e=>{const b=e.target.closest('[data-rep]');if(!b)return;stage.onclick=null;
-      hist.push({id:'field',level:fCfg.level,date:Date.now(),primary:active,disp:mmss(active),label:{done:'בוצע',partial:'בוצע חלקית',no:'לא בוצע'}[b.dataset.rep]+` · ${shown} החלפות`,src:'self_report'});S.set('hist',hist);syncResult(hist[hist.length-1]);closePlay()}};
-  RUN.onQuit=()=>{active=Math.round((performance.now()-t00)/1000);stopRun();newRun();RUN.active=false;finish()};
-  try{
-    for(let set=1;set<=sets;set++){
-      for(const n of[3,2,1]){stageHTML(`<div class="cd" style="color:var(--cyan)">${n}</div>`,'full');sfx.tick();await sleep(800)}sfx.go();
-      stageHTML(`<div class="fscreen" id="fs"><span class="sym" id="fsSym"></span></div>`,'full');const fs=$('#fs'),sym=$('#fsSym');
-      const end=free?Infinity:performance.now()+fCfg.dur*1000,setStart=performance.now();
-      const ci=setInterval(()=>{const now=performance.now();clock(free?(now-t00)/1000:(end-now)/1000)},200);RUN.timers.push(ci);
-      while(performance.now()<end){let p;do{p=pick(pool)}while(pool.length>1&&p.v===prev);prev=p.v;shown++;fPaint(p,fs,sym);sfx.swap();
-        hud(sets>1?`סט ${set}/${sets}`:'',free?0:(set-1+(performance.now()-setStart)/(fCfg.dur*1000))/sets);
-        if(fCfg.tap)await waitInput(free?null:end-performance.now(),v=>v.kind==='tap');else await sleep(free?fCfg.pace:Math.min(fCfg.pace,Math.max(0,end-performance.now())))}
-      clearInterval(ci);active+=fCfg.dur;
-      if(set<sets){const re=performance.now()+fCfg.rest*1000;while(performance.now()<re){const l=(re-performance.now())/1000;clock(l);
-        stageHTML(`<div><div class="st-big">מנוחה, נשימה</div><div class="cd grad" style="font-size:min(40vw,40vh)">${Math.ceil(l)}</div><div class="st-sub">סט ${set+1} מתוך ${sets} מגיע</div></div>`);hud('מנוחה',set/sets);await sleep(250)}}}
-    RUN.onQuit=null;RUN.active=false;sfx.go();finish();
-  }catch(e){if(e!=='cancel')console.error(e)}};
-
-/* ================= boot ================= */
-function boot(){const h=location.hash.slice(1),m=h.match(/^hw-([a-z]+)-(beginner|plus|pro)$/),jn=h.match(/^join-([A-Z0-9]{4,8})$/i);
-  if(jn){const c=jn[1].toUpperCase();S.set('pendingJoin',c);if(profile){profile.teamCode=c;S.set('profile2',profile);Team.join(c,{device:DEV,name:profile.name,age:profile.age}).catch(()=>{})}history.replaceState(null,'','#home')}
-  paintIcons();
-  if(m&&CAT[m[1]]){hwTask={key:h,id:m[1],level:m[2]};S.set('hw',hwTask)}else hwTask=S.get('hw',null);
-  if(profile)$('#avatar').textContent=(profile.name||'B').trim()[0]||'B';
-  go(m?'home':(h||'home'))}
-addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h.startsWith('hw-')||h.startsWith('join-'))boot();else if($('#v-'+h)&&!$('#v-'+h).classList.contains('on'))go(h)});
-boot();
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/games.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/field.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/views.js"></script>
+<script src="js/boot.js"></script>
 </body>
 </html>
