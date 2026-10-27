@@ -50,29 +50,41 @@
         </div>
       </div>
       <div class="field-row" id="rowName"><span>שם מלא</span><input type="text" id="dName" autocomplete="name" placeholder="איך קוראים לך?"></div>
+      <div class="field-row" id="rowEmail"><span>אימייל</span><input type="email" id="dEmail" inputmode="email" autocomplete="email" placeholder="name@email.com" class="ltr"></div>
+      <div class="field-row" id="rowPhone"><span>טלפון</span><input type="tel" id="dPhone" inputmode="tel" autocomplete="tel" placeholder="050-0000000" class="ltr"><small class="note" id="phoneHint">מספר הטלפון הוא גם הסיסמה שלך. אפשר לשנות אותה אחר כך.</small></div>
+      <div class="field-row" id="rowPass" hidden><span id="lPass">סיסמה</span><input type="password" id="dPass" autocomplete="current-password" placeholder="מספר הטלפון שלך, אם לא שינית" class="ltr"></div>
+      <button type="button" class="link-btn" id="dOwnPass">אני רוצה לבחור סיסמה אחרת</button>
       <div class="row2 tight" id="rowAgePos">
-        <div class="field-row"><span>גיל</span><input type="number" id="dAge" inputmode="numeric" min="6" max="80" placeholder="15"></div>
+        <div class="field-row"><span>גיל</span><input type="number" id="dAge" inputmode="numeric" min="6" max="80" placeholder="לא חובה"></div>
         <div class="field-row"><span>תפקיד במגרש</span><select id="dPos"><option value="">לא חובה</option><option>שוער</option><option>בלם</option><option>מגן</option><option>קשר אחורי</option><option>קשר התקפי</option><option>כנף</option><option>חלוץ</option></select></div>
       </div>
       <div class="field-row" id="rowCode"><span id="lCode">קוד קבוצה (אם המאמן שלח לך)</span><input type="text" id="dCode" autocomplete="off" placeholder="לדוגמה K7Q2MX" class="code-in"></div>
-      <div class="field-row" id="rowTeam"><span>הקבוצה שלך (לא חובה)</span><input type="text" id="dTeam" placeholder="שם הקבוצה או המועדון"></div>
-      <div id="rowStaff" hidden>
-        <div class="field-row"><span>אימייל</span><input type="text" id="dEmail" inputmode="email" autocomplete="email" placeholder="name@email.com" class="ltr"></div>
-        <div class="field-row"><span>סיסמה</span><input type="password" id="dPass" autocomplete="current-password" placeholder="לפחות 6 תווים" class="ltr"></div>
-      </div>
+      <div class="field-row" id="rowAdmin" hidden><span>קוד מנהל מערכת</span><input type="password" id="dAdminKey" autocomplete="off" class="code-in"></div>
       <div id="rowNewClub" hidden>
         <button type="button" class="link-btn" id="dNoCode">אין לי קוד. אני רוצה לפתוח מועדון חדש</button>
         <div id="newClubBox" hidden>
           <div class="field-row"><span>שם המועדון</span><input type="text" id="dClubName" placeholder="לדוגמה ביתר טוברוק"></div>
           <div class="field-row"><span>לוגו המועדון (לא חובה)</span><label class="file-pick"><input type="file" id="dLogo" accept="image/*"><span class="ic" data-i="image"></span><span id="dLogoTxt">בחר תמונה</span></label></div>
-          <p class="note">הבקשה תעבור לאישור מנהל המערכת.</p>
+          <p class="note">צוות BrainBall יחזור אליך לאישור המועדון.</p>
         </div>
       </div>
-      <label class="check" id="rowTerms"><input type="checkbox" id="dTerms"><span>מאשר את תנאי השימוש ומדיניות הפרטיות</span></label>
+      <label class="check" id="rowTerms"><input type="checkbox" id="dTerms"><span>קראתי ומאשר את <a href="terms.html" target="_blank">תנאי השימוש</a> ואת <a href="privacy.html" target="_blank">מדיניות הפרטיות</a></span></label>
       <div class="ferr" id="dErr" aria-live="polite"></div>
       <button class="btn btn-g btn-xl full" type="submit" id="dSubmit">יאללה, לאימון <span class="ar">←</span></button>
+      <button type="button" class="link-btn" id="dForgot" hidden style="width:100%">שכחתי סיסמה</button>
     </form>
-    <div class="reg-links"><button class="link-btn" id="dLogin">כבר רשום כמאמן או מנהל? התחברות</button><button class="link-btn dim" id="saLink">כניסת מנהל מערכת</button></div>
+    <div class="reg-links"><button class="link-btn" id="dLogin">כבר רשום? התחברות</button><button class="link-btn dim" id="saLink">כניסת מנהל מערכת</button></div>
+  </section>
+
+  <!-- NEW PASSWORD (after reset link) -->
+  <section class="view" id="v-newpass">
+    <div class="gate" style="margin:40px auto">
+      <div class="lensbig"><span class="ic" data-i="lock"></span></div>
+      <h1 class="title" style="margin:0">סיסמה חדשה</h1>
+      <input type="password" id="npPass" placeholder="לפחות 6 תווים" class="ltr" autocomplete="new-password">
+      <div class="ferr" id="npErr"></div>
+      <button class="btn btn-g full" id="npSave">שמור סיסמה</button>
+    </div>
   </section>
 
   <!-- PENDING APPROVAL -->
@@ -128,7 +140,7 @@
 
   <!-- COACH: one team -->
   <section class="view" id="v-coach">
-    <button class="back" id="coachBack" hidden>→ חזרה למועדון</button>
+    <button class="back" id="coachBack" hidden>→ חזרה</button>
     <div class="h-sub" id="coachHello"></div>
     <h1 class="title" id="coachTitle">הקבוצה שלי</h1>
     <div class="mesh team-hero" style="--m:radial-gradient(circle at 80% 20%,var(--purple),transparent 45%),radial-gradient(circle at 15% 85%,var(--cyan),transparent 45%)">
@@ -136,25 +148,34 @@
       <div class="code" id="tCode">------</div>
       <div class="row2"><a class="btn btn-w" id="tWaAll" target="_blank" rel="noopener"><span class="ic" data-i="chat"></span>הזמנה לקבוצה</a><button class="btn btn-o" id="tCopy"><span class="ic" data-i="copy"></span>העתק קישור</button></div>
     </div>
-    <div class="sec">טבלת שחקנים <small id="dashNote"></small></div>
-    <div class="board-wrap"><table class="board" id="board"></table></div>
-    <div class="sec">שליחת משימה</div>
-    <div class="box">
-      <div class="field-row"><span>למי</span><select id="taskTo"></select></div>
-      <div class="row2" style="margin-bottom:10px"><select id="hwGame" aria-label="תרגיל"></select><select id="hwLevel" aria-label="רמה"><option value="beginner">מתחילים</option><option value="plus" selected>בינוני</option><option value="pro">מקצוענים</option></select></div>
-      <div class="field-row"><span>הערה (לא חובה)</span><input type="text" id="taskNote" placeholder="לדוגמה: 3 פעמים עד יום חמישי"></div>
-      <button class="btn btn-g full" id="taskSend"><span class="ic" data-i="send"></span>שלח משימה</button>
-      <div class="ferr" id="taskErr"></div>
-      <div class="hwlist" id="hwList"></div>
+    <div class="segtabs" id="coachTabs"><button data-t="ins" aria-pressed="true">תמונת מצב</button><button data-t="hw" aria-pressed="false">שיעורי בית</button><button data-t="pl" aria-pressed="false">שחקנים</button></div>
+    <div data-pane="ins"><div id="coachIns"><div class="empty">טוען...</div></div></div>
+    <div data-pane="hw" hidden>
+      <div class="box hwbuild">
+        <h3>משימה חדשה</h3>
+        <div class="field-row"><span>שם המשימה</span><input type="text" id="hwTitle" placeholder="לדוגמה: חימום מוח לפני משחק שבת"></div>
+        <div class="field-row"><span>תרגילים (אפשר כמה)</span><div class="pickgrid" id="hwPick"></div></div>
+        <div class="field-row"><span>רמה</span><div class="seg" id="hwLv"><button data-v="beginner" aria-pressed="false">מתחילים</button><button data-v="plus" aria-pressed="true">בינוני</button><button data-v="pro" aria-pressed="false">מקצוענים</button></div></div>
+        <div class="row2"><div class="field-row"><span>עד מתי</span><input type="date" id="hwDue"></div><div class="field-row"><span>למי</span><select id="taskTo"></select></div></div>
+        <div class="field-row"><span>הודעה לשחקנים (לא חובה)</span><input type="text" id="taskNote" placeholder="לדוגמה: 3 פעמים השבוע, בהצלחה!"></div>
+        <button class="btn btn-g full" id="taskSend"><span class="ic" data-i="send"></span>שלח משימה</button>
+        <div class="ferr" id="taskErr"></div>
+      </div>
+      <div class="sec">משימות פעילות <small id="hwSum"></small></div>
+      <div class="hwtrack" id="hwList"></div>
     </div>
-    <div class="sec">הזמנת שחקנים בוואטסאפ</div>
-    <div class="box">
-      <div class="row2"><input type="text" id="pName" placeholder="שם השחקן" aria-label="שם השחקן"><input type="text" id="pPhone" inputmode="tel" placeholder="050-0000000" aria-label="טלפון" class="ltr"></div>
-      <div class="ferr" id="pErr"></div>
-      <button class="btn btn-o full" id="pAdd"><span class="ic" data-i="plus"></span>הוסף לרשימה</button>
-      <div class="dash" id="rosterList" style="margin-top:10px"></div>
+    <div data-pane="pl" hidden>
+      <div class="sec">טבלת שחקנים <small id="dashNote"></small></div>
+      <div class="board-wrap"><table class="board" id="board"></table></div>
+      <div class="sec">הזמנת שחקנים בוואטסאפ</div>
+      <div class="box">
+        <div class="row2"><input type="text" id="pName" placeholder="שם השחקן" aria-label="שם השחקן"><input type="tel" id="pPhone" inputmode="tel" placeholder="050-0000000" aria-label="טלפון" class="ltr"></div>
+        <div class="ferr" id="pErr"></div>
+        <button class="btn btn-o full" id="pAdd"><span class="ic" data-i="plus"></span>הוסף לרשימה</button>
+        <div class="dash" id="rosterList" style="margin-top:10px"></div>
+      </div>
     </div>
-    <div class="mesh" style="--m:radial-gradient(circle at 70% 30%,var(--stim),transparent 40%),radial-gradient(circle at 20% 80%,var(--magenta),transparent 45%)">
+    <div class="mesh" style="margin-top:18px;--m:radial-gradient(circle at 70% 30%,var(--stim),transparent 40%),radial-gradient(circle at 20% 80%,var(--magenta),transparent 45%)">
       <div class="k">FIELD MODE</div>
       <h2 style="font-size:26px;margin:8px 0 6px">רצף עם כדור</h2>
       <p style="margin:0 0 14px;opacity:.9">טאבלט על חצובה, כל הקבוצה מול המסך.</p>
@@ -162,36 +183,42 @@
     </div>
   </section>
 
-  <!-- CLUB MANAGER -->
+  <!-- CLUB (manager, or admin inside a club) -->
   <section class="view" id="v-club">
+    <button class="back" id="clubBack" hidden>→ חזרה לכל המועדונים</button>
     <div class="club-head"><img id="clubLogo" alt="" hidden><div><div class="h-sub" id="clubHello"></div><h1 class="title" id="clubName" style="margin:0">המועדון שלי</h1></div></div>
     <div id="clubPending"></div>
-    <div class="areas" id="clubTiles"></div>
-    <div class="sec">מחלקות וקבוצות <small>כל מחלקה עם מאמן משלה</small></div>
-    <div class="teams" id="clubTeams"></div>
-    <div class="box" style="margin-top:12px">
-      <h3 style="font-size:19px;margin-bottom:10px">מחלקה חדשה</h3>
-      <div class="row2"><input type="text" id="ctName" placeholder="לדוגמה נערים א" aria-label="שם המחלקה"><button class="btn btn-g" id="ctAdd"><span class="ic" data-i="plus"></span>הוסף</button></div>
-      <div class="ferr" id="ctErr"></div>
+    <div id="clubAdmin"></div>
+    <div class="segtabs" id="clubTabs"><button data-t="ins" aria-pressed="true">תמונת מצב</button><button data-t="teams" aria-pressed="false">מחלקות</button><button data-t="pl" aria-pressed="false">כל השחקנים</button></div>
+    <div data-pane="ins"><div id="clubIns"><div class="empty">טוען...</div></div></div>
+    <div data-pane="teams" hidden>
+      <div class="teams" id="clubTeams"></div>
+      <div class="box" style="margin-top:12px">
+        <h3 style="font-size:19px;margin-bottom:10px">מחלקה חדשה</h3>
+        <div class="row2"><input type="text" id="ctName" placeholder="לדוגמה נערים א" aria-label="שם המחלקה"><button class="btn btn-g" id="ctAdd"><span class="ic" data-i="plus"></span>הוסף</button></div>
+        <div class="ferr" id="ctErr"></div>
+      </div>
     </div>
-    <div class="row2"><button class="btn btn-o" data-go="order"><span class="ic" data-i="sliders"></span>סדר האימונים</button><button class="btn btn-o" data-go="field"><span class="ic" data-i="display"></span>מסך מגרש</button></div>
+    <div data-pane="pl" hidden><div class="board-wrap"><table class="board" id="clubBoard"></table></div></div>
+    <div class="row2" style="margin-top:14px"><button class="btn btn-o" data-go="order"><span class="ic" data-i="sliders"></span>סדר האימונים</button><button class="btn btn-o" data-go="field"><span class="ic" data-i="display"></span>מסך מגרש</button></div>
   </section>
 
   <!-- SYSTEM ADMIN -->
   <section class="view" id="v-sys">
     <div class="h-sub">מנהל מערכת</div>
     <h1 class="title">BrainBall · ניהול</h1>
-    <div class="areas" id="sysTiles"></div>
-    <div class="sec">מועדון חדש</div>
-    <div class="box">
-      <div class="field-row"><span>שם המועדון</span><input type="text" id="scName" placeholder="לדוגמה ביתר טוברוק"></div>
-      <div class="field-row"><span>לוגו</span><label class="file-pick"><input type="file" id="scLogo" accept="image/*"><span class="ic" data-i="image"></span><span id="scLogoTxt">בחר תמונה</span></label></div>
-      <div class="field-row"><span>מחלקות (כל שורה מחלקה)</span><textarea id="scTeams" rows="4" placeholder="נערים א&#10;נערים ב&#10;ילדים א"></textarea></div>
-      <button class="btn btn-g full" id="scAdd"><span class="ic" data-i="plus"></span>צור מועדון וקודים</button>
-      <div class="ferr" id="scErr"></div>
+    <div class="segtabs" id="sysTabs"><button data-t="ins" aria-pressed="true">תמונת מצב</button><button data-t="clubs" aria-pressed="false">מועדונים</button><button data-t="new" aria-pressed="false">מועדון חדש</button></div>
+    <div data-pane="ins"><div id="sysIns"><div class="empty">טוען...</div></div></div>
+    <div data-pane="clubs" hidden><div class="teams" id="sysClubs"></div></div>
+    <div data-pane="new" hidden>
+      <div class="box">
+        <div class="field-row"><span>שם המועדון</span><input type="text" id="scName" placeholder="לדוגמה ביתר טוברוק"></div>
+        <div class="field-row"><span>לוגו</span><label class="file-pick"><input type="file" id="scLogo" accept="image/*"><span class="ic" data-i="image"></span><span id="scLogoTxt">בחר תמונה</span></label></div>
+        <div class="field-row"><span>מחלקות (כל שורה מחלקה)</span><textarea id="scTeams" rows="4" placeholder="נערים א&#10;נערים ב&#10;ילדים א"></textarea></div>
+        <button class="btn btn-g full" id="scAdd"><span class="ic" data-i="plus"></span>צור מועדון וקודים</button>
+        <div class="ferr" id="scErr"></div>
+      </div>
     </div>
-    <div class="sec">מועדונים <small id="sysNote"></small></div>
-    <div class="teams" id="sysClubs"></div>
     <button class="btn btn-o full" data-go="order" style="margin-top:12px"><span class="ic" data-i="sliders"></span>סדר האימונים לכל המערכת</button>
   </section>
 
@@ -211,12 +238,15 @@
     <div class="box"><dl class="kv" id="accKv"></dl></div>
     <div class="switchrow" id="accShareRow" hidden><div><b style="font-family:var(--f-display)">שיתוף תוצאות עם המאמן</b><div class="note" id="accTeam"></div></div><button class="sw" role="switch" id="accShare" aria-label="שיתוף תוצאות עם המאמן"></button></div>
     <div class="box" id="accJoin" hidden><h3 style="font-size:18px;margin-bottom:8px">הצטרפות לקבוצה</h3><div class="row2"><input type="text" id="accCode" placeholder="קוד קבוצה" class="code-in"><button class="btn btn-g" id="accJoinBtn">הצטרף</button></div><div class="ferr" id="accErr"></div></div>
+    <div class="box" id="accPassBox" hidden><h3 style="font-size:18px;margin-bottom:8px">שינוי סיסמה</h3><div class="row2"><input type="password" id="accPass" placeholder="סיסמה חדשה" class="ltr" autocomplete="new-password"><button class="btn btn-o" id="accPassBtn">שמור</button></div><div class="ferr" id="accPassErr"></div></div>
     <div style="display:grid;gap:10px">
       <button class="btn btn-g full" data-share="app"><span class="ic" data-i="share"></span>שתף את BrainBall עם חבר</button>
       <button class="btn btn-o full" id="accHome" hidden></button>
       <button class="btn btn-o full" id="accEdit">עריכת פרטים</button>
       <button class="btn btn-o full" id="accOut"><span class="ic" data-i="logout"></span>התנתקות</button>
     </div>
+    <div class="legal"><a href="privacy.html" target="_blank">מדיניות פרטיות</a><a href="terms.html" target="_blank">תנאי שימוש</a><a href="mailto:fitnessisrael@gmail.com">תמיכה</a></div>
+    <button class="link-btn danger" id="accDel">מחיקת החשבון</button>
     <p class="note" style="margin-top:14px" id="accSync"></p>
   </section>
 
@@ -277,7 +307,10 @@
 <script src="js/camera.js"></script>
 <script src="js/field.js"></script>
 <script src="js/catalog.js"></script>
+<script src="js/analytics.js"></script>
 <script src="js/views.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/manage.js"></script>
 <script src="js/boot.js"></script>
 </body>
 </html>
