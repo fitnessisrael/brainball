@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BrainBall</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="BrainBall – אימון זמן תגובה וחשיבה לשחקני כדורגל.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,500;0,700;0,900;1,900&family=Assistant:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: one-screen landing - logo, thesis, one button into the app; short strip of three uses below */
+:root{
+  --bg:#0B0B0F; --surface:#14131C; --line:rgba(255,255,255,.09);
+  --fg:#F3F0FA; --muted:#A7A1B8; --dim:#6F6982;
+  --purple:#AA44FF; --magenta:#FF2BD6; --cyan:#00E0FF; --stim:#FF7A1A; --go:#3DF59A;
+  --f-display:"Rubik","Assistant",system-ui,sans-serif;
+  --f-body:"Assistant","Rubik",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--fg)}
+body{margin:0;font-family:var(--f-body);font-size:18px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.05;margin:0;text-wrap:balance}
+.grad{background:linear-gradient(100deg,var(--magenta),var(--purple) 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero{position:relative;overflow:hidden;padding-block:64px 72px;text-align:center}
+#net{position:absolute;inset:0;width:100%;height:100%;opacity:.5;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5;pointer-events:none}
+.b1{width:520px;height:520px;background:var(--magenta);top:-200px;right:-160px;animation:drift 18s ease-in-out infinite alternate}
+.b2{width:480px;height:480px;background:var(--purple);bottom:-240px;left:-120px;animation:drift 22s ease-in-out infinite alternate-reverse}
+.b3{width:300px;height:300px;background:var(--cyan);top:30%;left:20%;opacity:.2;animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(60px,40px) scale(1.12)}}
+.hero .wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.logo{width:min(440px,84%);height:auto;filter:drop-shadow(0 6px 30px rgba(255,43,214,.35))}
+.hero h1{font-size:clamp(46px,8vw,96px);font-weight:900;margin-top:22px}
+.hero h1 em{font-style:italic}
+.lead{font-size:clamp(18px,2.2vw,22px);color:var(--muted);max-width:30em;margin:18px 0 32px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:60px;padding:0 40px;border-radius:999px;font:800 21px var(--f-display);text-decoration:none;color:#fff;background:linear-gradient(100deg,var(--magenta),var(--purple));box-shadow:0 14px 50px -12px rgba(255,43,214,.75);transition:transform .15s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px;font-size:15px;color:var(--dim)}
+.meta span{padding:6px 14px;border-radius:999px;border:1px solid var(--line)}
+.meta .free{color:var(--go);border-color:rgba(61,245,154,.35)}
+.uses{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-block:8px 64px}
+.use{position:relative;overflow:hidden;border-radius:22px;padding:24px;background:var(--surface);isolation:isolate;min-height:170px;display:flex;flex-direction:column;justify-content:flex-end}
+.use::before{content:"";position:absolute;inset:-40%;z-index:-1;filter:blur(46px);opacity:.7;background:var(--m)}
+.use .ico{position:absolute;top:16px;left:20px;font:900 54px var(--f-display);line-height:1}
+.use h3{font-size:24px;font-weight:800}
+.use p{margin:6px 0 0;font-size:16px;color:rgba(243,240,250,.85)}
+footer{padding-block:28px 40px;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between}
+footer nav{display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:inherit;text-decoration:none}
+@media (max-width:760px){.uses{grid-template-columns:1fr}.use{min-height:130px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <canvas id="net" aria-hidden="true"></canvas>
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div class="wrap">
+      <img class="logo" src="logo.png" alt="BrainBall">
+      <h1>המשחק מתחיל<br><em class="grad">אצלך בראש.</em></h1>
+      <p class="lead">אימון זמן תגובה, קשב וקבלת החלטות לשחקני כדורגל. לשחקנים, למאמנים ולמועדונים.</p>
+      <a class="btn" href="app.html#start">התחל אימון</a>
+      <div class="meta"><span class="free">חינם בתקופת ההשקה</span><span>App Store · בקרוב</span><span>Google Play · בקרוב</span></div>
+    </div>
+  </section>
+  <div class="wrap uses">
+    <div class="use" style="--m:radial-gradient(circle at 70% 25%,var(--magenta),transparent 45%),radial-gradient(circle at 20% 70%,var(--purple),transparent 50%)"><span class="ico" aria-hidden="true">●</span><h3>שחקן</h3><p>אימון של כמה דקות מהטלפון, ורואים את השיפור.</p></div>
+    <div class="use" style="--m:radial-gradient(circle at 30% 25%,var(--cyan),transparent 42%),radial-gradient(circle at 80% 75%,var(--purple),transparent 50%)"><span class="ico" aria-hidden="true">↗</span><h3>מאמן</h3><p>שולחים שיעורי בית ובודקים מי התאמן ומי השתפר.</p></div>
+    <div class="use" style="--m:radial-gradient(circle at 60% 30%,var(--stim),transparent 40%),radial-gradient(circle at 20% 80%,var(--magenta),transparent 50%)"><span class="ico" aria-hidden="true">←</span><h3>מסך במגרש</h3><p>צבעים וחיצים מתחלפים, והשחקנים מגיבים עם הכדור.</p></div>
+  </div>
+</main>
+<footer><div class="wrap"><span>© 2026 BrainBall</span><nav aria-label="קישורים משפטיים"><a href="#">מדיניות פרטיות</a><a href="#">תנאי שימוש</a><a href="#">הצהרת נגישות</a></nav></div></footer>
+<script>
+(function(){const c=document.getElementById('net');const x=c.getContext('2d');let w,h,pts=[];const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,d=devicePixelRatio||1;
+function size(){const r=c.getBoundingClientRect();w=c.width=r.width*d;h=c.height=r.height*d;const n=Math.round(Math.min(64,r.width/20));pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25*d,vy:(Math.random()-.5)*.25*d}))}
+function draw(){x.clearRect(0,0,w,h);const L=150*d;for(const p of pts){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1}
+for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pts[j],q=Math.hypot(a.x-b.x,a.y-b.y);if(q<L){x.strokeStyle=`rgba(200,120,255,${(1-q/L)*.35})`;x.lineWidth=d;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+for(const p of pts){x.fillStyle='rgba(255,140,230,.8)';x.beginPath();x.arc(p.x,p.y,1.8*d,0,7);x.fill()}if(!reduce)requestAnimationFrame(draw)}
+size();draw();addEventListener('resize',size)})();
+</script>
+</body>
+</html>
