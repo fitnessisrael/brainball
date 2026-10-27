@@ -20,7 +20,7 @@ const DB={
     if(error)throw error;this.prof=data;if(data)applyServerProfile(data);return data},
   // everyone signs in with email + password. The default password is the phone number (digits only).
   async signUp(email,pass){if(this.user)await this.logout();let r=await sb.auth.signUp({email,password:pass});
-    if(r.error&&/already/i.test(r.error.message))r=await sb.auth.signInWithPassword({email,password:pass});
+    if(r.error&&/already/i.test(r.error.message)){r=await sb.auth.signInWithPassword({email,password:pass});if(r.error)throw new Error('האימייל הזה כבר רשום עם סיסמה אחרת. לחץ "כבר רשום? התחברות", או "שכחתי סיסמה".')}
     if(r.error)throw r.error;if(!r.data.session)throw new Error('confirm_email');this.user=r.data.user;return this.user},
   async signIn(email,pass){if(this.user)await this.logout();const r=await sb.auth.signInWithPassword({email,password:pass});if(r.error)throw r.error;this.user=r.data.user;return this.user},
   async resetPass(email){const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:appUrl()+'app'});if(error)throw error},
