@@ -581,3 +581,4 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .compose{margin-bottom:14px}
 .assignbox summary{font-size:13px;color:var(--muted);cursor:pointer;padding:6px 0}
 #hubList{padding-bottom:170px}
+.rub.static{cursor:default}
