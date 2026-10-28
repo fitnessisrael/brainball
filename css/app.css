@@ -569,3 +569,9 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .assign{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .chip{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:var(--fg);font-size:14px;font-weight:700}
 .chip[aria-pressed=true]{background:#fff;color:#111;border-color:#fff}
+/* v9: sheets never wider than the screen */
+.sheet{grid-template-columns:minmax(0,1fr);overflow-x:hidden}
+.sheet>div{min-width:0;width:100%;box-sizing:border-box;overflow-x:hidden}
+.sheet>div *{min-width:0}
+#pSheetBody{min-width:0;max-width:100%}
+.vrow{max-width:100%;box-sizing:border-box}
