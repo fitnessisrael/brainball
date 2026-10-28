@@ -42,7 +42,7 @@ const neuro=(()=>{const c=$('#neuro'),x=c.getContext('2d');let w,h,pts=[],on=fal
   return{toggle(v){if(v===on)return;on=v;c.style.display=v?'block':'none';cancelAnimationFrame(raf);if(v){size();raf=requestAnimationFrame(draw)}}}})();
 
 /* ---------- share & links ---------- */
-function appUrl(){return location.href.split('#')[0].split('?')[0].replace(/app(\.html)?$/,'')}
+function appUrl(){return location.href.split('#')[0].split('?')[0].replace(/(app|index)(\.html)?$/,'')}
 const appLink=h=>appUrl()+'app#'+h;
 async function shareApp(extra){const text=(extra?extra+'\n':'')+'אני מאמן את המוח שלי למשחק ב-BrainBall. מוזמנים להצטרף גם ולהתחיל להתאמן.';const url=appUrl();
   try{if(navigator.share){await navigator.share({title:'BrainBall',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}

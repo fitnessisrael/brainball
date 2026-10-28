@@ -1,0 +1,9 @@
+{
+  "appId": "com.fitnessisrael.brainball",
+  "appName": "BrainBall",
+  "webDir": "www",
+  "backgroundColor": "#08040e",
+  "server": { "hostname": "brainball-coral.vercel.app", "iosScheme": "https", "androidScheme": "https" },
+  "ios": { "contentInset": "never", "backgroundColor": "#08040e" },
+  "android": { "backgroundColor": "#08040e" }
+}

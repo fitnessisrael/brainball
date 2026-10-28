@@ -1,0 +1,24 @@
+{
+  "name": "brainball",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BrainBall – cognitive training for football players (web + iOS + Android)",
+  "scripts": {
+    "build": "node scripts/build-www.mjs",
+    "assets": "capacitor-assets generate --iconBackgroundColor '#08040e' --iconBackgroundColorDark '#08040e' --splashBackgroundColor '#08040e' --splashBackgroundColorDark '#08040e'",
+    "android": "npm run build && npx cap sync android",
+    "ios": "npm run build && npx cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
+    "@supabase/supabase-js": "2.45.4",
+    "@fontsource/heebo": "^5.1.0",
+    "@fontsource/outfit": "^5.1.0"
+  }
+}
