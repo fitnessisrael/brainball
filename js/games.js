@@ -82,7 +82,7 @@ async function runSweeper(cfg){const {cv,cx,W,H}=canvasStage();let level=cfg.sta
     const bs=spawn(n,R*1.6,W,top,bot),hue=pick([280,200,320,150,30]);bs.forEach((b,i)=>{b.o=i===odd});const t0=performance.now();let picked=null;
     const draw=()=>{cx.clearRect(0,0,W,H);for(const b of bs){const h=b.o&&kind!=='size'?hue+hueShift:hue,r=b.o&&kind!=='hue'?R*sizeMul:R;cx.beginPath();cx.arc(b.x,b.y,r,0,7);cx.fillStyle=`hsl(${h},90%,60%)`;cx.fill()}};
     RUN.input=v=>{if(v.kind==='tap')picked=v};
-    await animate((dt,now)=>{moveBalls(bs,R*1.6,W,top,bot,short*(.07+level*.018),dt);draw();clock((end-now)/1000);hud(`רמה ${level} · ${score} נק'`,1-(end-now)/(cfg.sec*1000));return !picked&&now<end});
+    await animate((dt,now)=>{moveBalls(bs,R*1.6,W,top,bot,short*(.07+level*.018),dt);draw();clock((end-now)/1000);hud(`רמה ${level} · ${score} נקודות`,1-(end-now)/(cfg.sec*1000));return !picked&&now<end});
     RUN.input=null;if(!picked)break;
     const rc=cv.getBoundingClientRect(),[b,d]=nearest(bs,lastPt.x-rc.left,lastPt.y-rc.top);
     if(b&&b.o&&d<R*2.2){score+=10;hits++;streak++;rts.push(performance.now()-t0);sfx.ok();const up=streak%3===0;if(up)level++;

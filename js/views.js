@@ -99,7 +99,7 @@ function paintPlan(tasks){const items=todayPlan(tasks),done=new Set(hist.filter(
   const next=items.find(x=>!done.has(x.id));
   $('#progGo').innerHTML=next?'לתרגיל הבא <span class="ar">←</span>':'סגרת את הטבעת להיום';$('#progGo').disabled=!next;$('#progGo').onclick=()=>next&&openItem(next.id,next.level)}
 function renderHome(){
-  $('#hello').textContent=profile?.name?`היי ${profile.name.split(' ')[0]}`:'היי';
+  
   paintPlan(window.TASKS);
   $('#areas').innerHTML=['speed','decision','attention'].map(a=>{const h=[...hist].reverse().find(x=>!x.partial&&CAT[x.id]?.area===a);
     return `<div class="tile"><div class="v">${h?esc(h.disp):'-'}</div><div class="l">${AREAS[a]}${h?' · '+CAT[h.id].name:''}</div></div>`}).join('');

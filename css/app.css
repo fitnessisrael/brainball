@@ -525,7 +525,6 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .top-club{width:40px;height:40px;object-fit:contain;border-radius:12px;background:rgba(255,255,255,.08);padding:3px}
 .photo-row{display:flex;align-items:center;gap:14px}.photo-prev{width:64px;height:64px;border-radius:50%;overflow:hidden;display:grid;place-items:center;font:700 26px var(--f-display);background:linear-gradient(135deg,var(--magenta),var(--purple));flex:none}
 .photo-prev img{width:100%;height:100%;object-fit:cover}
-#hello{font-size:22px;font-weight:800;color:var(--fg);letter-spacing:-.01em}
 .minestrip{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 14px;padding:10px 16px 10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:linear-gradient(100deg,rgba(255,43,214,.2),rgba(170,68,255,.2));color:#fff;font:inherit;cursor:pointer;text-align:start}
 .minestrip b{flex:1;font:700 16px var(--f-display)}.minestrip .hc-ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--magenta),var(--purple))}
 .minestrip .hc-ico svg{width:18px;height:18px}
@@ -545,3 +544,7 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .coach-head{margin-bottom:12px}
 .pinfo{top:-7px;inset-inline-start:-5px;background:var(--purple);border-color:transparent}
 .plan-bar .btn{font-size:15px;padding:0 10px;min-height:48px;line-height:1.15}
+/* v9: always right-to-left */
+#hudTxt{direction:rtl;unicode-bidi:isolate;white-space:nowrap}
+.hud,.hud *{direction:rtl}
+.hud .prog{direction:ltr}

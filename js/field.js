@@ -43,7 +43,7 @@ $('#fStart').onclick=async()=>{clearInterval(fDemo);ac();hush();
   play.hidden=false;play.classList.add('bare');document.body.style.overflow='hidden';newRun();RUN.bg=true;RUN.meta={id:'field',lv:fCfg.level};keepAwake();
   const pool=fPool(),free=fCfg.mode==='free',sets=free?1:fCfg.sets;let shown=0,active=0,prev=null;const t00=performance.now();RUN.t0=t00;
   const finish=(partial)=>{play.classList.remove('bare');hud('סיום',1);clock(null);releaseWake();
-    stageHTML(`<div class="res"><div class="k">שינויי צבע, מספרים וחיצים · ${LV[fCfg.level]}</div><div class="main grad">${mmss(active)}</div><div class="cap">${shown} החלפות · כל ${fCfg.pace/1000} שניות</div>
+    stageHTML(`<div class="res"><div class="k">קוד המגרש · ${LV[fCfg.level]}</div><div class="main grad">${mmss(active)}</div><div class="cap">${shown} החלפות · כל ${fCfg.pace/1000} שניות</div>
       <p style="margin:0 0 10px">איך הלך?</p><div class="acts"><button class="btn btn-g full" data-rep="done">ביצעתי הכל</button><button class="btn btn-o full" data-rep="partial">חלקית</button><button class="btn btn-o full" data-rep="no">לא הפעם</button></div>
       <p class="note" style="margin-top:12px">זה דיווח שלך. האפליקציה לא מודדת את העבודה עם הכדור.</p></div>`,'scroll');
     stage.onclick=e=>{const b=e.target.closest('[data-rep]');if(!b)return;stage.onclick=null;
