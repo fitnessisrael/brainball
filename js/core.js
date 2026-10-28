@@ -38,8 +38,12 @@ paintSnd();
 let voiceOn=S.get('voice',true);
 function heVoice(){try{const vs=speechSynthesis.getVoices();return vs.find(v=>/^(he|iw)/i.test(v.lang)&&/natural|enhanced|premium|google/i.test(v.name))||vs.find(v=>/^(he|iw)/i.test(v.lang))||null}catch(e){return null}}
 try{speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
-function say(t){try{if(!t||!voiceOn||!sndOn||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='he-IL';const v=heVoice();if(v)u.voice=v;u.rate=1.0;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
-function hush(){try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
+var _vo=null;
+function say(t){try{if(!t||!voiceOn||!sndOn)return;hush();let id=null;try{for(const k in VO)if(VO[k]===t){id=k;break}}catch(e){}
+ const tts=()=>{try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='he-IL';const v=heVoice();if(v)u.voice=v;u.rate=1.0;u.pitch=1;speechSynthesis.speak(u)}catch(e){}};
+ if(!id)return tts();
+ const a=new Audio('audio/vo_'+id+'.mp3');_vo=a;a.onerror=()=>{if(_vo===a)tts()};const p=a.play();if(p&&p.catch)p.catch(()=>{if(_vo===a)tts()})}catch(e){}}
+function hush(){try{if(_vo){_vo.pause();_vo=null}}catch(e){}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
 
 /* ================= icons ================= */
 const ICONS={
