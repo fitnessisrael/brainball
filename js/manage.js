@@ -5,6 +5,8 @@ function tabs(id,onShow){const root=$('#'+id),view=root.closest('.view');root.on
   $$('#'+id+' [data-t]').forEach(x=>x.setAttribute('aria-pressed',x===b));view.querySelectorAll('[data-pane]').forEach(p=>p.hidden=p.dataset.pane!==b.dataset.t);onShow&&onShow(b.dataset.t)}}
 function showTab(id,t){const b=$(`#${id} [data-t="${t}"]`);b&&b.click()}
 const isAdmin=()=>profile?.role==='admin';
+const coachInvite=(team,code,link)=>`אתה מוזמן למערכת BrainBall כדי לאמן את קבוצת ${team} גם מאחורי הקלעים ולתת להם שיעורי בית.\nנרשמים כאן: ${link}\nוזהו קוד המאמן שיש להזין: ${code}`;
+const playerInvite=(team,code,link)=>`זה הלינק שלכם להצטרף לקבוצת ${team} במערכת BrainBall שם נעבוד על דברים נוספים וחשובים עבורכם כשחקנים.\nזהו קוד הקבוצה: ${code}\nכנסו, הירשמו עם הפרטים שלכם: ${link}`;
 const waBtn=(phone,text,label='')=>phone?`<a class="wa-mini" href="${wa(text,phone)}" target="_blank" rel="noopener" aria-label="וואטסאפ">${I('chat')}${label}</a>`:'';
 
 const codeBtn=(attr,val)=>`<button class="code-edit" ${attr}="${val}" aria-label="עריכת קוד">${I('edit')}</button>`;
@@ -32,10 +34,12 @@ async function renderCoach(){const p=profile||{};
   const t=curTeam||(p.teamId?{id:p.teamId,name:p.team,code:p.teamCode,coach_code:p.coachCode,club:p.club}:null);
   $('#coachBack').hidden=!curTeam;$('#coachBack').onclick=()=>{curTeam=null;go(isAdmin()&&!curClub?'sys':'club')};
   $('#coachHello').textContent=t?.club||(p.name?`היי ${p.name.split(' ')[0]}`:'');$('#coachTitle').textContent=t?.name||'הקבוצה שלי';
+  const lg=t?.logo||(!curTeam?p.clubLogo:'');$('#coachLogo').hidden=!lg;if(lg)$('#coachLogo').src=lg;$('#coachWho').textContent='';
+  if(t?.id&&DB.ok())DB.teamCoaches(t.id).then(cs=>{$('#coachWho').textContent=cs.length?'מאמן: '+cs.map(c=>c.full_name).join(', '):''}).catch(()=>{});
   if(!t||!DB.ok()){$('#coachIns').innerHTML='<div class="empty">כדי לנהל קבוצה צריך להירשם כמאמן עם הקוד מהמנהל.</div>';$('#tCode').textContent='------';return}
   $('#tCode').textContent=t.code;const link=appLink('join-'+t.code);
   $('#tCodeEdit').hidden=!(curTeam&&canEditCodes());$('#tCodeEdit').onclick=()=>codeSheet('קודים של '+t.name,[{id:'p',label:'קוד שחקנים',val:t.code},{id:'c',label:'קוד מאמן',val:t.coach_code}],async v=>{const r=await DB.setTeamCodes(t.id,v.p,v.c);curTeam={...curTeam,code:r.code,coach_code:r.coach_code};renderCoach()});
-  $('#tWaAll').href=wa(`היי! מצטרפים לקבוצה "${t.name}" ב-BrainBall, אימון מוח לשחקני כדורגל.\nקוד הקבוצה: ${t.code}\nנרשמים כאן: ${link}`);
+  $('#tWaAll').href=wa(playerInvite(t.name,t.code,link));
   $('#tCopy').onclick=()=>copyTxt(link);
   $('#coachIns').innerHTML='<div class="empty">טוען נתונים...</div>';
   let rows=[],ses=[];try{[rows,ses]=await Promise.all([DB.board(t.id),DB.teamData(t.id)])}catch(e){$('#coachIns').innerHTML=`<div class="empty">${errText(e)}</div>`;return}
@@ -51,8 +55,9 @@ function renderBoard(rows,t){const used=BOARD_GAMES.filter(g=>g==='reaction'||ro
   $('#board').onclick=e=>{if(e.target.closest('a'))return;const tr=e.target.closest('[data-uid]');if(tr)openPlayer(tr.dataset.uid,coachCtx)}}
 /* ---------- homework centre ---------- */
 function renderHw(t,rows){
-  $('#hwPick').innerHTML=visible().filter(id=>!CAT[id].field).map(id=>`<button class="pick" data-g="${id}" aria-pressed="${hwPicked.has(id)}">${I(CAT[id].ico)}<span>${CAT[id].name}</span></button>`).join('');
-  $('#hwPick').onclick=e=>{const b=e.target.closest('[data-g]');if(!b)return;const g=b.dataset.g;hwPicked.has(g)?hwPicked.delete(g):hwPicked.add(g);b.setAttribute('aria-pressed',hwPicked.has(g))};
+  $('#hwPick').innerHTML=visible().filter(id=>!CAT[id].field).map(id=>`<div class="pickw"><button class="pick" data-g="${id}" aria-pressed="${hwPicked.has(id)}">${I(CAT[id].ico)}<span>${CAT[id].name}</span></button><button class="pinfo" data-info="${id}" aria-label="הסבר על ${CAT[id].name}">i</button></div>`).join('');
+  $('#hwPick').onclick=e=>{const pv=e.target.closest('[data-preview]');if(pv){openIntro(pv.dataset.preview);return}const inf=e.target.closest('[data-info]');if(inf){const id=inf.dataset.info,box=$('#hwInfo');box.innerHTML=box.dataset.id===id?'':exInfoHTML(id);box.dataset.id=box.dataset.id===id?'':id;paintIcons(box);return}
+    const b=e.target.closest('[data-g]');if(!b)return;const g=b.dataset.g;hwPicked.has(g)?hwPicked.delete(g):hwPicked.add(g);b.setAttribute('aria-pressed',hwPicked.has(g))};
   $('#hwLv').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;hwLevel=b.dataset.v;$$('#hwLv button').forEach(x=>x.setAttribute('aria-pressed',x===b))};
   const d=new Date(Date.now()+7*864e5);if(!$('#hwDue').value)$('#hwDue').value=d.toISOString().slice(0,10);
   $('#taskTo').innerHTML=`<option value="">כל הקבוצה (${rows.length})</option>`+rows.map(r=>`<option value="${r.id}">${esc(r.full_name)}</option>`).join('');
@@ -75,7 +80,7 @@ async function renderHwList(t,rows){const [list,done]=await Promise.all([DB.team
       <div class="row2"><a class="btn btn-o sm" href="${wa(`משימה חדשה ב-BrainBall: ${h.title||g.map(gN).join(' + ')}${h.due?` עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}.${h.note?'\n'+h.note:''}\nפותחים כאן: ${appLink('home')}`)}" target="_blank" rel="noopener">${I('chat')} שלח לקבוצה</a><button class="btn btn-o sm" data-delb="${g.map(x=>x.id).join(',')}">${I('trash')} מחק</button></div></details>`}).join(''):'<div class="empty">עוד לא נשלחו משימות.<br>בנה משימה למעלה, והיא תופיע לשחקנים בהתראות.</div>';
   $('#hwList').onclick=async e=>{const b=e.target.closest('[data-delb]');if(!b)return;for(const id of b.dataset.delb.split(','))await DB.delTask(id);renderHwList(t,rows)}}
 async function renderRoster(t){const list=await DB.roster(t.id).catch(()=>[]);
-  $('#rosterList').innerHTML=list.map(r=>`<div class="drow"><span class="av">${esc(r.name.trim()[0]||'?')}</span><div><b>${esc(r.name)}</b><small class="ltr">${esc(r.phone||'')}</small></div><span></span><div class="mini-acts"><a href="${wa(`היי ${r.name}! המאמן מזמין אותך ל-BrainBall.\nקוד הקבוצה: ${t.code}\nנרשמים כאן: ${appLink('join-'+t.code)}`,r.phone)}" target="_blank" rel="noopener" aria-label="שלח בוואטסאפ">${I('chat')}</a><button data-delr="${r.id}" aria-label="הסר">${I('trash')}</button></div></div>`).join('');
+  $('#rosterList').innerHTML=list.map(r=>`<div class="drow"><span class="av">${esc(r.name.trim()[0]||'?')}</span><div><b>${esc(r.name)}</b><small class="ltr">${esc(r.phone||'')}</small></div><span></span><div class="mini-acts"><a href="${wa(playerInvite(t.name,t.code,appLink('join-'+t.code)),r.phone)}" target="_blank" rel="noopener" aria-label="שלח בוואטסאפ">${I('chat')}</a><button data-delr="${r.id}" aria-label="הסר">${I('trash')}</button></div></div>`).join('');
   $('#rosterList').onclick=async e=>{const b=e.target.closest('[data-delr]');if(!b)return;await DB.delRoster(b.dataset.delr);renderRoster(t)};
   $('#pAdd').onclick=async()=>{const n=$('#pName').value.trim(),ph=$('#pPhone').value.trim(),err=$('#pErr');
     if(!n){err.textContent='צריך שם.';return}if(waNum(ph).length<11){err.textContent='מספר טלפון לא תקין.';return}err.textContent='';
@@ -101,10 +106,10 @@ async function renderClub(){const p=profile||{};const admin=isAdmin();
   const tName=id=>d.teams.find(t=>t.id===id)?.name||'';
   clubCtx={...d,teamName:tName,reload:renderClub};
   $('#clubIns').innerHTML=insightHTML(d.people,d.ses,{title:'המועדון',teams:d.teams});
-  $('#clubIns').onclick=e=>{const u=e.target.closest('[data-uid]');if(u)return openPlayer(u.dataset.uid,clubCtx);const tr=e.target.closest('[data-team]');if(tr){const t=d.teams.find(x=>x.id===tr.dataset.team);curTeam={...t,club:c.name};go('coach')}};
+  $('#clubIns').onclick=e=>{const u=e.target.closest('[data-uid]');if(u)return openPlayer(u.dataset.uid,clubCtx);const tr=e.target.closest('[data-team]');if(tr){const t=d.teams.find(x=>x.id===tr.dataset.team);curTeam={...t,club:c.name,logo:c.logo};go('coach')}};
   const staff=d.people.filter(x=>x.role==='coach'),pl=d.people.filter(x=>x.role==='player');
-  $('#clubTeams').innerHTML=d.teams.length?d.teams.map((t,i)=>teamCard(t,staff.find(s=>s.id===t.coach_id),pl.filter(x=>x.team_id===t.id).length,i)).join(''):'<div class="empty">עוד אין מחלקות. הוסף את הראשונה למטה.</div>';
-  $('#clubTeams').onclick=async e=>{const b=e.target.closest('[data-board]');if(b){curTeam={...d.teams[+b.dataset.board],club:c.name};go('coach');return}const cp=e.target.closest('[data-copy]');if(cp)copyTxt(cp.dataset.copy);
+  $('#clubTeams').innerHTML=d.teams.length?d.teams.map((t,i)=>teamCard(t,staff.filter(s=>s.team_id===t.id),pl.filter(x=>x.team_id===t.id).length,i)).join(''):'<div class="empty">עוד אין מחלקות. הוסף את הראשונה למטה.</div>';
+  $('#clubTeams').onclick=async e=>{const b=e.target.closest('[data-board]');if(b){curTeam={...d.teams[+b.dataset.board],club:c.name,logo:c.logo};go('coach');return}const cp=e.target.closest('[data-copy]');if(cp)copyTxt(cp.dataset.copy);
     const ec=e.target.closest('[data-ecteam]');if(ec){const t=d.teams.find(x=>x.id===ec.dataset.ecteam);codeSheet('קודים של '+t.name,[{id:'p',label:'קוד שחקנים',val:t.code},{id:'c',label:'קוד מאמן',val:t.coach_code}],async v=>{await DB.setTeamCodes(t.id,v.p,v.c);renderClub()});return}
     const rc=e.target.closest('[data-recode]');if(rc){try{await DB.resetTeamCodes(rc.dataset.recode);toast('נוצרו קודים חדשים');renderClub()}catch(er){toast(errText(er))}}};
   $('#ctAdd').onclick=async()=>{const n=$('#ctName').value.trim();if(!n){$('#ctErr').textContent='מה שם המחלקה?';return}$('#ctErr').textContent='';
@@ -113,10 +118,11 @@ async function renderClub(){const p=profile||{};const admin=isAdmin();
   $('#clubBoard').innerHTML=P.length?`<thead><tr><th>שחקן</th><th>מחלקה</th><th>מדד</th>${Object.values(DOMAINS).map(x=>`<th>${x.name}</th>`).join('')}<th>שיפור</th><th>30 ימים</th><th>אחרון</th><th></th></tr></thead><tbody>${[...P].sort((a,b)=>(b.ov??-1)-(a.ov??-1)).map(x=>`<tr data-uid="${x.id}"><td><span class="av on">${esc((x.full_name||'?').trim()[0])}</span><b>${esc(x.full_name||'')}</b></td><td>${esc(tName(x.team_id))}</td><td class="num">${x.ov??'-'}</td>${Object.keys(DOMAINS).map(k=>`<td class="num">${x.prof[k]??'-'}</td>`).join('')}<td class="num">${x.imp!=null?trend(x.imp):'-'}</td><td class="num">${x.n30}</td><td>${ago(x.last)}</td><td>${waBtn(x.phone,`היי ${(x.full_name||'').split(' ')[0]}! `)}</td></tr>`).join('')}</tbody>`:'<tr><td class="empty">עוד אין שחקנים במועדון.</td></tr>';
   $('#clubBoard').onclick=e=>{if(e.target.closest('a'))return;const tr=e.target.closest('[data-uid]');if(tr)openPlayer(tr.dataset.uid,clubCtx)};
   paintIcons($('#v-club'))}
-function teamCard(t,coach,n,i){const cl=appLink('coach-'+t.coach_code),pl=appLink('join-'+t.code);
-  return `<div class="tcard"><div class="tcard-h"><div><b>${esc(t.name)}</b><small>${coach?'מאמן: '+esc(coach.full_name):'עוד אין מאמן'} · ${n} שחקנים</small></div><button class="btn btn-w sm" data-board="${i}">${I('table')} כניסה</button></div>
+function teamCard(t,coaches,n,i){const cl=appLink('coach-'+t.coach_code),pl=appLink('join-'+t.code);
+  return `<div class="tcard"><div class="tcard-h"><div><b>${esc(t.name)}</b><small>${coaches.length?'מאמן: '+coaches.map(c=>esc(c.full_name)).join(', '):'עוד אין מאמן'} · ${n} שחקנים</small></div><button class="btn btn-w sm" data-board="${i}">${I('table')} כניסה</button></div>
     <div class="codes"><div><span class="note">קוד מאמן</span><b class="mono">${t.coach_code}</b></div><div><span class="note">קוד שחקנים</span><b class="mono">${t.code}</b></div>${canEditCodes()?codeBtn('data-ecteam',t.id):''}</div>
-    <div class="row2">${coach?`<button class="btn btn-o sm" data-copy="${pl}">${I('copy')} קישור לשחקנים</button>`:`<a class="btn btn-g sm" href="${wa(`היי! אתה מוזמן לאמן את "${t.name}" ב-BrainBall.\nקוד מאמן: ${t.coach_code}\nנרשמים כאן: ${cl}`)}" target="_blank" rel="noopener">${I('chat')} הזמן מאמן</a>`}<a class="btn btn-o sm" href="${wa(`מצטרפים לקבוצה "${t.name}" ב-BrainBall.\nקוד הקבוצה: ${t.code}\nנרשמים כאן: ${pl}`)}" target="_blank" rel="noopener">${I('chat')} הזמן שחקנים</a></div>
+    <div class="row2"><a class="btn btn-g sm" href="${wa(coachInvite(t.name,t.coach_code,cl))}" target="_blank" rel="noopener">${I('chat')} הזמן מאמן</a><a class="btn btn-o sm" href="${wa(playerInvite(t.name,t.code,pl))}" target="_blank" rel="noopener">${I('chat')} הזמן שחקנים</a></div>
+    <button class="btn btn-o sm full" data-copy="${pl}" style="margin-top:6px">${I('copy')} העתק קישור לשחקנים</button>
     <button class="link-btn dim" data-recode="${t.id}">יצירת קודים חדשים</button></div>`}
 
 /* ================= system admin ================= */
@@ -140,7 +146,7 @@ async function renderSys(){if(!DB.ok())return;$('#sysIns').innerHTML='<div class
     const en=e.target.closest('[data-enter]');if(en){curClub=clubs.find(c=>c.id===en.dataset.enter);go('club');return}
     const s=e.target.closest('[data-st]');if(s){const [id,st]=s.dataset.st.split('|');try{await DB.setClubStatus(id,st);toast('עודכן');renderSys()}catch(er){toast(errText(er))}}};
   paintIcons($('#v-sys'))}
-$('#scAdd').onclick=async()=>{const n=$('#scName').value.trim(),err=$('#scErr');if(!n){err.textContent='מה שם המועדון?';return}err.textContent='';
+$('#scAdd').onclick=async()=>{const n=$('#scName').value.trim(),err=$('#scErr');if(!n){err.textContent='מה שם המועדון?';return}if(!scLogoUrl){err.textContent='צריך להעלות את לוגו המועדון.';return}err.textContent='';
   try{const c=await DB.createClub(n,scLogoUrl,$('#scTeams').value.split('\n').map(x=>x.trim()).filter(Boolean));$('#scName').value='';$('#scTeams').value='';scLogoUrl='';$('#scLogoTxt').textContent='בחר תמונה';toast('המועדון נוצר');curClub=c;go('club')}catch(e){err.textContent=errText(e)}};
 
 /* ================= system admin: see the app as a player or as a club manager ================= */

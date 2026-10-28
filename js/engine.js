@@ -36,13 +36,15 @@ const lvName=(g,k)=>g.lvNames?.[k]||LV[k];
 const lvButtons=(g,lv)=>Object.entries(g.levels).map(([k,v])=>`<button data-lv="${k}" aria-pressed="${k===lv}"><b>${lvName(g,k)}</b>${v.lbl?`<small>${v.lbl}</small>`:''}</button>`).join('');
 function openIntro(id,lvForced){const g=CAT[id];let lv=lvForced||S.get('lv_'+id,'beginner');let rec=S.get('rec',false);
   play.hidden=false;document.body.style.overflow='hidden';hud('',0);clock(null);
-  stageHTML(`<div class="intro"><div class="intro-top"><span class="area">${g.cam?'מצלמה · ':''}${AREAS[g.area]}</span><button class="vo-btn" id="voBtn" aria-label="הסבר קולי"></button></div><h2>${g.name}</h2><p class="tagline">${g.tagline||g.desc}</p>
+  stageHTML(`<div class="intro"><div class="intro-top"><span class="area">${g.cam?'מצלמה · ':''}${AREAS[g.area]}</span><span class="intro-btns"><button class="heart" id="favBtn" aria-label="הוסף למועדפים" aria-pressed="false"></button><button class="vo-btn" id="voBtn" aria-label="הסבר קולי"></button></span></div><h2>${g.name}</h2><p class="tagline">${g.tagline||g.desc}</p>
     <div class="demo" id="iDemo"></div><div class="demo-cap" id="iCap"></div>
     <ol>${g.how.map(x=>`<li>${x}</li>`).join('')}</ol>
     <div class="lv" id="lvSel">${lvButtons(g,lv)}</div>
     ${g.rec?`<div class="chips" style="margin-bottom:14px"><button class="chip" id="recChip" aria-pressed="${rec}">${I('rec')} להקליט סרטון 9:16 (עד דקה)</button></div>`:''}
     <button class="btn btn-g btn-xl full" id="goBtn">יאללה, מתחילים <span class="ar">←</span></button></div>`,'scroll');
   playDemo($('#iDemo'),$('#iCap'),DEMOS[id]||[]);
+  const paintFav=()=>{const on=favs().includes(id);$('#favBtn').innerHTML=I('heart');$('#favBtn').setAttribute('aria-pressed',on)};paintFav();
+  $('#favBtn').onclick=()=>{toggleFav(id);paintFav();toast(favs().includes(id)?'נוסף לאימונים המועדפים':'הוסר מהמועדפים')};
   const paintVo=()=>{$('#voBtn').innerHTML=I(voiceOn?'speaker':'mute');$('#voBtn').classList.toggle('off',!voiceOn)};paintVo();
   $('#voBtn').onclick=()=>{voiceOn=!voiceOn;S.set('voice',voiceOn);paintVo();if(voiceOn)say(VO[id]);else hush()};
   say(VO[id]);

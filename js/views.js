@@ -12,12 +12,12 @@ function go(v){
   if(v==='club'&&!['manager','admin'].includes(profile?.role))v='home';
   $('.app').classList.toggle('flow',FLOW.includes(v));
   hush();
-  ({hub:renderHub,account:renderAccount,club:renderClub,order:renderOrder,sys:renderSys,stats:renderStats,train:renderCatalog,home:renderHome,coach:renderCoach,field:()=>{renderField();enterField()},intro:renderIntro,start:renderReg,inbox:renderInbox,pending:renderPending})[v]?.();
+  ({mine:renderMyTrain,hub:renderHub,account:renderAccount,club:renderClub,order:renderOrder,sys:renderSys,stats:renderStats,train:renderCatalog,home:renderHome,coach:renderCoach,field:()=>{renderField();enterField()},intro:renderIntro,start:renderReg,inbox:renderInbox,pending:renderPending})[v]?.();
   $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   $$('.tabs button').forEach(b=>{if(b.dataset.go===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   if(location.hash!=='#'+tab)history.replaceState(null,'','#'+tab);
   neuro.toggle(['home','train','hub','coach','club','sys','intro','start','pending'].includes(v));
-  window.paintVa&&paintVa();
+  window.paintVa&&paintVa();paintTop();
   $('#bellBtn').hidden=!(profile?.role==='player'&&profile?.teamId);
   window.scrollTo(0,0);
 }
@@ -28,6 +28,9 @@ function openItem(id,lv){if(!CAT[id])return;if(CAT[id].field)go('field');else op
 const toast=(t)=>{let el=$('#toast');if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el)}el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2200)};
 const copyTxt=(t,btn)=>{try{navigator.clipboard.writeText(t).then(()=>toast('הועתק')).catch(()=>{})}catch(e){}};
 
+function paintTop(){const p=profile||{},av=$('#avatar'),inClub=!!(p.clubLogo&&p.role!=='admin');
+  av.innerHTML=p.avatar?`<img src="${p.avatar}" alt="">`:esc((p.name||'B').trim()[0]||'B');av.classList.toggle('has-img',!!p.avatar);
+  const tc=$('#topClub');tc.hidden=!inClub;if(inClub)tc.src=p.clubLogo}
 /* ---------- neurons background ---------- */
 const neuro=(()=>{const c=$('#neuro'),x=c.getContext('2d');let w,h,pts=[],on=false,raf=0;const d=devicePixelRatio||1,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   function size(){w=c.width=c.clientWidth*d;h=c.height=c.clientHeight*d;const n=Math.round(Math.min(46,c.clientWidth/10));pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.3*d,vy:(Math.random()-.5)*.3*d,p:Math.random()*6}))}
@@ -67,13 +70,22 @@ function lastOf(id){for(let i=hist.length-1;i>=0;i--)if(hist[i].id===id&&!hist[i
 function card(id,wide){const g=CAT[id],l=lastOf(id);
   return `<button class="gcard${wide?' wide':''}" style="--m:${g.m}" data-open="${id}"><span class="ico" aria-hidden="true">${I(g.ico)}</span>${g.cam?'<span class="tag">'+I('camera')+' מצלמה</span>':''}<small class="area-l">${AREAS[g.area]}</small><h3>${g.name}</h3><p>${g.desc}</p>${l?`<span class="last">${esc(l.disp)}</span>`:''}</button>`}
 const hubCard=()=>`<button class="hubcard" data-go="hub"><span class="hc-ico">${I('play')}</span><span class="hc-t"><small>VIRTUAL TRAINING</small><b>מתחם אימונים וירטואלי</b><span>${['coach','manager','admin'].includes(profile?.role)?'אוסף סרטוני תרגילים. בונים תכנית ושולחים לשחקנים.':'סרטוני תרגילים מוכנים. בוחרים כמה, ובונים תכנית אימונים משלך.'}</span></span><span class="ar">←</span></button>`;
-function renderCatalog(){const ids=visible();if(!ids.length){$('#catalog').innerHTML='<div class="empty">כל האימונים מוסתרים כרגע.</div>'+hubCard();return}
-  let html='';const rest=[...ids];
+function renderCatalog(){const ids=visible();if(!ids.length){$('#catalog').innerHTML=mineStrip()+'<div class="empty">כל האימונים מוסתרים כרגע.</div>'+hubCard();return}
+  let html=mineStrip();const rest=[...ids];
   if(rest[0]&&CAT[rest[0]].field){const g=CAT[rest.shift()];html+=`<button class="gcard wide hero-card" style="--m:${g.m}" data-open="field"><span class="ico">${I(g.ico)}</span><span class="tag">מצב מגרש · לכל הקבוצה</span><h3>${g.name}</h3><p>שים את הטלפון או הטאבלט על חצובה. החלט מראש על פעולה לכל צבע, מספר או חץ, או צעק אותם תוך כדי התרגיל.</p><span class="cta">פתח מסך מגרש ←</span></button>`}
   html+=`<div class="games">${rest.map((id,i)=>card(id,rest.length%2&&i===rest.length-1)).join('')}</div>`+hubCard();$('#catalog').innerHTML=html}
+const favs=()=>S.get('favs',[]);
+function toggleFav(id){let f=favs();f=f.includes(id)?f.filter(x=>x!==id):[...f,id];S.set('favs',f);if(profile)profile.favs=f;DB.setFavs(f).catch(()=>{})}
+const mineStrip=()=>`<button class="minestrip" data-go="mine"><span class="hc-ico">${I('heart')}</span><b>הרכב את האימונים שאתה אוהב</b><span class="ar">←</span></button>`;
+async function renderMyTrain(){const body=$('#mineBody');body.innerHTML='<div class="empty">טוען...</div>';
+  const t=profile?.teamId?await loadTasks():[],open=t.filter(x=>!x.done&&x.game!=='plan'&&CAT[x.game]),plans=t.filter(x=>x.game==='plan'&&!x.done);
+  const f=favs().filter(id=>CAT[id]);
+  body.innerHTML=`${profile?.teamId?`<div class="sec">אימונים מהמאמן</div>${open.length||plans.length?`<div class="hwlist">${[...plans,...open].map(taskRow).join('')}</div>`:'<div class="empty">אין כרגע אימונים מהמאמן.</div>'}`:''}
+    <div class="sec">האימונים המועדפים עליי</div>${f.length?`<div class="games">${f.map((id,i)=>card(id,f.length%2&&i===f.length-1)).join('')}</div>`:`<div class="empty">עוד אין מועדפים.<br>לחץ על הלב בתוך כל אימון, והוא יופיע כאן.</div>`}
+    <div class="sec">התכניות שלי</div><button class="hubcard" data-go="hub"><span class="hc-ico">${I('play')}</span><span class="hc-t"><small>VIRTUAL TRAINING</small><b>בנה תכנית אימונים</b><span>מחברים סרטונים ותרגילים, נותנים שם ושומרים.</span></span><span class="ar">←</span></button>`}
 const today=()=>new Date().toDateString();
 function program(){return visible().filter(id=>!CAT[id].field&&!CAT[id].cam).slice(0,3)}
-function taskRow(t){if(t.game==='plan'){const n=t.plan?.vids?.length||0;return `<button class="hwi${t.done?' done':''}" data-plan="${t.id}">${I('play')}<span><b>${esc(t.title||t.plan?.title||'תכנית אימונים')} · ${n} סרטונים</b>${t.note?`<small>${esc(t.note)}</small>`:''}${t.player_id?'<small class="pers">אישית בשבילך</small>':'<small>תכנית מהמאמן</small>'}</span><span class="ok">${t.done?'בוצע ✓':'לצפייה ←'}</span></button>`}
+function taskRow(t){if(t.game==='plan'){const n=(t.plan?.vids?.length||0)+(t.plan?.games?.length||0);return `<button class="hwi${t.done?' done':''}" data-plan="${t.id}">${I('play')}<span><b>${esc(t.title||t.plan?.title||'תכנית אימונים')} · ${n} פריטים</b>${t.note?`<small>${esc(t.note)}</small>`:''}${t.player_id?'<small class="pers">אישית בשבילך</small>':'<small>תכנית מהמאמן</small>'}</span><span class="ok">${t.done?'בוצע ✓':'לצפייה ←'}</span></button>`}
   const g=CAT[t.game];return `<button class="hwi${t.done?' done':''}" data-open="${t.game}" data-lv="${t.level||'beginner'}">${I(g?.ico||'bolt')}<span><b>${g?.name||t.game} · ${LV[t.level]||''}</b>${t.note?`<small>${esc(t.note)}</small>`:''}${t.player_id?'<small class="pers">אישית בשבילך</small>':''}</span><span class="ok">${t.done?'בוצע ✓':'לביצוע ←'}</span></button>`}
 async function loadTasks(){if(!DB.ok()||!profile?.teamId)return[];try{const t=await DB.myTasks();window.TASKS=t;const open=t.filter(x=>!x.done).length;$('#bellN').textContent=open;$('#bellN').hidden=!open;return t}catch(e){return window.TASKS||[]}}
 /* today's plan: what the coach asked for first, then the default three */
@@ -91,7 +103,7 @@ function renderHome(){
   paintPlan(window.TASKS);
   $('#areas').innerHTML=['speed','decision','attention'].map(a=>{const h=[...hist].reverse().find(x=>!x.partial&&CAT[x.id]?.area===a);
     return `<div class="tile"><div class="v">${h?esc(h.disp):'-'}</div><div class="l">${AREAS[a]}${h?' · '+CAT[h.id].name:''}</div></div>`}).join('');
-  const p=profile||{};$('#teamStrip').innerHTML=p.teamId?`<div class="team-strip">${p.clubLogo?`<img src="${p.clubLogo}" alt="">`:I('club')}<div><b>${esc(p.team||'הקבוצה')}</b><span class="note">${esc(p.club||'')}${p.share===false?' · התוצאות לא משותפות':' · התוצאות משותפות עם המאמן'}</span></div></div>`:'';
+  const p=profile||{};$('#teamStrip').innerHTML=!p.teamId&&p.ownTeam?`<div class="team-strip">${p.ownLogo?`<img src="${p.ownLogo}" alt="">`:I('club')}<div><b>${esc(p.ownTeam)}</b><span class="note">הקבוצה שלי</span></div></div>`:p.teamId?`<div class="team-strip">${p.clubLogo?`<img src="${p.clubLogo}" alt="">`:I('club')}<div><b>${esc(p.team||'הקבוצה')}</b><span class="note">${esc(p.club||'')}${p.share===false?' · התוצאות לא משותפות':' · התוצאות משותפות עם המאמן'}</span></div></div>`:'';
   $('#inboxPreview').innerHTML='';
   loadTasks().then(t=>{paintPlan(t);const open=t.filter(x=>!x.done).slice(0,2);if(!open.length)return;$('#inboxPreview').innerHTML=`<div class="sec">משימות מהמאמן <small><button class="link-btn" data-go="inbox">הכל</button></small></div><div class="hwlist">${open.map(taskRow).join('')}</div>`});
   const hb=$('#hwBanner');
@@ -127,10 +139,14 @@ $('#admReset').onclick=()=>pushOrder({order:DEFAULT_ORDER,hidden:[]});
 function renderAccount(){const p=profile||{};
   $('#accKv').innerHTML=[['שם',p.name],['אימייל',p.email],['טלפון',p.phone],['גיל',p.age],['תפקיד',ROLE[p.role]],['קבוצה',p.team],['מועדון',p.club]].filter(x=>x[1]).map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
   $('#accShareRow').hidden=!(p.role==='player'&&p.teamId);$('#accTeam').textContent=p.team?'הקבוצה: '+p.team:'';$('#accShare').setAttribute('aria-checked',String(p.share!==false));
+  $('#accAv').innerHTML=p.avatar?`<img src="${p.avatar}" alt="">`:esc((p.name||'B').trim()[0]||'B');$('#accPhoto').hidden=!DB.user;$('#accOwn').hidden=!(p.role==='player'&&!p.teamId&&DB.user);$('#ownTeam').value=p.ownTeam||'';$('#ownLogoTxt').textContent=p.ownLogo?'לוגו נבחר ✓':'לוגו הקבוצה';
   $('#accJoin').hidden=!(p.role==='player'&&!p.teamId&&DB.user);$('#accPassBox').hidden=!DB.user;$('#accDel').hidden=!DB.user;
   const hn={coach:'הקבוצה שלי',manager:'המועדון שלי',admin:'ניהול המערכת'}[p.role];$('#accHome').hidden=!hn;$('#accHome').textContent=hn||'';$('#accHome').onclick=()=>{curTeam=null;curClub=null;viewAs=null;go('home')};
   $('#accViewAs').hidden=!(p.role==='admin');
   const ob=S.get('outbox',[]).length;$('#accSync').textContent=!DB.ok()?'אין חיבור לשרת. הכל נשמר בטלפון.':DB.user?(ob?`${ob} אימונים מחכים לסנכרון.`:'הכל מסונכרן.'):'התוצאות נשמרות בטלפון שלך.'}
+$('#accAvFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=await logoData(f);await DB.patchProfile({avatar:d});paintTop();renderAccount();toast('התמונה עודכנה')}catch(er){toast(errText(er))}};
+let ownLogoNew=null;$('#ownLogoFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{ownLogoNew=await logoData(f);$('#ownLogoTxt').textContent='לוגו נבחר ✓'}catch(er){toast('התמונה לא נטענה')}};
+$('#ownSave').onclick=async()=>{try{const o={own_team:$('#ownTeam').value.trim()||null};if(ownLogoNew)o.own_logo=ownLogoNew;await DB.patchProfile(o);ownLogoNew=null;renderAccount();toast('נשמר')}catch(er){toast(errText(er))}};
 $('#accEdit').onclick=()=>go('start');
 $('#accShare').onclick=()=>{profile.share=profile.share===false;S.set('profile2',profile);DB.setShare(profile.share).catch(()=>{});renderAccount()};
 $('#accJoinBtn').onclick=async()=>{const c=$('#accCode').value.trim().toUpperCase();if(!c)return;try{await DB.joinTeam(c);toast('הצטרפת לקבוצה');DB.flush();renderAccount()}catch(e){$('#accErr').textContent=errText(e)}};

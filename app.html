@@ -20,6 +20,7 @@
     <img src="logo.png" alt="BrainBall">
     <div class="top-acts">
       <button class="icon-btn bell" id="bellBtn" data-go="inbox" aria-label="התראות" hidden><span class="ic" data-i="bell"></span><b id="bellN" hidden>0</b></button>
+      <img class="top-club" id="topClub" alt="" hidden>
       <button class="icon-btn" data-share="app" aria-label="שתף עם חבר"><span class="ic" data-i="share"></span></button>
       <button class="avatar" id="avatar" aria-label="החשבון שלי">B</button>
     </div>
@@ -52,7 +53,7 @@
         </div>
       </div>
       <div class="field-row" id="rowName"><span>שם מלא</span><input type="text" id="dName" autocomplete="name" placeholder="איך קוראים לך?"></div>
-      <div class="field-row" id="rowEmail"><span>אימייל</span><input type="email" id="dEmail" inputmode="email" autocomplete="email" placeholder="name@email.com" class="ltr"></div>
+      <div class="field-row" id="rowEmail"><span id="lEmail">אימייל</span><input type="email" id="dEmail" inputmode="email" autocomplete="email" placeholder="name@email.com" class="ltr"></div>
       <div class="field-row" id="rowPhone"><span>טלפון</span><input type="tel" id="dPhone" inputmode="tel" autocomplete="tel" placeholder="050-0000000" class="ltr"><small class="note" id="phoneHint">מספר הטלפון הוא גם הסיסמה שלך. אפשר לשנות אותה אחר כך.</small></div>
       <div class="field-row" id="rowPass" hidden><span id="lPass">סיסמה</span><input type="password" id="dPass" autocomplete="current-password" placeholder="מספר הטלפון שלך, אם לא שינית" class="ltr"></div>
       <button type="button" class="link-btn" id="dOwnPass">אני רוצה לבחור סיסמה אחרת</button>
@@ -117,12 +118,13 @@
     </div>
     <div class="sec">התוצאות האחרונות <small>כל תחום בנפרד</small></div>
     <div class="areas" id="areas"></div>
-    <div class="invite"><div><b>שלח לחברים כדי להתאמן גם</b><span class="h-sub">מאמנים את המוח יחד, ורואים מי משתפר</span></div><button class="btn btn-g" data-share="app">שלח לחבר</button></div>
+    <div class="invite"><div><b>שלח לחברים כדי להתאמן</b><span class="h-sub">מאמנים את המוח בדרך שמתאימה לשחקני כדורגל.</span></div><button class="btn btn-g" data-share="app">שלח</button></div>
   </section>
 
   <!-- INBOX (player notifications) -->
   <section class="view" id="v-inbox">
-    <h1 class="title">ההתראות שלי</h1>
+    <h1 class="title" style="margin-bottom:4px">ההתראות שלי</h1>
+    <p class="h-sub" style="margin:0 0 14px">אלו ההתראות שיש לך מהמאמן או מהמועדון.</p>
     <div class="hwlist" id="inboxList"></div>
   </section>
 
@@ -148,8 +150,7 @@
   <!-- COACH: one team -->
   <section class="view" id="v-coach">
     <button class="back" id="coachBack" hidden>→ חזרה</button>
-    <div class="h-sub" id="coachHello"></div>
-    <h1 class="title" id="coachTitle">הקבוצה שלי</h1>
+    <div class="club-head coach-head"><img id="coachLogo" alt="" hidden><div><div class="h-sub" id="coachHello"></div><h1 class="title" id="coachTitle" style="margin:0">הקבוצה שלי</h1><div class="h-sub" id="coachWho"></div></div></div>
     <div class="mesh team-hero" style="--m:radial-gradient(circle at 80% 20%,var(--purple),transparent 45%),radial-gradient(circle at 15% 85%,var(--cyan),transparent 45%)">
       <div class="k">קוד הצטרפות לשחקנים</div>
       <div class="code-line"><button class="code-edit" id="tCodeEdit" aria-label="עריכת קודים" hidden><span class="ic" data-i="edit"></span></button><div class="code" id="tCode">------</div></div>
@@ -161,7 +162,7 @@
       <div class="box hwbuild">
         <h3>משימה חדשה</h3>
         <div class="field-row"><span>שם המשימה</span><input type="text" id="hwTitle" placeholder="לדוגמה: חימום מוח לפני משחק שבת"></div>
-        <div class="field-row"><span>תרגילים (אפשר כמה)</span><div class="pickgrid" id="hwPick"></div></div>
+        <div class="field-row"><span>תרגילים (אפשר כמה)</span><div class="pickgrid" id="hwPick"></div><div id="hwInfo"></div></div>
         <div class="field-row"><span>רמה</span><div class="seg" id="hwLv"><button data-v="beginner" aria-pressed="false">מתחילים</button><button data-v="plus" aria-pressed="true">בינוני</button><button data-v="pro" aria-pressed="false">מקצוענים</button></div></div>
         <div class="row2"><div class="field-row"><span>עד מתי</span><input type="date" id="hwDue"></div><div class="field-row"><span>למי</span><select id="taskTo"></select></div></div>
         <div class="field-row"><span>הודעה לשחקנים (לא חובה)</span><input type="text" id="taskNote" placeholder="לדוגמה: 3 פעמים השבוע, בהצלחה!"></div>
@@ -240,6 +241,15 @@
     <p class="note" style="text-align:center" id="admNote"></p>
   </section>
 
+  <!-- MY TRAININGS: from the coach, favourites, my plans -->
+  <section class="view" id="v-mine">
+    <button class="back" data-go="train">→ חזרה</button>
+    <div class="k">MY TRAINING</div>
+    <h1 class="title" style="margin-bottom:4px">האימונים שלי</h1>
+    <p class="h-sub" style="margin:0 0 14px">הכל במקום אחד: מה שהמאמן ביקש, המועדפים שלך והתכניות שבנית.</p>
+    <div id="mineBody"></div>
+  </section>
+
   <!-- VIRTUAL TRAINING HUB -->
   <section class="view" id="v-hub">
     <button class="back" data-go="train">→ חזרה</button>
@@ -267,6 +277,8 @@
     <h1 class="title">החשבון שלי</h1>
     <div class="box"><dl class="kv" id="accKv"></dl></div>
     <div class="switchrow" id="accShareRow" hidden><div><b style="font-family:var(--f-display)">שיתוף תוצאות עם המאמן</b><div class="note" id="accTeam"></div></div><button class="sw" role="switch" id="accShare" aria-label="שיתוף תוצאות עם המאמן"></button></div>
+    <div class="box" id="accPhoto"><h3 style="font-size:18px;margin-bottom:8px">תמונת פרופיל</h3><div class="photo-row"><span class="photo-prev" id="accAv"></span><label class="file-pick"><input type="file" id="accAvFile" accept="image/*"><span class="ic" data-i="image"></span><span>בחר תמונה</span></label></div></div>
+    <div class="box" id="accOwn" hidden><h3 style="font-size:18px;margin-bottom:8px">הקבוצה שלי</h3><p class="note" style="margin:0 0 8px">לא בקבוצה של מאמן? אפשר לכתוב באיזו קבוצה אתה משחק ולהעלות את הלוגו שלה. זה יופיע לך בבית.</p><div class="field-row"><span>שם הקבוצה</span><input type="text" id="ownTeam" placeholder="לדוגמה בית"ר טוברוק"></div><div class="row2"><label class="file-pick"><input type="file" id="ownLogoFile" accept="image/*"><span class="ic" data-i="image"></span><span id="ownLogoTxt">לוגו הקבוצה</span></label><button class="btn btn-o" id="ownSave">שמור</button></div></div>
     <div class="box" id="accJoin" hidden><h3 style="font-size:18px;margin-bottom:8px">הצטרפות לקבוצה</h3><div class="row2"><input type="text" id="accCode" placeholder="קוד קבוצה" class="code-in"><button class="btn btn-g" id="accJoinBtn">הצטרף</button></div><div class="ferr" id="accErr"></div></div>
     <div class="box" id="accPassBox" hidden><h3 style="font-size:18px;margin-bottom:8px">שינוי סיסמה</h3><div class="row2"><input type="password" id="accPass" placeholder="סיסמה חדשה" class="ltr" autocomplete="new-password"><button class="btn btn-o" id="accPassBtn">שמור</button></div><div class="ferr" id="accPassErr"></div></div>
     <div class="box" id="accViewAs" hidden><h3 style="font-size:18px;margin-bottom:4px">איך זה נראה אצל אחרים</h3><p class="note" style="margin:0 0 10px">עוברים לתצוגה של שחקן או של מנהל מועדון, ורואים בדיוק מה הם רואים.</p><div class="row2"><button class="btn btn-o" id="vaPlayer"><span class="ic" data-i="player"></span>צפייה כשחקן</button><button class="btn btn-o" id="vaManager"><span class="ic" data-i="club"></span>צפייה כמנהל מועדון</button></div></div>
@@ -276,7 +288,7 @@
       <button class="btn btn-o full" id="accEdit">עריכת פרטים</button>
       <button class="btn btn-o full" id="accOut"><span class="ic" data-i="logout"></span>התנתקות</button>
     </div>
-    <div class="legal"><a href="privacy.html" target="_blank">מדיניות פרטיות</a><a href="terms.html" target="_blank">תנאי שימוש</a><a href="mailto:fitnessisrael@gmail.com">תמיכה</a></div>
+    <div class="legal"><a href="privacy.html" target="_blank">מדיניות פרטיות</a><a href="terms.html" target="_blank">תנאי שימוש</a><a href="mailto:fitnessisrael@gmail.com">תמיכה</a><span class="note" style="flex-basis:100%;text-align:center">BrainBall · קבוצת כושר ישראל</span></div>
     <button class="link-btn danger" id="accDel">מחיקת החשבון</button>
     <p class="note" style="margin-top:14px" id="accSync"></p>
   </section>

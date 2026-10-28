@@ -7,11 +7,12 @@ function regLayout(){const login=regMode==='login',admin=regRole==='admin',edit=
   $('#phoneHint').hidden=ownPass||edit;$('#lPass').textContent=login?'סיסמה':'סיסמה שתבחר';
   $('#rowAgePos').hidden=login||staff||admin;
   $('#rowCode').hidden=login||admin||(regRole==='manager'&&newClub)||(regRole==='player'&&!!profile?.teamId);
-  $('#lCode').textContent=regRole==='coach'?'קוד מאמן (קיבלת ממנהל המועדון)':regRole==='manager'?'קוד מועדון (קיבלת מצוות BrainBall)':'קוד קבוצה (אם המאמן שלח לך)';
+  $('#lCode').textContent=regRole==='coach'?'קוד מאמן':regRole==='manager'?'קוד מועדון':'קוד קבוצה';
+  $('#lEmail').textContent=login?'אימייל או טלפון':'אימייל (לא חובה, אבל יכול לשמש לשחזור חשבון)';$('#dEmail').type=login?'text':'email';$('#dEmail').placeholder=login?'אימייל או מספר טלפון':'name@email.com';
   $('#rowAdmin').hidden=!admin||login;$('#rowNewClub').hidden=regRole!=='manager'||login||edit;$('#newClubBox').hidden=!newClub;$('#dNoCode').textContent=newClub?'יש לי קוד מועדון':'אין לי קוד. אני רוצה לפתוח מועדון חדש';
   $('#rowTerms').hidden=login||edit;$('#dForgot').hidden=!login;
   $('#regTitle').textContent=login?'התחברות':admin?'כניסת מנהל מערכת':edit?'עריכת הפרטים':'נרשמים פעם אחת, מתאמנים תמיד';
-  $('#regSub').textContent=login?'אימייל וסיסמה. הסיסמה היא הטלפון שלך, אם לא שינית.':edit?'':regRole==='player'?'חינם. לוקח 20 שניות.':regRole==='coach'?'נרשמים עם קוד המאמן שקיבלת ממנהל המועדון.':regRole==='manager'?'נרשמים עם קוד המועדון, או מבקשים לפתוח מועדון חדש.':'';
+  $('#regSub').textContent=login?'אימייל וסיסמה. הסיסמה היא הטלפון שלך, אם לא שינית.':edit?'':regRole==='player'?'חינם. לוקח 20 שניות.':regRole==='coach'?'נרשמים עם קוד המאמן. בלי קוד אפשר להתאמן ולבנות תכניות לבד.':regRole==='manager'?'נרשמים עם קוד המועדון, או מבקשים לפתוח מועדון חדש.':'';
   $('#dLogin').textContent=login?'חזרה להרשמה':'כבר רשום? התחברות';$('#dLogin').hidden=edit;$('#saLink').hidden=edit;
   $('#dSubmit').innerHTML=(login?'התחבר':edit?'שמור':regRole==='player'?'יאללה, לאימון':'צור חשבון')+' <span class="ar">←</span>';
   $$('#dRole button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.r===regRole))}
@@ -24,33 +25,35 @@ $('#dLogin').onclick=()=>{regMode=regMode==='login'?'register':'login';if(regMod
 $('#dNoCode').onclick=()=>{newClub=!newClub;regLayout()};
 $('#dOwnPass').onclick=()=>{ownPass=!ownPass;regLayout()};
 $('#dLogo').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{logoUrl=await logoData(f);$('#dLogoTxt').textContent=f.name}catch(err){$('#dLogoTxt').textContent='התמונה לא נטענה'}};
-$('#dForgot').onclick=async()=>{const em=$('#dEmail').value.trim(),err=$('#dErr');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){err.textContent='כתוב קודם את האימייל שלך.';$('#dEmail').focus();return}
+$('#dForgot').onclick=async()=>{const em=$('#dEmail').value.trim(),err=$('#dErr');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){err.textContent='שחזור סיסמה עובד באימייל. כתוב את האימייל שלך, או פנה למאמן או לתמיכה.';$('#dEmail').focus();return}
   try{await DB.resetPass(em);err.textContent='';toast('שלחנו לך מייל לאיפוס סיסמה')}catch(e){err.textContent=errText(e)}};
 $('#dForm').addEventListener('submit',async e=>{e.preventDefault();const err=$('#dErr'),btn=$('#dSubmit');err.textContent='';
   const login=regMode==='login',edit=!!profile?.server&&!login;
   const v={name:$('#dName').value.trim(),email:$('#dEmail').value.trim().toLowerCase(),phone:$('#dPhone').value.trim(),age:+$('#dAge').value||null,pos:$('#dPos').value,code:$('#dCode').value.trim().toUpperCase(),pass:$('#dPass').value,terms:$('#dTerms').checked};
   const pass=login||ownPass?v.pass:phoneDigits(v.phone);
   if(!login&&!v.name){err.textContent='רגע, איך קוראים לך?';$('#dName').focus();return}
-  if(!edit&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)){err.textContent='האימייל לא נראה תקין.';$('#dEmail').focus();return}
+  if(login&&!v.email){err.textContent='כתוב אימייל או טלפון.';$('#dEmail').focus();return}
+  if(!login&&!edit&&v.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)){err.textContent='האימייל לא נראה תקין. אפשר גם להשאיר ריק.';$('#dEmail').focus();return}
   if(!login&&phoneDigits(v.phone).length<9){err.textContent='צריך מספר טלפון מלא.';$('#dPhone').focus();return}
   if(!edit&&pass.length<6){err.textContent='סיסמה צריכה לפחות 6 תווים.';$('#dPass').focus();return}
   if(v.age&&(v.age<6||v.age>80)){err.textContent='גיל בין 6 ל-80.';return}
   if(!login&&!edit){
-    if(regRole==='coach'&&!v.code){err.textContent='צריך את קוד המאמן שקיבלת ממנהל המועדון.';$('#dCode').focus();return}
     if(regRole==='manager'&&!newClub&&!v.code){err.textContent='צריך קוד מועדון, או לבחור פתיחת מועדון חדש.';return}
     if(regRole==='manager'&&newClub&&!$('#dClubName').value.trim()){err.textContent='מה שם המועדון?';$('#dClubName').focus();return}
+    if(regRole==='manager'&&newClub&&!logoUrl){err.textContent='צריך להעלות את לוגו המועדון.';return}
     if(regRole==='admin'&&!$('#dAdminKey').value.trim()){err.textContent='צריך את קוד מנהל המערכת.';return}
     if(!v.terms){err.textContent='צריך לאשר את התנאים כדי להמשיך.';return}}
   if(!DB.ok()){err.textContent='אין חיבור לשרת כרגע. בדוק את האינטרנט ונסה שוב.';return}
   btn.disabled=true;
   try{
-    if(login){await DB.signIn(v.email,pass);const p=await DB.refresh();if(!p)throw new Error('לא מצאנו חשבון עם האימייל הזה. הירשם קודם.')}
-    else{if(!edit)await DB.signUp(v.email,pass);
-      await DB.register({name:v.name,age:v.age,role:edit?(profile.role==='admin'?'player':profile.role):regRole,phone:v.phone,position:v.pos||null,
+    if(login){await DB.signIn(v.email.includes('@')?v.email:phoneMail(v.email),pass);const p=await DB.refresh();if(!p)throw new Error('לא מצאנו חשבון עם האימייל הזה. הירשם קודם.')}
+    else{if(!edit)await DB.signUp(v.email||phoneMail(v.phone),pass);
+      const asRole=regRole==='coach'&&!v.code?'player':regRole;
+      await DB.register({name:v.name,age:v.age,role:edit?(profile.role==='admin'?'player':profile.role):asRole,phone:v.phone,position:v.pos||null,
         code:edit?null:(regRole==='manager'&&newClub?null:v.code||null),clubName:!edit&&newClub?$('#dClubName').value.trim():null,logo:!edit&&newClub?logoUrl:null,adminKey:regRole==='admin'?$('#dAdminKey').value.trim():null})}
     S.set('pendingCode','');S.set('pendingRole','');S.set('wasUser',true);DB.flush();afterAuth(!login&&!edit);
   }catch(ex){err.textContent=ex.message&&/[א-ת]/.test(ex.message)?ex.message:errText(ex)}finally{btn.disabled=false}});
-function afterAuth(first){$('#avatar').textContent=(profile?.name||'B').trim()[0]||'B';loadCatalogCfg();
+function afterAuth(first){paintTop();loadCatalogCfg();
   if(profile?.role==='player')go('home');else go('home')}
 async function loadCatalogCfg(){try{if(DB.prof?.club?.catalog)return;const g=await DB.globalCatalog();if(g)S.set('catalog3',g)}catch(e){}}
 function renderPending(){$('#pendTxt').textContent=`המועדון "${profile?.club||''}" מחכה לאישור צוות BrainBall. בינתיים אפשר להתאמן כרגיל.`}

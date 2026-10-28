@@ -5,6 +5,7 @@ let sb=null;try{if(window.supabase)sb=window.supabase.createClient(SUPA.url,SUPA
 let RECOVERY=/type=recovery/.test(location.hash);
 try{sb&&sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){RECOVERY=true;setTimeout(()=>window.openNewPass&&openNewPass(),300)}})}catch(e){}
 const DEV=S.get('dev',null)||(()=>{const d='d'+Math.random().toString(36).slice(2,12);S.set('dev',d);return d})();
+const phoneMail=p=>String(p||'').replace(/\D/g,'')+'@phone.brainball.app';
 const uid=()=>'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const waNum=p=>{let d=String(p||'').replace(/\D/g,'');if(d.startsWith('0'))d='972'+d.slice(1);return d};
 const ERR={bad_admin_key:'קוד מנהל המערכת לא נכון.',code_taken:'הקוד הזה כבר בשימוש.',bad_code:'קוד צריך 4 עד 10 אותיות או ספרות.',confirm_email:'שלחנו לך מייל לאישור. אשר אותו ונסה שוב.','Email rate limit exceeded':'נשלחו יותר מדי מיילים. נסה שוב בעוד שעה.','Unable to validate email address':'האימייל לא תקין.',team_not_found:'לא מצאנו קבוצה עם הקוד הזה. בדוק עם המאמן.',club_not_found:'לא מצאנו מועדון עם הקוד הזה.',code_required:'צריך קוד הצטרפות.',team_has_coach:'לקבוצה הזו כבר יש מאמן.',club_has_manager:'למועדון הזה כבר יש מנהל.',forbidden:'אין לך הרשאה לפעולה הזו.',not_signed_in:'צריך להתחבר קודם.',
@@ -85,16 +86,20 @@ const DB={
   async renameVideo(id,title){const {error}=await sb.from('videos').update({title}).eq('id',id);if(error)throw error},
   async copyVideos(toClub){const g=await sb.from('videos').select('title,yt,sort').is('club_id',null).order('sort').order('created_at');const rows=(g.data||[]).map(v=>({...v,club_id:toClub}));if(rows.length){const {error}=await sb.from('videos').insert(rows);if(error)throw error}return rows.length},
   async myPlans(){if(!sb||!this.user)return[];const {data}=await sb.from('plans').select('*').order('created_at',{ascending:false});return data||[]},
-  async savePlan(title,vids){const {error}=await sb.from('plans').insert({title,vids});if(error)throw error},
+  async savePlan(o){const {data,error}=await sb.from('plans').insert({title:o.title,vids:o.vids||[],games:o.games||[],scope:o.scope||'private',club_id:o.scope==='club'?this.prof?.club_id||null:null}).select().single();if(error)throw error;return data},
   async delPlan(id){await sb.from('plans').delete().eq('id',id)},
+  async teamCoaches(team){const {data}=await sb.from('profiles').select('id,full_name,avatar').eq('team_id',team).eq('role','coach');return data||[]},
+  async setFavs(f){if(!sb||!this.user)return;await sb.from('profiles').update({favs:f}).eq('id',this.user.id)},
+  async patchProfile(o){if(!sb||!this.user)return;const {error}=await sb.from('profiles').update(o).eq('id',this.user.id);if(error)throw error;await this.refresh()},
 };
 // server profile -> local profile used by the UI
 function applyServerProfile(d){
   const p=Object.assign({},profile||{},{name:d.full_name,age:d.age,role:d.role,pos:d.position,share:d.share,approved:d.approved,terms:true,
     teamId:d.team_id||null,team:d.team?.name||profile?.team||'',teamCode:d.team?.code||'',coachCode:d.team?.coach_code||'',
-    phone:d.phone||'',email:d.email||'',clubId:d.club_id||null,club:d.club?.name||'',clubLogo:d.club?.logo||'',clubCode:d.club?.code||'',clubStatus:d.club?.status||'',server:true});
+    phone:d.phone||'',email:d.email||'',avatar:d.avatar||'',ownTeam:d.own_team||'',ownLogo:d.own_logo||'',favs:d.favs||S.get('favs',[]),clubId:d.club_id||null,club:d.club?.name||'',clubLogo:d.club?.logo||'',clubCode:d.club?.code||'',clubStatus:d.club?.status||'',server:true});
   profile=p;S.set('profile2',p);
   if(d.club?.catalog)S.set('catalog3',d.club.catalog);
+  if(d.favs)S.set('favs',d.favs);
 }
 // downscale an uploaded logo to a small data URL
 function logoData(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/png'))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
