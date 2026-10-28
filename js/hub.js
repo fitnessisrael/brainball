@@ -1,9 +1,9 @@
 /* ================= virtual training hub: YouTube drills + system exercises -> plans -> homework ================= */
 const ytId=u=>{u=String(u||'').trim();const m=u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([A-Za-z0-9_-]{11})/);if(m)return m[1];return /^[A-Za-z0-9_-]{11}$/.test(u)?u:null};
 const ytThumb=id=>`https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
-let hubSel=[],hubVids=[],hubOwn=[],hubPlans=[],hubCat=null,hubSaving=false;
+let hubSel=[],hubVids=[],hubOwn=[],hubPlans=[],hubOpen=new Set(),hubCompose=false,hubTitle='',hubSaving=false;
 const RUBS=[['drib','שיפור דריבל','הכדור צמוד לרגל. היריב נשאר מאחור.','#8a1a9c,#1a0720','#ff6be6'],['aware','שיפור פוקוס','עיניים חדות, ראש רגוע, ומגרש שנקרא מראש.','#0f6a73,#04181c','#5df0ff'],['react','שיפור זמן תגובה','שבריר שנייה שמכריע משחקים.','#123f9c,#050c24','#6cc8ff'],['warm','חימום הכנה למוח','עולים למגרש כשהראש כבר חם.','#5a1fa8,#12062a','#d7a0ff']];
-const rubHTML=only=>`<div class="rubs">${RUBS.filter(r=>!only||r[0]===only).map(r=>`<button class="rub${hubCat===r[0]?' on':''}" data-rub="${r[0]}" style="background:linear-gradient(90deg,${r[3].split(',')[1]} 30%,${r[3].split(',')[0]})"><img src="img/rub_${r[0]}.webp" alt=""><span class="rt"><b>${r[1]}</b><i style="color:${r[4]}">${r[2]}</i></span></button>`).join('')}</div>`;
+const rubBtn=(r,open)=>`<button class="rub${open?' on':''}" data-rub="${r[0]}" aria-expanded="${!!open}" style="background:linear-gradient(90deg,${r[3].split(',')[1]} 30%,${r[3].split(',')[0]})"><img src="img/rub_${r[0]}.webp" alt=""><span class="rt"><b>${r[1]}</b></span></button>`;
 tabs('hubTabs',t=>{if(t==='mine')renderMine();if(t==='edit')renderHubEdit();hubBar()});
 /* whose list: a player/coach sees the list of his club (or the general one); the admin edits the list of the club he is inside, or the general one */
 const hubClub=()=>profile?.role==='admin'?(curClub?.id||null):(profile?.clubId||null);
@@ -23,7 +23,7 @@ const vrow=(v,sel)=>`<div class="vrow${sel?' on':''}"><button class="vthumb" dat
 const exInfoHTML=id=>{const g=CAT[id];return `<div class="pinfo-box"><b>${g.name}</b><p>${esc(g.tagline||'')} ${esc(g.desc)}</p><ul>${(g.how||[]).slice(0,2).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><button class="btn btn-o sm" data-preview="${id}">${I('play')} צפה בתרגיל</button></div>`};
 
 /* ---- the library tab ---- */
-async function renderHub(){hubCat=null;try{showTab('hubTabs','lib')}catch(e){}const edit=hubCanEdit();delete $('#hubBar').dataset.built;
+async function renderHub(){hubOpen=new Set();try{showTab('hubTabs','lib')}catch(e){}const edit=hubCanEdit();delete $('#hubBar').dataset.built;
   $('#hubTabs [data-t="edit"]').hidden=!edit;
   $('#hubSub').textContent=isStaff()?'בוחרים סרטונים ותרגילים, נותנים שם לתכנית, שומרים ושולחים.':'בוחרים סרטונים ותרגילים, נותנים שם לתכנית, ומתאמנים לפי התכנית שלך.';
   if(!DB.ok()){$('#hubList').innerHTML='<div class="empty">צריך חיבור לאינטרנט.</div>';return}
@@ -35,36 +35,37 @@ const hubHas=(k,id)=>hubSel.some(x=>x.k===k&&x.id===id);
 const DEFCAT={field:['drib'],juggle:['drib'],feetcall:['drib'],tracking:['aware'],sweeper:['aware'],periph:['aware'],breath:['aware','warm'],reaction:['react'],colortask:['react'],strobe:['react'],choice:['react'],gonogo:['react'],warmup:['warm'],scenarios:['warm']};
 let hubMap=null;const gameCats=id=>(hubMap&&hubMap[id])||DEFCAT[id]||[];
 const canAssign=()=>isAdmin()&&!(viewAs&&viewAs.mode==='player');
-function paintHub(){const vis=visible().filter(id=>CAT[id]),ex=hubCat?vis.filter(id=>gameCats(id).includes(hubCat)):vis,R=hubCat&&RUBS.find(r=>r[0]===hubCat);
-  const vs=hubCat?hubVids.filter(v=>v.cat===hubCat):hubVids;
-  const head=hubCat?`<button class="back" data-rub="">→ כל הקטגוריות</button>${rubHTML(hubCat)}`:rubHTML();
-  const grid=`<div class="pickgrid">${ex.map(id=>`<div class="pickw"><button class="pick" data-gpick="${id}" aria-pressed="${hubHas('g',id)}">${I(CAT[id].ico)}<span>${CAT[id].name}</span></button><button class="pinfo" data-ginfo="${id}" aria-label="הסבר על ${CAT[id].name}">i</button></div>`).join('')}</div><div id="hubInfo"></div>`;
-  $('#hubList').innerHTML=`${head}<div class="sec">${hubCat?'סרטונים':'כל הסרטונים'}</div>${vs.length?`<div class="vlist">${vs.map(v=>vrow(v,hubHas('v',v.id))).join('')}</div>`:`<div class="empty">${hubCat?'עוד אין כאן סרטונים.':'עוד אין סרטונים כאן.'}${hubCanEdit()?'<br>הוסף סרטון בלשונית "ניהול סרטונים" ובחר לו קטגוריה.':'<br>הם יתווספו בקרוב.'}</div>`}
-    <div class="sec">${hubCat?'אימונים בקטגוריה':'אימונים מהמערכת'} <small>אפשר לשלב בתכנית</small></div>${grid}${hubCat&&canAssign()?`<div class="sec">שיוך אימונים לקטגוריה <small>למנהל על בלבד</small></div><div class="assign">${vis.map(id=>`<button class="chip" data-assign="${id}" aria-pressed="${gameCats(id).includes(hubCat)}">${CAT[id].name}</button>`).join('')}</div>`:''}`;
+function catBody(c){const vis=visible().filter(id=>CAT[id]&&gameCats(id).includes(c)),vs=hubVids.filter(v=>v.cat===c);
+  return `<div class="catbody">${vs.length?`<div class="vlist">${vs.map(v=>vrow(v,hubCompose?hubHas('v',v.id):undefined)).join('')}</div>`:''}
+    ${vis.length?`<div class="pickgrid">${vis.map(id=>`<button class="pick" data-gpick="${id}" aria-pressed="${hubHas('g',id)}">${I(CAT[id].ico)}<span>${CAT[id].name}</span></button>`).join('')}</div>`:'<div class="empty">עוד אין אימונים בקטגוריה הזאת.</div>'}
+    ${canAssign()?`<details class="assignbox"><summary>שיוך אימונים לקטגוריה (מנהל על)</summary><div class="assign">${visible().filter(id=>CAT[id]).map(id=>`<button class="chip" data-assign="${id}" data-cat="${c}" aria-pressed="${gameCats(id).includes(c)}">${CAT[id].name}</button>`).join('')}</div></details>`:''}</div>`}
+function paintHub(){
+  const top=hubCompose?`<div class="box compose"><div class="field-row"><span>שם האימון</span><input type="text" id="cpTitle" placeholder="לדוגמה: חימום לפני משחק" maxlength="60" value="${esc(hubTitle)}"></div><p class="note">בחר למטה אימונים מהקטגוריות, ואפשר להמשיך לקטגוריה הבאה ולצרף עוד.</p><button class="link-btn" id="cpOff">ביטול</button></div>`:`<button class="btn btn-g full" id="cpOn" style="margin-bottom:14px">הרכב את האימונים המועדפים מהקטגוריות</button>`;
+  $('#hubList').innerHTML=`${top}<div class="rubs">${RUBS.map(r=>rubBtn(r,hubOpen.has(r[0]))+(hubOpen.has(r[0])?catBody(r[0]):'')).join('')}</div>`;
   paintIcons($('#v-hub'));hubBar()}
-$('#hubList').onclick=async e=>{const as=e.target.closest('[data-assign]');if(as&&hubCat){const id=as.dataset.assign,cur=gameCats(id),nx=cur.includes(hubCat)?cur.filter(c=>c!==hubCat):[...cur,hubCat];const nm={...(hubMap||{}),[id]:nx};try{await DB.setHubCats(nm);hubMap=nm;paintHub();toast('השיוך נשמר')}catch(er){toast(errText(er))}return}const rb=e.target.closest('[data-rub]');if(rb){const c=rb.dataset.rub||null;hubCat=c||null;paintHub();window.scrollTo({top:0,behavior:'smooth'});return}const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}
+$('#hubList').oninput=e=>{if(e.target.id==='cpTitle')hubTitle=e.target.value};
+$('#hubList').onclick=async e=>{const as=e.target.closest('[data-assign]');if(as){const id=as.dataset.assign,c=as.dataset.cat,cur=gameCats(id),nx=cur.includes(c)?cur.filter(x=>x!==c):[...cur,c];const nm={...(hubMap||{}),[id]:nx};try{await DB.setHubCats(nm);hubMap=nm;paintHub();toast('השיוך נשמר')}catch(er){toast(errText(er))}return}if(e.target.closest('#cpOn')){hubCompose=true;paintHub();setTimeout(()=>$('#cpTitle')?.focus(),50);return}if(e.target.closest('#cpOff')){hubCompose=false;hubSel=[];hubTitle='';paintHub();return}const rb=e.target.closest('[data-rub]');if(rb){const c=rb.dataset.rub;hubOpen.has(c)?hubOpen.delete(c):hubOpen.add(c);paintHub();return}const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}
   const pv=e.target.closest('[data-preview]');if(pv){openIntro(pv.dataset.preview);return}
   const gi=e.target.closest('[data-ginfo]');if(gi){const id=gi.dataset.ginfo,box=$('#hubInfo');box.innerHTML=box.dataset.id===id?'':exInfoHTML(id);box.dataset.id=box.dataset.id===id?'':id;paintIcons(box);return}
-  const gp=e.target.closest('[data-gpick]');if(gp){const id=gp.dataset.gpick;hubSel=hubHas('g',id)?hubSel.filter(x=>!(x.k==='g'&&x.id===id)):[...hubSel,{k:'g',id,level:'plus'}];gp.setAttribute('aria-pressed',hubHas('g',id));hubBar();return}
+  const gp=e.target.closest('[data-gpick]');if(gp){const id=gp.dataset.gpick;if(!hubCompose){openIntro(id);return}hubSel=hubHas('g',id)?hubSel.filter(x=>!(x.k==='g'&&x.id===id)):[...hubSel,{k:'g',id,level:'plus'}];gp.setAttribute('aria-pressed',hubHas('g',id));hubBar();return}
   const b=e.target.closest('[data-pick]');if(!b)return;const id=b.dataset.pick;hubSel=hubHas('v',id)?hubSel.filter(x=>!(x.k==='v'&&x.id===id)):[...hubSel,{k:'v',id}];b.setAttribute('aria-checked',hubHas('v',id));b.closest('.vrow').classList.toggle('on',hubHas('v',id));hubBar()};
 
 /* ---- the bar under the list: save and send ---- */
 const planFromSel=title=>({title,vids:hubSel.filter(x=>x.k==='v').map(x=>{const v=hubVids.find(z=>z.id===x.id);return v&&{y:v.yt,t:v.title}}).filter(Boolean),games:hubSel.filter(x=>x.k==='g').map(x=>({id:x.id,level:x.level}))});
 function shareLabel(){const r=profile?.role;return r==='coach'&&profile.clubId?'שתף עם מנהל המועדון':r==='manager'&&profile.clubId?'שתף עם המאמנים במועדון':isAdmin()&&!(viewAs&&viewAs.mode==='player')?'תכנית לדוגמה לכל המשתמשים':''}
 async function hubBar(){const bar=$('#hubBar'),on=$('#hubTabs [data-t="lib"]').getAttribute('aria-pressed')==='true';
-  if(!on||!hubSel.length){bar.hidden=true;return}bar.hidden=false;
+  if(!on||!hubCompose||!hubSel.length){bar.hidden=true;return}bar.hidden=false;
   if(!bar.dataset.built){bar.dataset.built='1';const sl=shareLabel(),teams=await sendTeams();
     bar.innerHTML=`<div class="pb-top"><b id="pbCount"></b><button class="link-btn" id="pbClear">נקה</button></div>
-      <input type="text" id="pbTitle" placeholder="שם התכנית, לדוגמה חימום לפני משחק" maxlength="60">
-      ${sl?`<label class="check pbshare"><input type="checkbox" id="pbShare"><span>${sl}</span></label>`:''}
+            ${sl?`<label class="check pbshare"><input type="checkbox" id="pbShare"><span>${sl}</span></label>`:''}
       <div class="row2"><button class="btn btn-o" id="pbSave">${I('check')} שמור בתכניות שלי</button>${teams.length?`<button class="btn btn-g" id="pbSend">${I('send')} שמור ושלח</button>`:''}</div><div class="ferr" id="pbErr"></div>`;
     paintIcons(bar);
-    $('#pbClear').onclick=()=>{hubSel=[];$('#pbTitle').value='';paintHub()};
-    const save=async()=>{if(hubSaving)return null;const title=$('#pbTitle').value.trim(),err=$('#pbErr');if(!title){err.textContent='תן שם לתכנית.';$('#pbTitle').focus();return null}err.textContent='';
+    $('#pbClear').onclick=()=>{hubSel=[];paintHub()};
+    const save=async()=>{if(hubSaving)return null;const title=hubTitle.trim(),err=$('#pbErr');if(!title){err.textContent='כתוב למעלה שם לאימון.';window.scrollTo({top:0,behavior:'smooth'});$('#cpTitle')?.focus();return null}err.textContent='';
       const p={...planFromSel(title),scope:$('#pbShare')?.checked?(isAdmin()?'global':'club'):'private'};
       hubSaving=true;$('#pbSave').disabled=true;if($('#pbSend'))$('#pbSend').disabled=true;try{const row=await DB.savePlan(p);return row}catch(ex){err.textContent=errText(ex);return null}finally{hubSaving=false;$('#pbSave').disabled=false;if($('#pbSend'))$('#pbSend').disabled=false}};
-    $('#pbSave').onclick=async()=>{const r=await save();if(!r)return;toast('התכנית נשמרה');hubSel=[];$('#pbTitle').value='';showTab('hubTabs','mine')};
-    if($('#pbSend'))$('#pbSend').onclick=async()=>{const r=await save();if(!r)return;hubSel=[];$('#pbTitle').value='';paintHub();sendSheet(r)}}
+    $('#pbSave').onclick=async()=>{const r=await save();if(!r)return;toast('התכנית נשמרה');hubSel=[];hubTitle='';hubCompose=false;paintHub();showTab('hubTabs','mine')};
+    if($('#pbSend'))$('#pbSend').onclick=async()=>{const r=await save();if(!r)return;hubSel=[];hubTitle='';hubCompose=false;paintHub();sendSheet(r)}}
   $('#pbCount').textContent=`${hubSel.length} פריטים בתכנית`}
 
 /* ---- send a saved plan to teams / players as homework ---- */
