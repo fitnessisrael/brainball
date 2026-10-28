@@ -2,7 +2,7 @@
 const ytId=u=>{u=String(u||'').trim();const m=u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([A-Za-z0-9_-]{11})/);if(m)return m[1];return /^[A-Za-z0-9_-]{11}$/.test(u)?u:null};
 const ytThumb=id=>`https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
 let hubSel=[],hubVids=[],hubOwn=[],hubPlans=[],hubCat=null,hubSaving=false;
-const RUBS=[['drib','שיפור כדרור','הכדור צמוד לרגל. היריב נשאר מאחור.','#8a1a9c,#1a0720','#ff6be6'],['aware','שיפור מודעות','לראות את המגרש לפני כולם.','#0f6a73,#04181c','#5df0ff'],['react','שיפור זמן תגובה','שבריר שנייה שמכריע משחקים.','#123f9c,#050c24','#6cc8ff'],['warm','חימום מוח לפני המשחק','עולים למגרש כשהראש כבר חם.','#5a1fa8,#12062a','#d7a0ff']];
+const RUBS=[['drib','שיפור דריבל','הכדור צמוד לרגל. היריב נשאר מאחור.','#8a1a9c,#1a0720','#ff6be6'],['aware','שיפור פוקוס','עיניים חדות, ראש רגוע, ומגרש שנקרא מראש.','#0f6a73,#04181c','#5df0ff'],['react','שיפור זמן תגובה','שבריר שנייה שמכריע משחקים.','#123f9c,#050c24','#6cc8ff'],['warm','חימום הכנה למוח','עולים למגרש כשהראש כבר חם.','#5a1fa8,#12062a','#d7a0ff']];
 const rubHTML=only=>`<div class="rubs">${RUBS.filter(r=>!only||r[0]===only).map(r=>`<button class="rub${hubCat===r[0]?' on':''}" data-rub="${r[0]}" style="background:linear-gradient(90deg,${r[3].split(',')[1]} 30%,${r[3].split(',')[0]})"><img src="img/rub_${r[0]}.webp" alt=""><span class="rt"><b>${r[1]}</b><i style="color:${r[4]}">${r[2]}</i></span></button>`).join('')}</div>`;
 tabs('hubTabs',t=>{if(t==='mine')renderMine();if(t==='edit')renderHubEdit();hubBar()});
 /* whose list: a player/coach sees the list of his club (or the general one); the admin edits the list of the club he is inside, or the general one */
@@ -29,17 +29,20 @@ async function renderHub(){hubCat=null;try{showTab('hubTabs','lib')}catch(e){}co
   if(!DB.ok()){$('#hubList').innerHTML='<div class="empty">צריך חיבור לאינטרנט.</div>';return}
   $('#hubList').innerHTML='<div class="empty">טוען סרטונים...</div>';hubBar();
   try{hubVids=await DB.videoList(hubClub())}catch(e){hubVids=[]}
+  try{hubMap=await DB.hubCats()}catch(e){}
   hubSel=hubSel.filter(x=>x.k==='g'||hubVids.some(v=>v.id===x.id));paintHub()}
 const hubHas=(k,id)=>hubSel.some(x=>x.k===k&&x.id===id);
-const RUBEX={drib:['field','juggle','feetcall'],aware:['tracking','sweeper','periph','scenarios'],react:['reaction','colortask','strobe','choice','gonogo'],warm:['warmup','breath']};
-function paintHub(){const vis=visible().filter(id=>CAT[id]),ex=hubCat?vis.filter(id=>(RUBEX[hubCat]||[]).includes(id)):vis,R=hubCat&&RUBS.find(r=>r[0]===hubCat);
+const DEFCAT={field:['drib'],juggle:['drib'],feetcall:['drib'],tracking:['aware'],sweeper:['aware'],periph:['aware'],breath:['aware','warm'],reaction:['react'],colortask:['react'],strobe:['react'],choice:['react'],gonogo:['react'],warmup:['warm'],scenarios:['warm']};
+let hubMap=null;const gameCats=id=>(hubMap&&hubMap[id])||DEFCAT[id]||[];
+const canAssign=()=>isAdmin()&&!(viewAs&&viewAs.mode==='player');
+function paintHub(){const vis=visible().filter(id=>CAT[id]),ex=hubCat?vis.filter(id=>gameCats(id).includes(hubCat)):vis,R=hubCat&&RUBS.find(r=>r[0]===hubCat);
   const vs=hubCat?hubVids.filter(v=>v.cat===hubCat):hubVids;
   const head=hubCat?`<button class="back" data-rub="">→ כל הקטגוריות</button>${rubHTML(hubCat)}`:rubHTML();
   const grid=`<div class="pickgrid">${ex.map(id=>`<div class="pickw"><button class="pick" data-gpick="${id}" aria-pressed="${hubHas('g',id)}">${I(CAT[id].ico)}<span>${CAT[id].name}</span></button><button class="pinfo" data-ginfo="${id}" aria-label="הסבר על ${CAT[id].name}">i</button></div>`).join('')}</div><div id="hubInfo"></div>`;
   $('#hubList').innerHTML=`${head}<div class="sec">${hubCat?'סרטונים':'כל הסרטונים'}</div>${vs.length?`<div class="vlist">${vs.map(v=>vrow(v,hubHas('v',v.id))).join('')}</div>`:`<div class="empty">${hubCat?'עוד אין כאן סרטונים.':'עוד אין סרטונים כאן.'}${hubCanEdit()?'<br>הוסף סרטון בלשונית "ניהול סרטונים" ובחר לו קטגוריה.':'<br>הם יתווספו בקרוב.'}</div>`}
-    <div class="sec">${hubCat?'אימונים בקטגוריה':'אימונים מהמערכת'} <small>אפשר לשלב בתכנית</small></div>${grid}`;
+    <div class="sec">${hubCat?'אימונים בקטגוריה':'אימונים מהמערכת'} <small>אפשר לשלב בתכנית</small></div>${grid}${hubCat&&canAssign()?`<div class="sec">שיוך אימונים לקטגוריה <small>למנהל על בלבד</small></div><div class="assign">${vis.map(id=>`<button class="chip" data-assign="${id}" aria-pressed="${gameCats(id).includes(hubCat)}">${CAT[id].name}</button>`).join('')}</div>`:''}`;
   paintIcons($('#v-hub'));hubBar()}
-$('#hubList').onclick=e=>{const rb=e.target.closest('[data-rub]');if(rb){const c=rb.dataset.rub||null;hubCat=c||null;paintHub();window.scrollTo({top:0,behavior:'smooth'});return}const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}
+$('#hubList').onclick=async e=>{const as=e.target.closest('[data-assign]');if(as&&hubCat){const id=as.dataset.assign,cur=gameCats(id),nx=cur.includes(hubCat)?cur.filter(c=>c!==hubCat):[...cur,hubCat];const nm={...(hubMap||{}),[id]:nx};try{await DB.setHubCats(nm);hubMap=nm;paintHub();toast('השיוך נשמר')}catch(er){toast(errText(er))}return}const rb=e.target.closest('[data-rub]');if(rb){const c=rb.dataset.rub||null;hubCat=c||null;paintHub();window.scrollTo({top:0,behavior:'smooth'});return}const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}
   const pv=e.target.closest('[data-preview]');if(pv){openIntro(pv.dataset.preview);return}
   const gi=e.target.closest('[data-ginfo]');if(gi){const id=gi.dataset.ginfo,box=$('#hubInfo');box.innerHTML=box.dataset.id===id?'':exInfoHTML(id);box.dataset.id=box.dataset.id===id?'':id;paintIcons(box);return}
   const gp=e.target.closest('[data-gpick]');if(gp){const id=gp.dataset.gpick;hubSel=hubHas('g',id)?hubSel.filter(x=>!(x.k==='g'&&x.id===id)):[...hubSel,{k:'g',id,level:'plus'}];gp.setAttribute('aria-pressed',hubHas('g',id));hubBar();return}

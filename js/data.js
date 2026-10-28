@@ -83,6 +83,8 @@ const DB={
   async ownVideos(club){const q=sb.from('videos').select('*');const r=await (club?q.eq('club_id',club):q.is('club_id',null)).order('sort').order('created_at');return r.data||[]},
   async addVideo(o){const {error}=await sb.from('videos').insert(o);if(error)throw error},
   async delVideo(id){const {error}=await sb.from('videos').delete().eq('id',id);if(error)throw error},
+  async hubCats(){if(!sb)return null;const {data}=await sb.from('ui_text').select('txt').eq('orig','hubcats').maybeSingle();try{return data?JSON.parse(data.txt):null}catch(e){return null}},
+  async setHubCats(m){const {error}=await sb.from('ui_text').upsert({orig:'hubcats',txt:JSON.stringify(m)},{onConflict:'orig'});if(error)throw error},
   async setVideoCat(id,cat){const {error}=await sb.from('videos').update({cat:cat||null}).eq('id',id);if(error)throw error},
   async renameVideo(id,title){const {error}=await sb.from('videos').update({title}).eq('id',id);if(error)throw error},
   async copyVideos(toClub){const g=await sb.from('videos').select('title,yt,sort,cat').is('club_id',null).order('sort').order('created_at');const rows=(g.data||[]).map(v=>({...v,club_id:toClub}));if(rows.length){const {error}=await sb.from('videos').insert(rows);if(error)throw error}return rows.length},
