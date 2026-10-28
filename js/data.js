@@ -74,6 +74,19 @@ const DB={
   async createClub(name,logo,teams){const {data,error}=await sb.rpc('create_club',{p_name:name,p_logo:logo||null,p_teams:teams});if(error)throw error;return data},
   async setClubStatus(id,st){const {error}=await sb.rpc('set_club_status',{p_club:id,p_status:st});if(error)throw error},
   async updateClub(id,o){const {error}=await sb.from('clubs').update(o).eq('id',id);if(error)throw error},
+  async setTeamCodes(team,code,coach){const {data,error}=await sb.rpc('set_team_codes',{p_team:team,p_code:code,p_coach:coach});if(error)throw error;return data},
+  /* virtual training hub: the club's own list if it has one, otherwise the general list of the system */
+  async videoList(club){if(!sb)return[];let rows=[];
+    if(club){const r=await sb.from('videos').select('*').eq('club_id',club).order('sort').order('created_at');rows=r.data||[];if(rows.length)return rows}
+    const g=await sb.from('videos').select('*').is('club_id',null).order('sort').order('created_at');return g.data||[]},
+  async ownVideos(club){const q=sb.from('videos').select('*');const r=await (club?q.eq('club_id',club):q.is('club_id',null)).order('sort').order('created_at');return r.data||[]},
+  async addVideo(o){const {error}=await sb.from('videos').insert(o);if(error)throw error},
+  async delVideo(id){const {error}=await sb.from('videos').delete().eq('id',id);if(error)throw error},
+  async renameVideo(id,title){const {error}=await sb.from('videos').update({title}).eq('id',id);if(error)throw error},
+  async copyVideos(toClub){const g=await sb.from('videos').select('title,yt,sort').is('club_id',null).order('sort').order('created_at');const rows=(g.data||[]).map(v=>({...v,club_id:toClub}));if(rows.length){const {error}=await sb.from('videos').insert(rows);if(error)throw error}return rows.length},
+  async myPlans(){if(!sb||!this.user)return[];const {data}=await sb.from('plans').select('*').order('created_at',{ascending:false});return data||[]},
+  async savePlan(title,vids){const {error}=await sb.from('plans').insert({title,vids});if(error)throw error},
+  async delPlan(id){await sb.from('plans').delete().eq('id',id)},
 };
 // server profile -> local profile used by the UI
 function applyServerProfile(d){

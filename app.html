@@ -25,6 +25,8 @@
     </div>
   </div>
 
+  <div class="vabar" id="vaBar" hidden><span id="vaTxt"></span><button class="btn btn-w sm" id="vaExit">חזרה לניהול</button></div>
+
   <!-- INTRO -->
   <section class="view" id="v-intro">
     <div class="slide">
@@ -108,14 +110,14 @@
     <div class="mesh">
       <div class="mesh-row">
         <svg class="dring" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF3FDC"/><stop offset=".55" stop-color="#AA44FF"/><stop offset="1" stop-color="#00E0FF"/></linearGradient></defs><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="10"/><circle id="ringArc" cx="50" cy="50" r="42" fill="none" stroke="url(#rg)" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 264" transform="rotate(-90 50 50)" style="transition:stroke-dasharray .8s ease"/><text id="ringTxt" x="50" y="58" text-anchor="middle" font-family="Outfit" font-weight="700" font-size="24" fill="#fff">0/3</text></svg>
-        <div><div class="k">TODAY</div><h2 style="font-size:28px;margin:4px 0 2px">תוכנית היום</h2><p style="margin:0;opacity:.85;font-size:15px">שלושה תרגילים. סוגרים את הטבעת.</p></div>
+        <div><div class="k">TODAY</div><h2 style="font-size:28px;margin:4px 0 2px">תוכנית היום</h2><p style="margin:0;opacity:.85;font-size:15px" id="planSub">שלושה תרגילים קצרים. סוגרים את הטבעת.</p></div>
       </div>
       <div class="prog-list" id="progList"></div>
       <button class="btn btn-w" id="progGo">לתרגיל הבא <span class="ar">←</span></button>
     </div>
     <div class="sec">התוצאות האחרונות <small>כל תחום בנפרד</small></div>
     <div class="areas" id="areas"></div>
-    <div class="invite"><div><b>מי מהחברים הכי מהיר?</b><span class="h-sub">שלח להם את BrainBall ותראו</span></div><button class="btn btn-g" data-share="app">הזמן חבר</button></div>
+    <div class="invite"><div><b>שלח לחברים כדי להתאמן גם</b><span class="h-sub">מאמנים את המוח יחד, ורואים מי משתפר</span></div><button class="btn btn-g" data-share="app">שלח לחבר</button></div>
   </section>
 
   <!-- INBOX (player notifications) -->
@@ -126,7 +128,12 @@
 
   <!-- TRAIN -->
   <section class="view" id="v-train">
-    <h1 class="title">בחר אימון</h1>
+    <div class="train-head">
+      <svg class="nfly" viewBox="0 0 200 90" aria-hidden="true"><g class="nl"><path d="M20 62L58 28L104 54L150 22L184 48M58 28L72 76M104 54L120 80M150 22L168 8"/></g><g class="nd"><circle cx="20" cy="62" r="3.2"/><circle cx="58" cy="28" r="4"/><circle cx="104" cy="54" r="3.6"/><circle cx="150" cy="22" r="4.2"/><circle cx="184" cy="48" r="3"/><circle cx="72" cy="76" r="2.6"/><circle cx="120" cy="80" r="2.8"/><circle cx="168" cy="8" r="2.4"/></g></svg>
+      <div class="k">TRAIN YOUR BRAIN</div>
+      <h1 class="title">בחר אימון</h1>
+      <p class="h-sub" style="margin:0">כל תרגיל מחדד חלק אחר במוח: מהירות, החלטה וקשב.</p>
+    </div>
     <div id="catalog"></div>
   </section>
 
@@ -145,7 +152,7 @@
     <h1 class="title" id="coachTitle">הקבוצה שלי</h1>
     <div class="mesh team-hero" style="--m:radial-gradient(circle at 80% 20%,var(--purple),transparent 45%),radial-gradient(circle at 15% 85%,var(--cyan),transparent 45%)">
       <div class="k">קוד הצטרפות לשחקנים</div>
-      <div class="code" id="tCode">------</div>
+      <div class="code-line"><button class="code-edit" id="tCodeEdit" aria-label="עריכת קודים" hidden><span class="ic" data-i="edit"></span></button><div class="code" id="tCode">------</div></div>
       <div class="row2"><a class="btn btn-w" id="tWaAll" target="_blank" rel="noopener"><span class="ic" data-i="chat"></span>הזמנה לקבוצה</a><button class="btn btn-o" id="tCopy"><span class="ic" data-i="copy"></span>העתק קישור</button></div>
     </div>
     <div class="segtabs" id="coachTabs"><button data-t="ins" aria-pressed="true">תמונת מצב</button><button data-t="hw" aria-pressed="false">שיעורי בית</button><button data-t="pl" aria-pressed="false">שחקנים</button></div>
@@ -161,6 +168,7 @@
         <button class="btn btn-g full" id="taskSend"><span class="ic" data-i="send"></span>שלח משימה</button>
         <div class="ferr" id="taskErr"></div>
       </div>
+      <button class="btn btn-o full" data-go="hub" style="margin-top:10px"><span class="ic" data-i="play"></span>בנה תכנית מסרטונים ושלח</button>
       <div class="sec">משימות פעילות <small id="hwSum"></small></div>
       <div class="hwtrack" id="hwList"></div>
     </div>
@@ -177,7 +185,7 @@
     </div>
     <div class="mesh" style="margin-top:18px;--m:radial-gradient(circle at 70% 30%,var(--stim),transparent 40%),radial-gradient(circle at 20% 80%,var(--magenta),transparent 45%)">
       <div class="k">FIELD MODE</div>
-      <h2 style="font-size:26px;margin:8px 0 6px">רצף עם כדור</h2>
+      <h2 style="font-size:26px;margin:8px 0 6px">שינויי צבע, מספרים וחיצים</h2>
       <p style="margin:0 0 14px;opacity:.9">טאבלט על חצובה, כל הקבוצה מול המסך.</p>
       <button class="btn btn-w" data-go="field">פתח מסך מגרש <span class="ar">←</span></button>
     </div>
@@ -232,6 +240,28 @@
     <p class="note" style="text-align:center" id="admNote"></p>
   </section>
 
+  <!-- VIRTUAL TRAINING HUB -->
+  <section class="view" id="v-hub">
+    <button class="back" data-go="train">→ חזרה</button>
+    <div class="k">VIRTUAL TRAINING</div>
+    <h1 class="title" style="margin-bottom:4px">מתחם אימונים וירטואלי</h1>
+    <p class="h-sub" id="hubSub" style="margin:0 0 14px">בוחרים סרטונים, נותנים שם לתכנית, ומתאמנים.</p>
+    <div class="segtabs" id="hubTabs"><button data-t="lib" aria-pressed="true">הסרטונים</button><button data-t="mine" aria-pressed="false">התכניות שלי</button><button data-t="edit" aria-pressed="false" hidden>ניהול סרטונים</button></div>
+    <div data-pane="lib"><div id="hubList"></div></div>
+    <div data-pane="mine" hidden><div id="hubMine"></div></div>
+    <div data-pane="edit" hidden>
+      <div id="hubEditNote"></div>
+      <div class="box">
+        <div class="field-row"><span>קישור מיוטיוב</span><input type="url" id="hvUrl" placeholder="הדבק כאן קישור" class="ltr" autocomplete="off"></div>
+        <div class="field-row"><span>שם התרגיל</span><input type="text" id="hvTitle" placeholder="לדוגמה: סולם קואורדינציה"></div>
+        <button class="btn btn-g full" id="hvAdd"><span class="ic" data-i="plus"></span>הוסף סרטון</button>
+        <div class="ferr" id="hvErr"></div>
+      </div>
+      <div id="hubEditList"></div>
+    </div>
+    <div class="plan-bar" id="hubBar" hidden></div>
+  </section>
+
   <!-- ACCOUNT -->
   <section class="view" id="v-account">
     <h1 class="title">החשבון שלי</h1>
@@ -239,6 +269,7 @@
     <div class="switchrow" id="accShareRow" hidden><div><b style="font-family:var(--f-display)">שיתוף תוצאות עם המאמן</b><div class="note" id="accTeam"></div></div><button class="sw" role="switch" id="accShare" aria-label="שיתוף תוצאות עם המאמן"></button></div>
     <div class="box" id="accJoin" hidden><h3 style="font-size:18px;margin-bottom:8px">הצטרפות לקבוצה</h3><div class="row2"><input type="text" id="accCode" placeholder="קוד קבוצה" class="code-in"><button class="btn btn-g" id="accJoinBtn">הצטרף</button></div><div class="ferr" id="accErr"></div></div>
     <div class="box" id="accPassBox" hidden><h3 style="font-size:18px;margin-bottom:8px">שינוי סיסמה</h3><div class="row2"><input type="password" id="accPass" placeholder="סיסמה חדשה" class="ltr" autocomplete="new-password"><button class="btn btn-o" id="accPassBtn">שמור</button></div><div class="ferr" id="accPassErr"></div></div>
+    <div class="box" id="accViewAs" hidden><h3 style="font-size:18px;margin-bottom:4px">איך זה נראה אצל אחרים</h3><p class="note" style="margin:0 0 10px">עוברים לתצוגה של שחקן או של מנהל מועדון, ורואים בדיוק מה הם רואים.</p><div class="row2"><button class="btn btn-o" id="vaPlayer"><span class="ic" data-i="player"></span>צפייה כשחקן</button><button class="btn btn-o" id="vaManager"><span class="ic" data-i="club"></span>צפייה כמנהל מועדון</button></div></div>
     <div style="display:grid;gap:10px">
       <button class="btn btn-g full" data-share="app"><span class="ic" data-i="share"></span>שתף את BrainBall עם חבר</button>
       <button class="btn btn-o full" id="accHome" hidden></button>
@@ -253,7 +284,7 @@
   <!-- FIELD SETUP -->
   <section class="view" id="v-field">
     <button class="back" data-go="train">→ חזרה</button>
-    <h1 class="title" style="margin-bottom:6px">רצף עם כדור</h1>
+    <h1 class="title" style="margin-bottom:6px">שינויי צבע, מספרים וחיצים</h1>
     <p class="h-sub" style="margin:0 0 14px">שים את הטלפון או הטאבלט על חצובה. החלט מראש על פעולה לכל צבע, מספר או חץ, או צעק אותם תוך כדי התרגיל.</p>
     <div class="demo" id="demo" aria-label="הדגמה של המסך"><span class="badge">הדגמה</span><span class="sym" id="demoSym"></span></div>
     <div class="demo-cap" id="demoLbl"></div>
@@ -311,6 +342,8 @@
 <script src="js/views.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/manage.js"></script>
+<script src="js/hub.js"></script>
+<script src="js/textedit.js"></script>
 <script src="js/boot.js"></script>
 </body>
 </html>

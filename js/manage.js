@@ -7,6 +7,11 @@ function showTab(id,t){const b=$(`#${id} [data-t="${t}"]`);b&&b.click()}
 const isAdmin=()=>profile?.role==='admin';
 const waBtn=(phone,text,label='')=>phone?`<a class="wa-mini" href="${wa(text,phone)}" target="_blank" rel="noopener" aria-label="וואטסאפ">${I('chat')}${label}</a>`:'';
 
+const codeBtn=(attr,val)=>`<button class="code-edit" ${attr}="${val}" aria-label="עריכת קוד">${I('edit')}</button>`;
+function codeSheet(title,fields,onSave){$('#pSheetBody').innerHTML=`<div class="sheet-h"><div><h2 style="font-size:22px">${esc(title)}</h2></div><button class="icon-btn" data-close aria-label="סגור">✕</button></div>${fields.map(f=>`<div class="field-row"><span>${f.label}</span><input type="text" id="ce_${f.id}" class="code-in" value="${esc(f.val)}" maxlength="10" autocapitalize="characters" autocomplete="off"></div>`).join('')}<p class="note">4 עד 10 אותיות באנגלית או ספרות. מי שכבר נרשם נשאר במקומו. קישורי הזמנה ישנים יפסיקו לעבוד, ושחקנים חדשים ירשמו עם הקוד החדש.</p><div class="ferr" id="ceErr"></div><button class="btn btn-g full" id="ceSave">שמור</button>`;
+  $('#pSheet').hidden=false;$('#ceSave').onclick=async()=>{try{await onSave(Object.fromEntries(fields.map(f=>[f.id,$('#ce_'+f.id).value.trim()])));$('#pSheet').hidden=true;toast('הקוד עודכן')}catch(e){$('#ceErr').textContent=errText(e)}}}
+const canEditCodes=()=>(isAdmin()||profile?.role==='manager')&&!(viewAs&&viewAs.mode==='player');
+
 /* ---------- player detail sheet (coach / manager / admin) ---------- */
 async function openPlayer(uid,ctx){const p=ctx.people.find(x=>x.id===uid);if(!p)return;
   const ses=ctx.ses.filter(r=>r.user_id===uid),teamProf=profileOf(ctx.ses.filter(r=>r.team_id===p.team_id));
@@ -20,6 +25,7 @@ async function openPlayer(uid,ctx){const p=ctx.people.find(x=>x.id===uid);if(!p)
   if($('#psMove'))$('#psMove').onchange=async e=>{try{await DB.setPlayerTeam(uid,e.target.value);toast('השחקן הועבר');$('#pSheet').hidden=true;ctx.reload&&ctx.reload()}catch(er){toast(errText(er))}}}
 
 /* ================= coach ================= */
+const gN=x=>x.game==='plan'?('תכנית: '+(x.plan?.title||x.title||'אימונים')):(CAT[x.game]?.name||x.game);
 let hwLevel='plus',hwPicked=new Set(['reaction']),coachCtx=null;
 tabs('coachTabs');
 async function renderCoach(){const p=profile||{};
@@ -28,6 +34,7 @@ async function renderCoach(){const p=profile||{};
   $('#coachHello').textContent=t?.club||(p.name?`היי ${p.name.split(' ')[0]}`:'');$('#coachTitle').textContent=t?.name||'הקבוצה שלי';
   if(!t||!DB.ok()){$('#coachIns').innerHTML='<div class="empty">כדי לנהל קבוצה צריך להירשם כמאמן עם הקוד מהמנהל.</div>';$('#tCode').textContent='------';return}
   $('#tCode').textContent=t.code;const link=appLink('join-'+t.code);
+  $('#tCodeEdit').hidden=!(curTeam&&canEditCodes());$('#tCodeEdit').onclick=()=>codeSheet('קודים של '+t.name,[{id:'p',label:'קוד שחקנים',val:t.code},{id:'c',label:'קוד מאמן',val:t.coach_code}],async v=>{const r=await DB.setTeamCodes(t.id,v.p,v.c);curTeam={...curTeam,code:r.code,coach_code:r.coach_code};renderCoach()});
   $('#tWaAll').href=wa(`היי! מצטרפים לקבוצה "${t.name}" ב-BrainBall, אימון מוח לשחקני כדורגל.\nקוד הקבוצה: ${t.code}\nנרשמים כאן: ${link}`);
   $('#tCopy').onclick=()=>copyTxt(link);
   $('#coachIns').innerHTML='<div class="empty">טוען נתונים...</div>';
@@ -61,11 +68,11 @@ async function renderHwList(t,rows){const [list,done]=await Promise.all([DB.team
   $('#hwList').innerHTML=groups.length?groups.map(g=>{const h=g[0],targets=h.player_id?rows.filter(r=>r.id===h.player_id):rows;
     const st=targets.map(r=>({r,n:g.filter(x=>(doneBy[x.id]||[]).some(d=>d.user_id===r.id)).length}));const full=st.filter(x=>x.n===g.length).length,pct=targets.length?Math.round(full/targets.length*100):0;
     const late=h.due&&new Date(h.due)<new Date(new Date().toDateString());
-    return `<details class="hwcard"><summary><div class="hwc-top"><div><b>${esc(h.title||g.map(x=>CAT[x.game]?.name||x.game).join(' + '))}</b><small>${h.player_id?'אישית: '+esc(targets[0]?.full_name||''):'כל הקבוצה'} · ${LV[h.level]||''}${h.due?` · עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}${late?' · <em class="late">הסתיים</em>':''}</small></div><div class="ring-s" style="--p:${pct}"><span>${pct}%</span></div></div>
-      <div class="hwc-games">${g.map(x=>`<span>${I(CAT[x.game]?.ico||'bolt')}${CAT[x.game]?.name||x.game}</span>`).join('')}</div></summary>
+    return `<details class="hwcard"><summary><div class="hwc-top"><div><b>${esc(h.title||g.map(gN).join(' + '))}</b><small>${h.player_id?'אישית: '+esc(targets[0]?.full_name||''):'כל הקבוצה'} · ${LV[h.level]||''}${h.due?` · עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}${late?' · <em class="late">הסתיים</em>':''}</small></div><div class="ring-s" style="--p:${pct}"><span>${pct}%</span></div></div>
+      <div class="hwc-games">${g.map(x=>`<span>${I(x.game==='plan'?'play':CAT[x.game]?.ico||'bolt')}${esc(gN(x))}</span>`).join('')}</div></summary>
       ${h.note?`<p class="note">"${esc(h.note)}"</p>`:''}
-      <div class="hwc-list">${st.map(x=>`<div class="hwc-row ${x.n===g.length?'ok':''}"><span>${esc(x.r.full_name)}</span><span class="mono">${x.n}/${g.length}</span>${x.n<g.length?waBtn(x.r.phone,`היי ${(x.r.full_name||'').split(' ')[0]}, תזכורת מהמאמן: "${h.title||CAT[h.game]?.name}" ב-BrainBall${h.due?` עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}. ${appLink('home')}`,' תזכורת'):`<span class="okmark-s">${I('check')}</span>`}</div>`).join('')||'<p class="note">אין שחקנים בקבוצה עדיין.</p>'}</div>
-      <div class="row2"><a class="btn btn-o sm" href="${wa(`משימה חדשה ב-BrainBall: ${h.title||g.map(x=>CAT[x.game]?.name).join(' + ')}${h.due?` עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}.${h.note?'\n'+h.note:''}\nפותחים כאן: ${appLink('home')}`)}" target="_blank" rel="noopener">${I('chat')} שלח לקבוצה</a><button class="btn btn-o sm" data-delb="${g.map(x=>x.id).join(',')}">${I('trash')} מחק</button></div></details>`}).join(''):'<div class="empty">עוד לא נשלחו משימות.<br>בנה משימה למעלה, והיא תופיע לשחקנים בהתראות.</div>';
+      <div class="hwc-list">${st.map(x=>`<div class="hwc-row ${x.n===g.length?'ok':''}"><span>${esc(x.r.full_name)}</span><span class="mono">${x.n}/${g.length}</span>${x.n<g.length?waBtn(x.r.phone,`היי ${(x.r.full_name||'').split(' ')[0]}, תזכורת מהמאמן: "${h.title||gN(h)}" ב-BrainBall${h.due?` עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}. ${appLink('home')}`,' תזכורת'):`<span class="okmark-s">${I('check')}</span>`}</div>`).join('')||'<p class="note">אין שחקנים בקבוצה עדיין.</p>'}</div>
+      <div class="row2"><a class="btn btn-o sm" href="${wa(`משימה חדשה ב-BrainBall: ${h.title||g.map(gN).join(' + ')}${h.due?` עד ${new Date(h.due).toLocaleDateString('he-IL')}`:''}.${h.note?'\n'+h.note:''}\nפותחים כאן: ${appLink('home')}`)}" target="_blank" rel="noopener">${I('chat')} שלח לקבוצה</a><button class="btn btn-o sm" data-delb="${g.map(x=>x.id).join(',')}">${I('trash')} מחק</button></div></details>`}).join(''):'<div class="empty">עוד לא נשלחו משימות.<br>בנה משימה למעלה, והיא תופיע לשחקנים בהתראות.</div>';
   $('#hwList').onclick=async e=>{const b=e.target.closest('[data-delb]');if(!b)return;for(const id of b.dataset.delb.split(','))await DB.delTask(id);renderHwList(t,rows)}}
 async function renderRoster(t){const list=await DB.roster(t.id).catch(()=>[]);
   $('#rosterList').innerHTML=list.map(r=>`<div class="drow"><span class="av">${esc(r.name.trim()[0]||'?')}</span><div><b>${esc(r.name)}</b><small class="ltr">${esc(r.phone||'')}</small></div><span></span><div class="mini-acts"><a href="${wa(`היי ${r.name}! המאמן מזמין אותך ל-BrainBall.\nקוד הקבוצה: ${t.code}\nנרשמים כאן: ${appLink('join-'+t.code)}`,r.phone)}" target="_blank" rel="noopener" aria-label="שלח בוואטסאפ">${I('chat')}</a><button data-delr="${r.id}" aria-label="הסר">${I('trash')}</button></div></div>`).join('');
@@ -78,14 +85,16 @@ async function renderRoster(t){const list=await DB.roster(t.id).catch(()=>[]);
 let clubCtx=null;tabs('clubTabs');
 async function renderClub(){const p=profile||{};const admin=isAdmin();
   let c=curClub||(p.clubId?{id:p.clubId,name:p.club,logo:p.clubLogo,code:p.clubCode,status:p.clubStatus}:null);
-  $('#clubBack').hidden=!admin;$('#clubBack').onclick=()=>{curClub=null;go('sys')};
+  $('#clubBack').onclick=()=>{curClub=null;go('sys')};
   if(!c||!DB.ok()){$('#clubIns').innerHTML='<div class="empty">צריך להתחבר כמנהל מועדון.</div>';return}
   if(admin){const fresh=await DB.club(c.id).catch(()=>null);if(fresh)c=curClub=fresh}
-  $('#clubHello').textContent=admin?'מנהל מערכת · צפייה במועדון':'היי '+(p.name||'').split(' ')[0];$('#clubName').textContent=c.name||'המועדון שלי';
+  $('#clubHello').textContent=admin&&!viewAs?'מנהל מערכת · צפייה במועדון':'היי '+(p.name||'').split(' ')[0];$('#clubName').textContent=c.name||'המועדון שלי';
   $('#clubLogo').hidden=!c.logo;if(c.logo)$('#clubLogo').src=c.logo;
   $('#clubPending').innerHTML=c.status==='pending'?'<div class="notice">המועדון מחכה לאישור צוות BrainBall.</div>':'';
-  $('#clubAdmin').innerHTML=admin?`<div class="admin-bar"><div class="codes"><div><span class="note">קוד מנהל מועדון</span><b class="mono" id="caCode">${c.code}</b></div></div><div class="row2"><input type="text" id="caNew" class="code-in" placeholder="קוד חדש"><button class="btn btn-o sm" id="caSet">שנה קוד</button></div>${c.status==='active'?`<button class="btn btn-o sm" data-st="suspended">השהה מועדון</button>`:`<button class="btn btn-g sm" data-st="active">${I('check')} אשר מועדון</button>`}</div>`:'';
-  if(admin){$('#caSet').onclick=async()=>{try{const n=await DB.setClubCode(c.id,$('#caNew').value);$('#caCode').textContent=n;$('#caNew').value='';toast('הקוד עודכן')}catch(e){toast(errText(e))}};
+  const adm=admin&&!viewAs;
+  $('#clubBack').hidden=!adm;
+  $('#clubAdmin').innerHTML=adm?`<div class="admin-bar"><div class="codes"><div><span class="note">קוד מנהל מועדון</span><b class="mono" id="caCode">${c.code}</b></div>${codeBtn('data-ecclub',c.id)}</div>${c.status==='active'?`<button class="btn btn-o sm" data-st="suspended">השהה מועדון</button>`:`<button class="btn btn-g sm" data-st="active">${I('check')} אשר מועדון</button>`}</div>`:'';
+  if(adm){$('#clubAdmin').querySelector('[data-ecclub]').onclick=()=>codeSheet('קוד מנהל המועדון',[{id:'c',label:'קוד',val:c.code}],async v=>{const n=await DB.setClubCode(c.id,v.c);c.code=n;$('#caCode').textContent=n});
     $('#clubAdmin').querySelector('[data-st]').onclick=async e=>{try{await DB.setClubStatus(c.id,e.currentTarget.dataset.st);toast('עודכן');renderClub()}catch(er){toast(errText(er))}}}
   $('#clubIns').innerHTML='<div class="empty">טוען נתונים...</div>';
   let d;try{d=await DB.clubData(c.id)}catch(e){$('#clubIns').innerHTML=`<div class="empty">${errText(e)}</div>`;return}
@@ -96,6 +105,7 @@ async function renderClub(){const p=profile||{};const admin=isAdmin();
   const staff=d.people.filter(x=>x.role==='coach'),pl=d.people.filter(x=>x.role==='player');
   $('#clubTeams').innerHTML=d.teams.length?d.teams.map((t,i)=>teamCard(t,staff.find(s=>s.id===t.coach_id),pl.filter(x=>x.team_id===t.id).length,i)).join(''):'<div class="empty">עוד אין מחלקות. הוסף את הראשונה למטה.</div>';
   $('#clubTeams').onclick=async e=>{const b=e.target.closest('[data-board]');if(b){curTeam={...d.teams[+b.dataset.board],club:c.name};go('coach');return}const cp=e.target.closest('[data-copy]');if(cp)copyTxt(cp.dataset.copy);
+    const ec=e.target.closest('[data-ecteam]');if(ec){const t=d.teams.find(x=>x.id===ec.dataset.ecteam);codeSheet('קודים של '+t.name,[{id:'p',label:'קוד שחקנים',val:t.code},{id:'c',label:'קוד מאמן',val:t.coach_code}],async v=>{await DB.setTeamCodes(t.id,v.p,v.c);renderClub()});return}
     const rc=e.target.closest('[data-recode]');if(rc){try{await DB.resetTeamCodes(rc.dataset.recode);toast('נוצרו קודים חדשים');renderClub()}catch(er){toast(errText(er))}}};
   $('#ctAdd').onclick=async()=>{const n=$('#ctName').value.trim();if(!n){$('#ctErr').textContent='מה שם המחלקה?';return}$('#ctErr').textContent='';
     try{await DB.createTeam(c.id,n);$('#ctName').value='';toast('המחלקה נוצרה');renderClub()}catch(e){$('#ctErr').textContent=errText(e)}};
@@ -105,7 +115,7 @@ async function renderClub(){const p=profile||{};const admin=isAdmin();
   paintIcons($('#v-club'))}
 function teamCard(t,coach,n,i){const cl=appLink('coach-'+t.coach_code),pl=appLink('join-'+t.code);
   return `<div class="tcard"><div class="tcard-h"><div><b>${esc(t.name)}</b><small>${coach?'מאמן: '+esc(coach.full_name):'עוד אין מאמן'} · ${n} שחקנים</small></div><button class="btn btn-w sm" data-board="${i}">${I('table')} כניסה</button></div>
-    <div class="codes"><div><span class="note">קוד מאמן</span><b class="mono">${t.coach_code}</b></div><div><span class="note">קוד שחקנים</span><b class="mono">${t.code}</b></div></div>
+    <div class="codes"><div><span class="note">קוד מאמן</span><b class="mono">${t.coach_code}</b></div><div><span class="note">קוד שחקנים</span><b class="mono">${t.code}</b></div>${canEditCodes()?codeBtn('data-ecteam',t.id):''}</div>
     <div class="row2">${coach?`<button class="btn btn-o sm" data-copy="${pl}">${I('copy')} קישור לשחקנים</button>`:`<a class="btn btn-g sm" href="${wa(`היי! אתה מוזמן לאמן את "${t.name}" ב-BrainBall.\nקוד מאמן: ${t.coach_code}\nנרשמים כאן: ${cl}`)}" target="_blank" rel="noopener">${I('chat')} הזמן מאמן</a>`}<a class="btn btn-o sm" href="${wa(`מצטרפים לקבוצה "${t.name}" ב-BrainBall.\nקוד הקבוצה: ${t.code}\nנרשמים כאן: ${pl}`)}" target="_blank" rel="noopener">${I('chat')} הזמן שחקנים</a></div>
     <button class="link-btn dim" data-recode="${t.id}">יצירת קודים חדשים</button></div>`}
 
@@ -124,10 +134,21 @@ async function renderSys(){if(!DB.ok())return;$('#sysIns').innerHTML='<div class
     <div class="panel"><div class="panel-h"><b>מועדונים</b><span class="note">לחץ לכניסה</span></div><div class="board-wrap"><table class="board"><thead><tr><th>מועדון</th><th>סטטוס</th><th>שחקנים</th><th>פעילים השבוע</th><th>אימונים השבוע</th><th>מדד</th></tr></thead><tbody>${clubs.map(c=>{const r=clubRow(c);return `<tr data-club="${c.id}"><td>${c.logo?`<img class="clogo sm" src="${c.logo}" alt="">`:`<span class="av">${esc(c.name[0])}</span>`}<b>${esc(c.name)}</b></td><td><span class="pill ${c.status}">${{active:'פעיל',pending:'ממתין',suspended:'מושהה'}[c.status]}</span></td><td class="num">${r.pl}</td><td class="num">${r.act}</td><td class="num">${r.s7}</td><td class="num">${r.ov??'-'}</td></tr>`}).join('')||'<tr><td class="empty">עוד אין מועדונים.</td></tr>'}</tbody></table></div></div>`;
   $('#sysIns').onclick=e=>{const r=e.target.closest('[data-club]');if(r){curClub=clubs.find(c=>c.id===r.dataset.club);go('club')}if(e.target.id==='goPend')showTab('sysTabs','clubs')};
   $('#sysClubs').innerHTML=[...pend,...clubs.filter(c=>c.status!=='pending')].map(c=>{const r=clubRow(c);return `<div class="tcard"><div class="tcard-h">${c.logo?`<img class="clogo" src="${c.logo}" alt="">`:`<span class="av">${esc(c.name[0])}</span>`}<div><b>${esc(c.name)}</b><small><span class="pill ${c.status}">${{active:'פעיל',pending:'מחכה לאישור',suspended:'מושהה'}[c.status]}</span> · ${r.pl} שחקנים · ${c.manager_id?'יש מנהל':'אין מנהל עדיין'}</small></div><button class="btn btn-w sm" data-enter="${c.id}">כניסה</button></div>
-    <div class="codes"><div><span class="note">קוד מנהל מועדון</span><b class="mono">${c.code}</b></div></div>
+    <div class="codes"><div><span class="note">קוד מנהל מועדון</span><b class="mono">${c.code}</b></div>${codeBtn('data-ecclub',c.id)}</div>
     <div class="row2">${c.status==='active'?`<button class="btn btn-o sm" data-st="${c.id}|suspended">השהה</button>`:`<button class="btn btn-g sm" data-st="${c.id}|active">${I('check')} אשר</button>`}<a class="btn btn-o sm" href="${wa(`שלום! המועדון "${c.name}" נפתח ב-BrainBall.\nקוד מנהל: ${c.code}\nנרשמים כאן כמנהל מועדון: ${appLink('club-'+c.code)}`)}" target="_blank" rel="noopener">${I('chat')} שלח למנהל</a></div></div>`}).join('')||'<div class="empty">עוד אין מועדונים.</div>';
-  $('#sysClubs').onclick=async e=>{const en=e.target.closest('[data-enter]');if(en){curClub=clubs.find(c=>c.id===en.dataset.enter);go('club');return}
+  $('#sysClubs').onclick=async e=>{const ecb=e.target.closest('[data-ecclub]');if(ecb){const c=clubs.find(x=>x.id===ecb.dataset.ecclub);codeSheet('קוד מנהל של '+c.name,[{id:'c',label:'קוד',val:c.code}],async v=>{await DB.setClubCode(c.id,v.c);renderSys()});return}
+    const en=e.target.closest('[data-enter]');if(en){curClub=clubs.find(c=>c.id===en.dataset.enter);go('club');return}
     const s=e.target.closest('[data-st]');if(s){const [id,st]=s.dataset.st.split('|');try{await DB.setClubStatus(id,st);toast('עודכן');renderSys()}catch(er){toast(errText(er))}}};
   paintIcons($('#v-sys'))}
 $('#scAdd').onclick=async()=>{const n=$('#scName').value.trim(),err=$('#scErr');if(!n){err.textContent='מה שם המועדון?';return}err.textContent='';
   try{const c=await DB.createClub(n,scLogoUrl,$('#scTeams').value.split('\n').map(x=>x.trim()).filter(Boolean));$('#scName').value='';$('#scTeams').value='';scLogoUrl='';$('#scLogoTxt').textContent='בחר תמונה';toast('המועדון נוצר');curClub=c;go('club')}catch(e){err.textContent=errText(e)}};
+
+/* ================= system admin: see the app as a player or as a club manager ================= */
+function paintVa(){const bar=$('#vaBar');if(!isAdmin()||!viewAs){bar.hidden=true;document.body.classList.remove('va-on');return}
+  bar.hidden=false;document.body.classList.add('va-on');$('#vaTxt').textContent=viewAs.mode==='player'?'צפייה כשחקן':'צפייה כמנהל מועדון · '+(curClub?.name||'')}
+$('#vaExit').onclick=()=>{viewAs=null;curClub=null;curTeam=null;go('account')};
+$('#vaPlayer').onclick=()=>{viewAs={mode:'player'};curClub=null;curTeam=null;go('home')};
+$('#vaManager').onclick=async()=>{let clubs=[];try{clubs=await DB.clubs()}catch(e){}
+  if(!clubs.length){toast('עוד אין מועדונים לצפייה');return}
+  $('#pSheetBody').innerHTML=`<div class="sheet-h"><div><h2 style="font-size:22px">איזה מועדון?</h2></div><button class="icon-btn" data-close aria-label="סגור">✕</button></div><div class="pickclub">${clubs.map(c=>`<button class="btn btn-o full" data-pc="${c.id}">${esc(c.name)}</button>`).join('')}</div>`;$('#pSheet').hidden=false;
+  $('#pSheetBody').onclick=e=>{const b=e.target.closest('[data-pc]');if(!b)return;curClub=clubs.find(c=>c.id===b.dataset.pc);curTeam=null;viewAs={mode:'manager',clubId:curClub.id};$('#pSheet').hidden=true;go('club')}};

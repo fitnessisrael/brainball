@@ -81,7 +81,7 @@ footer a{color:inherit;text-decoration:none}
     <div class="use" style="--m:radial-gradient(circle at 60% 30%,var(--stim),transparent 40%),radial-gradient(circle at 20% 80%,var(--magenta),transparent 50%)"><span class="ico" aria-hidden="true">←</span><h3>מסך במגרש</h3><p>צבעים וחיצים מתחלפים, והשחקנים מגיבים עם הכדור.</p></div>
   </div>
 </main>
-<footer><div class="wrap"><span>© 2026 BrainBall</span><nav aria-label="קישורים משפטיים"><a href="#">מדיניות פרטיות</a><a href="#">תנאי שימוש</a><a href="#">הצהרת נגישות</a></nav></div></footer>
+<footer><div class="wrap"><span>© 2026 BrainBall</span><nav aria-label="קישורים משפטיים"><a href="privacy.html">מדיניות פרטיות</a><a href="terms.html">תנאי שימוש</a><a href="mailto:fitnessisrael@gmail.com">צור קשר</a></nav></div></footer>
 <script>
 (function(){const c=document.getElementById('net');const x=c.getContext('2d');let w,h,pts=[];const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,d=devicePixelRatio||1;
 function size(){const r=c.getBoundingClientRect();w=c.width=r.width*d;h=c.height=r.height*d;const n=Math.round(Math.min(64,r.width/20));pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.25*d,vy:(Math.random()-.5)*.25*d}))}
@@ -90,5 +90,6 @@ for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const a=pts[i],b=pt
 for(const p of pts){x.fillStyle='rgba(255,140,230,.8)';x.beginPath();x.arc(p.x,p.y,1.8*d,0,7);x.fill()}if(!reduce)requestAnimationFrame(draw)}
 size();draw();addEventListener('resize',size)})();
 </script>
+<script src="js/textedit.js"></script>
 </body>
 </html>

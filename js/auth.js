@@ -51,7 +51,7 @@ $('#dForm').addEventListener('submit',async e=>{e.preventDefault();const err=$('
     S.set('pendingCode','');S.set('pendingRole','');S.set('wasUser',true);DB.flush();afterAuth(!login&&!edit);
   }catch(ex){err.textContent=ex.message&&/[א-ת]/.test(ex.message)?ex.message:errText(ex)}finally{btn.disabled=false}});
 function afterAuth(first){$('#avatar').textContent=(profile?.name||'B').trim()[0]||'B';loadCatalogCfg();
-  if(profile?.role==='player')go(first?'train':'home');else go('home')}
+  if(profile?.role==='player')go('home');else go('home')}
 async function loadCatalogCfg(){try{if(DB.prof?.club?.catalog)return;const g=await DB.globalCatalog();if(g)S.set('catalog3',g)}catch(e){}}
 function renderPending(){$('#pendTxt').textContent=`המועדון "${profile?.club||''}" מחכה לאישור צוות BrainBall. בינתיים אפשר להתאמן כרגיל.`}
 $('#pendRefresh').onclick=async()=>{try{await DB.refresh();go('home')}catch(e){toast(errText(e))}};
