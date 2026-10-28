@@ -255,7 +255,7 @@
     <div class="k">VIRTUAL TRAINING</div>
     <h1 class="title" style="margin-bottom:4px">מתחם אימונים וירטואלי</h1>
     <p class="h-sub" id="hubSub" style="margin:0 0 14px">בוחרים סרטונים, נותנים שם לתכנית, ומתאמנים.</p>
-    <div class="segtabs" id="hubTabs"><button data-t="lib" aria-pressed="true">הסרטונים</button><button data-t="mine" aria-pressed="false">התכניות שלי</button><button data-t="edit" aria-pressed="false" hidden>ניהול סרטונים</button></div>
+    <div class="segtabs" id="hubTabs"><button data-t="mine" aria-pressed="false">התכניות שלי</button><button data-t="lib" aria-pressed="true">הסרטונים</button><button data-t="edit" aria-pressed="false" hidden>ניהול סרטונים</button></div>
     <div data-pane="lib"><div id="hubList"></div></div>
     <div data-pane="mine" hidden><div id="hubMine"></div></div>
     <div data-pane="edit" hidden>
@@ -263,6 +263,7 @@
       <div class="box">
         <div class="field-row"><span>קישור מיוטיוב</span><input type="url" id="hvUrl" placeholder="הדבק כאן קישור" class="ltr" autocomplete="off"></div>
         <div class="field-row"><span>שם התרגיל</span><input type="text" id="hvTitle" placeholder="לדוגמה: סולם קואורדינציה"></div>
+        <div class="field-row"><span>קטגוריה</span><select id="hvCat"><option value="">ללא קטגוריה</option><option value="drib">שיפור כדרור</option><option value="aware">שיפור מודעות</option><option value="react">שיפור זמן תגובה</option><option value="warm">חימום מוח לפני משחק</option></select></div>
         <button class="btn btn-g full" id="hvAdd"><span class="ic" data-i="plus"></span>הוסף סרטון</button>
         <div class="ferr" id="hvErr"></div>
       </div>

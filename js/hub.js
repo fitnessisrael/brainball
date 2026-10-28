@@ -1,7 +1,9 @@
 /* ================= virtual training hub: YouTube drills + system exercises -> plans -> homework ================= */
 const ytId=u=>{u=String(u||'').trim();const m=u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([A-Za-z0-9_-]{11})/);if(m)return m[1];return /^[A-Za-z0-9_-]{11}$/.test(u)?u:null};
 const ytThumb=id=>`https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
-let hubSel=[],hubVids=[],hubOwn=[],hubPlans=[];
+let hubSel=[],hubVids=[],hubOwn=[],hubPlans=[],hubCat=null,hubSaving=false;
+const RUBS=[['drib','כדרור','שיפור','#8a1a9c,#1a0720','#ff2bd6'],['aware','מודעות','שיפור','#0f6a73,#04181c','#22e6ff'],['react','זמן תגובה','שיפור','#123f9c,#050c24','#35b6ff'],['warm','חימום מוח','לפני משחק','#5a1fa8,#12062a','#c77dff']];
+const rubHTML=()=>`<div class="rubs">${RUBS.map(r=>`<button class="rub${hubCat===r[0]?' on':''}" data-rub="${r[0]}" style="background:linear-gradient(90deg,${r[3].split(',')[1]} 30%,${r[3].split(',')[0]})"><img src="img/rub_${r[0]}.webp" alt=""><span class="rt"><b>${r[1]}</b><i style="color:${r[4]}">${r[2]}</i></span></button>`).join('')}</div>`;
 tabs('hubTabs',t=>{if(t==='mine')renderMine();if(t==='edit')renderHubEdit();hubBar()});
 /* whose list: a player/coach sees the list of his club (or the general one); the admin edits the list of the club he is inside, or the general one */
 const hubClub=()=>profile?.role==='admin'?(curClub?.id||null):(profile?.clubId||null);
@@ -30,11 +32,12 @@ async function renderHub(){const edit=hubCanEdit();delete $('#hubBar').dataset.b
   hubSel=hubSel.filter(x=>x.k==='g'||hubVids.some(v=>v.id===x.id));paintHub()}
 const hubHas=(k,id)=>hubSel.some(x=>x.k===k&&x.id===id);
 function paintHub(){const ex=visible().filter(id=>CAT[id]);
-  $('#hubList').innerHTML=`<div class="sec">סרטונים</div>${hubVids.length?`<div class="vlist">${hubVids.map(v=>vrow(v,hubHas('v',v.id))).join('')}</div>`:`<div class="empty">עוד אין סרטונים כאן.${hubCanEdit()?'<br>הוסף את הראשון בלשונית "ניהול סרטונים".':'<br>הם יתווספו בקרוב.'}</div>`}
+  const vs=hubCat?hubVids.filter(v=>v.cat===hubCat):hubVids;
+  $('#hubList').innerHTML=`${rubHTML()}<div class="sec">${hubCat?RUBS.find(r=>r[0]===hubCat)[1]+' · '+RUBS.find(r=>r[0]===hubCat)[2]+' <button class="link-btn" data-rub="">הצג הכל</button>':'סרטונים'}</div>${vs.length?`<div class="vlist">${vs.map(v=>vrow(v,hubHas('v',v.id))).join('')}</div>`:`<div class="empty">${hubCat?'עוד אין סרטונים בקטגוריה הזאת.':'עוד אין סרטונים כאן.'}${hubCanEdit()?'<br>הוסף את הראשון בלשונית "ניהול סרטונים".':'<br>הם יתווספו בקרוב.'}</div>`}
     <div class="sec">אימונים מהמערכת <small>אפשר לשלב בתכנית</small></div>
     <div class="pickgrid">${ex.map(id=>`<div class="pickw"><button class="pick" data-gpick="${id}" aria-pressed="${hubHas('g',id)}">${I(CAT[id].ico)}<span>${CAT[id].name}</span></button><button class="pinfo" data-ginfo="${id}" aria-label="הסבר על ${CAT[id].name}">i</button></div>`).join('')}</div><div id="hubInfo"></div>`;
   paintIcons($('#v-hub'));hubBar()}
-$('#hubList').onclick=e=>{const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}
+$('#hubList').onclick=e=>{const rb=e.target.closest('[data-rub]');if(rb){const c=rb.dataset.rub||null;hubCat=(c&&hubCat===c)?null:c;paintHub();return}const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}
   const pv=e.target.closest('[data-preview]');if(pv){openIntro(pv.dataset.preview);return}
   const gi=e.target.closest('[data-ginfo]');if(gi){const id=gi.dataset.ginfo,box=$('#hubInfo');box.innerHTML=box.dataset.id===id?'':exInfoHTML(id);box.dataset.id=box.dataset.id===id?'':id;paintIcons(box);return}
   const gp=e.target.closest('[data-gpick]');if(gp){const id=gp.dataset.gpick;hubSel=hubHas('g',id)?hubSel.filter(x=>!(x.k==='g'&&x.id===id)):[...hubSel,{k:'g',id,level:'plus'}];gp.setAttribute('aria-pressed',hubHas('g',id));hubBar();return}
@@ -52,9 +55,9 @@ async function hubBar(){const bar=$('#hubBar'),on=$('#hubTabs [data-t="lib"]').g
       <div class="row2"><button class="btn btn-o" id="pbSave">${I('check')} שמור בתכניות שלי</button>${teams.length?`<button class="btn btn-g" id="pbSend">${I('send')} שמור ושלח</button>`:''}</div><div class="ferr" id="pbErr"></div>`;
     paintIcons(bar);
     $('#pbClear').onclick=()=>{hubSel=[];$('#pbTitle').value='';paintHub()};
-    const save=async()=>{const title=$('#pbTitle').value.trim(),err=$('#pbErr');if(!title){err.textContent='תן שם לתכנית.';$('#pbTitle').focus();return null}err.textContent='';
+    const save=async()=>{if(hubSaving)return null;const title=$('#pbTitle').value.trim(),err=$('#pbErr');if(!title){err.textContent='תן שם לתכנית.';$('#pbTitle').focus();return null}err.textContent='';
       const p={...planFromSel(title),scope:$('#pbShare')?.checked?(isAdmin()?'global':'club'):'private'};
-      try{const row=await DB.savePlan(p);return row}catch(ex){err.textContent=errText(ex);return null}};
+      hubSaving=true;$('#pbSave').disabled=true;if($('#pbSend'))$('#pbSend').disabled=true;try{const row=await DB.savePlan(p);return row}catch(ex){err.textContent=errText(ex);return null}finally{hubSaving=false;$('#pbSave').disabled=false;if($('#pbSend'))$('#pbSend').disabled=false}};
     $('#pbSave').onclick=async()=>{const r=await save();if(!r)return;toast('התכנית נשמרה');hubSel=[];$('#pbTitle').value='';showTab('hubTabs','mine')};
     if($('#pbSend'))$('#pbSend').onclick=async()=>{const r=await save();if(!r)return;hubSel=[];$('#pbTitle').value='';paintHub();sendSheet(r)}}
   $('#pbCount').textContent=`${hubSel.length} פריטים בתכנית`}
@@ -109,10 +112,10 @@ async function renderHubEdit(){if(!hubCanEdit())return;const club=hubClub();
   hubOwn=await DB.ownVideos(club).catch(()=>[]);
   $('#hubEditNote').innerHTML=club&&!hubOwn.length?`<div class="notice">עכשיו המועדון מציג את הרשימה הכללית של BrainBall. כדי להתאים אותה, צור עותק, ואז מחק, שנה שם והוסף כרצונך. <button class="link-btn" id="hvCopy">צור עותק למועדון</button></div>`:club?'<p class="note">זו הרשימה של המועדון. השחקנים והמאמנים רואים רק אותה.</p>':'<p class="note">זו הרשימה הכללית. שחקנים בלי מועדון, ומועדונים שלא התאימו רשימה, רואים אותה.</p>';
   if($('#hvCopy'))$('#hvCopy').onclick=async()=>{try{const n=await DB.copyVideos(club);toast(n?'נוצר עותק למועדון':'הרשימה הכללית עדיין ריקה');renderHubEdit()}catch(e){toast(errText(e))}};
-  $('#hubEditList').innerHTML=hubOwn.length?`<div class="vlist">${hubOwn.map(v=>`<div class="vrow"><button class="vthumb" data-play="${v.yt}" data-ttl="${esc(v.title)}" aria-label="נגן"><img loading="lazy" src="${ytThumb(v.yt)}" alt=""><span>${I('play')}</span></button><div class="vt"><input class="vname" value="${esc(v.title)}" data-vn="${v.id}" aria-label="שם הסרטון"></div><button class="mini-del" data-vdel="${v.id}" aria-label="מחק">${I('trash')}</button></div>`).join('')}</div>`:'<div class="empty">עוד אין סרטונים ברשימה הזו.</div>';
+  $('#hubEditList').innerHTML=hubOwn.length?`<div class="vlist">${hubOwn.map(v=>`<div class="vrow"><button class="vthumb" data-play="${v.yt}" data-ttl="${esc(v.title)}" aria-label="נגן"><img loading="lazy" src="${ytThumb(v.yt)}" alt=""><span>${I('play')}</span></button><div class="vt"><input class="vname" value="${esc(v.title)}" data-vn="${v.id}" aria-label="שם הסרטון"><select class="vcat" data-vc="${v.id}" aria-label="קטגוריה"><option value="">ללא קטגוריה</option>${RUBS.map(r=>`<option value="${r[0]}"${v.cat===r[0]?' selected':''}>${r[1]} · ${r[2]}</option>`).join('')}</select></div><button class="mini-del" data-vdel="${v.id}" aria-label="מחק">${I('trash')}</button></div>`).join('')}</div>`:'<div class="empty">עוד אין סרטונים ברשימה הזו.</div>';
   paintIcons($('#v-hub'))}
 $('#hubEditList').onclick=async e=>{const p=e.target.closest('[data-play]');if(p){vplay(p.dataset.play,p.dataset.ttl);return}const d=e.target.closest('[data-vdel]');if(d){try{await DB.delVideo(d.dataset.vdel);renderHubEdit()}catch(er){toast(errText(er))}}};
-$('#hubEditList').onchange=async e=>{const i=e.target.closest('[data-vn]');if(!i||!i.value.trim())return;try{await DB.renameVideo(i.dataset.vn,i.value.trim());toast('השם עודכן')}catch(er){toast(errText(er))}};
+$('#hubEditList').onchange=async e=>{const vc=e.target.closest('[data-vc]');if(vc){try{await DB.setVideoCat(vc.dataset.vc,vc.value);toast('הקטגוריה עודכנה')}catch(er){toast(errText(er))}return}const i=e.target.closest('[data-vn]');if(!i||!i.value.trim())return;try{await DB.renameVideo(i.dataset.vn,i.value.trim());toast('השם עודכן')}catch(er){toast(errText(er))}};
 $('#hvAdd').onclick=async()=>{const err=$('#hvErr'),id=ytId($('#hvUrl').value);if(!id){err.textContent='הקישור לא נראה כמו קישור של יוטיוב.';return}
   const title=$('#hvTitle').value.trim();if(!title){err.textContent='כתוב שם לתרגיל.';return}err.textContent='';
-  try{await DB.addVideo({club_id:hubClub(),title,yt:id,sort:hubOwn.length});$('#hvUrl').value='';$('#hvTitle').value='';toast('הסרטון נוסף');renderHubEdit()}catch(e){err.textContent=errText(e)}};
+  try{await DB.addVideo({club_id:hubClub(),title,yt:id,sort:hubOwn.length,cat:$('#hvCat').value||null});$('#hvUrl').value='';$('#hvTitle').value='';toast('הסרטון נוסף');renderHubEdit()}catch(e){err.textContent=errText(e)}};
