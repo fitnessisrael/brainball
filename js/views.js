@@ -55,12 +55,14 @@ const wa=(text,phone)=>`https://wa.me/${phone?waNum(phone):''}?text=${encodeURIC
 
 /* ---------- intro slides ---------- */
 const SLIDES=[
- {t:'המשחק מתחיל בראש',p:'BrainBall מאמן את מה שקורה לפני הנגיעה בכדור: לראות, להבין ולהחליט מהר.',img:true,m:G('#FF2BD6','#AA44FF')},
- {t:'כמה דקות ביום. ראש של מקצוען.',p:'תגובה, קשב וקבלת החלטות בתרגילים קצרים. אתה מול עצמך, ורואה את השיפור.',big:'bolt',m:G('#00E0FF','#AA44FF')},
- {t:'גם במגרש. גם מול המצלמה.',p:'מסך מגרש לכל הקבוצה, ומשחקים שהמצלמה רואה ומודדת בלי לגעת.',big:'ball',m:G('#FF7A1A','#FFE14D')}];
+ {t:'המשחק האמיתי מתחיל בראש',p:'פיתוח מהירות תגובה, קבלת החלטות תחת לחץ וראיית משחק של שחקני על – עוד לפני שהכדור נוגע ברגל.',img:'img/intro1.webp',logo:true,b:'הבא'},
+ {t:'כמה דקות ביום לראש של מקצוען.',p:'אימון קוגנטיבי קצר שמחדד את המוח למצבי קיצון במגרש: תגובה מהירה, חיזוי מהלכים וקבלת החלטות.',img:'img/intro2.webp',b:'הבא'},
+ {t:'גם במגרש. וגם מול המסך.',p:'שילוב בלעדי של אימוני שטח מתקדמים ומשחקי תגובה מול המצלמה – כדי לראות את ההתקדמות שלך שחור על גבי לבן.',img:'img/intro3.webp',b:'בוא נתחיל'}];
+SLIDES.forEach(s=>{try{new Image().src=s.img}catch(e){}});
 let slide=0;
-function renderIntro(){const s=SLIDES[slide];$('#slT').textContent=s.t;$('#slP').textContent=s.p;$('#slImg').hidden=!s.img;$('#slBig').hidden=!!s.img;$('#slBig').innerHTML=s.big?I(s.big):'';$('#slArt').style.setProperty('--m',s.m);
-  $$('#slDots i').forEach((d,i)=>d.classList.toggle('on',i===slide));$('#slNext').innerHTML=slide<SLIDES.length-1?'הבא <span class="ar">←</span>':'בוא נתחיל <span class="ar">←</span>'}
+function renderIntro(){const s=SLIDES[slide],T=$('.ob-txt');T.classList.remove('in');$('#obImg').style.backgroundImage=`url(${s.img})`;$('#slT').textContent=s.t;$('#slP').textContent=s.p;$('#obLogo').hidden=!s.logo;
+  $$('#slDots i').forEach((d,i)=>d.classList.toggle('on',i<=slide));$('#slNext').innerHTML=`<span>${s.b}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5m0 0l6-6m-6 6l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  $('#slSkip').hidden=slide===SLIDES.length-1;void T.offsetWidth;T.classList.add('in')}
 const endIntro=()=>{S.set('introSeen',true);go('start')};
 $('#slNext').onclick=()=>{if(slide<SLIDES.length-1){slide++;renderIntro()}else endIntro()};
 $('#slSkip').onclick=endIntro;
