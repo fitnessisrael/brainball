@@ -146,6 +146,6 @@ async function runBreath(cfg){RUN.bg=true;RUN.wantAmb=true;RUN.amb=ambient();
   clearInterval(ci);if(RUN.amb){RUN.amb.stop();RUN.amb=null}sfx.go();
   return{primary:cfg.min,disp:cfg.min+' min',lowerBetter:false,complete:true,src:'self_report',label:`${cycles} נשימות עמוקות. הראש צלול`,grid:[['נשימות',cycles],['קצב','4 · 2 · 6']]}}
 
-async function camGate(){const r=RUN;
-  stageHTML(`<div class="gate"><div class="lensbig">${I('camera')}</div><h2 style="font-size:28px">צריך את המצלמה שלך</h2><p class="st-sub" style="margin:0">המצלמה רואה את התנועה ומודדת לבד. שום דבר לא נשלח לשום מקום. הטלפון ישאל אותך, צריך ללחוץ "אישור".</p><button class="btn btn-g btn-xl full" data-c="allow">אפשר מצלמה <span class="ar">←</span></button></div>`,'scroll');
+async function camGate(cue){const r=RUN;if(cue)cueSay(cue,'כדי להתחיל, תלחץ על אפשר מצלמה, ואז על אישור בחלון של הטלפון.');
+  stageHTML(`<div class="gate"><div class="lensbig">${I('camera')}</div><h2 style="font-size:28px">צריך את המצלמה שלך</h2><p class="st-sub" style="margin:0">המצלמה מזהה לבד את הכדור ומודדת. שום דבר לא נשלח לשום מקום. הטלפון ישאל אותך, צריך ללחוץ "אישור".</p><button class="btn btn-g btn-xl full" data-c="allow">אפשר מצלמה <span class="ar">←</span></button></div>`,'scroll');
   await waitInput(null,v=>v.kind==='btn'&&v.v==='allow');chkR(r)}

@@ -611,3 +611,10 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .ratio b{font-weight:900}
 .ratio span{font-size:18px;color:var(--lime)}
 .enc{margin:12px 0 4px;font-size:16px;line-height:1.5;text-align:center;color:var(--ink,#fff)}
+
+/* v11: camera ball games keep the bottom of the picture clear (the player must see their own feet) */
+.bigcount{top:calc(66px + env(safe-area-inset-top,0px));bottom:auto;inset-inline:auto;left:12px;right:auto;font-size:clamp(46px,13vw,68px);padding:0 16px;border-radius:18px;background:rgba(0,0,0,.35);text-shadow:none}
+.cvbar{top:calc(66px + env(safe-area-inset-top,0px));bottom:auto;inset-inline:auto;right:12px;left:auto}
+.cvbar .btn{height:40px;padding:0 14px;font-size:14px}
+.recdot{top:calc(116px + env(safe-area-inset-top,0px))}
+.cvmsg{top:calc(64px + env(safe-area-inset-top,0px));padding:0 110px}

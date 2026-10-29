@@ -67,7 +67,7 @@ async function loadBall(){if(OBJ)return OBJ;if(OBJ_ERR)throw 'noball';
     try{OBJ=await mk('GPU')}catch(e){OBJ=await mk('CPU')}return OBJ}catch(e){OBJ_ERR=true;throw 'noball'}}
 const CALLS=[['#00E0FF',''],['#FF2BD6',''],['#3DF59A',''],['#FFE14D',''],['#FF7A1A',''],['','1'],['','2'],['','3'],['','4'],['','5'],['','6'],['','7'],['','8'],['','9']];
 async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
-  await camGate();let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}},audio:false})}catch(e){throw 'nocam'}
+  await camGate('allow');let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}},audio:false})}catch(e){throw 'nocam'}
   RUN.stream=stream;play.classList.add('bare');
   stageHTML(`<video class="pv" id="pv" playsinline muted autoplay></video><canvas class="cv" id="po"></canvas><div class="cvmsg" id="pm">מכין את הראייה הממוחשבת...</div><div class="callstrip" id="call"></div><div class="bigcount" id="pc" hidden>0</div><div class="cvbar" id="pBar"></div>`,'full');
   const v=$('#pv');v.srcObject=stream;await v.play();chk();
@@ -77,54 +77,75 @@ async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
   if(!det){msg('');play.classList.remove('bare');return{primary:0,disp:'0',unit:'',lowerBetter:false,complete:false,src:'camera',label:'הראייה הממוחשבת לא נטענה',grid:[],flag:'הראייה הממוחשבת לא נטענה. בדוק חיבור לאינטרנט ונסה שוב.'}}
   const vw=v.videoWidth||640,vh=v.videoHeight||480,sc=Math.max(W/vw,H/vh),ox=(W-vw*sc)/2,oy=(H-vh*sc)/2;
   const P=(x,y)=>[W-(x*sc+ox),y*sc+oy];
-  /* ---- ball finder: square crops (keeps the ball round for the model); wide scan when lost, tight window when tracking ---- */
+  /* ---- tight ball tracker. Square crops keep the ball round for the model: a small window that follows the ball (predicted by its speed)
+     when we have it, a wide scan when we do not, and a pixel-patch follower that bridges the frames where the detector blinks ---- */
   const S=Math.min(vw,vh),wc=document.createElement('canvas');wc.width=wc.height=320;const wx=wc.getContext('2d');
-  let lastTs=0,scanI=0,track=null,miss=99,acq=0,cand=null;
+  const PZ=84,pcv=document.createElement('canvas');pcv.width=pcv.height=PZ;const px=pcv.getContext('2d',{willReadFrequently:true});
+  const lumaOf=()=>{const d=px.getImageData(0,0,PZ,PZ).data,o=new Array(PZ*PZ);for(let i=0,j=0;j<PZ*PZ;i+=4,j++)o[j]=(d[i]*77+d[i+1]*150+d[i+2]*29)>>8;return o};
+  let lastTs=0,scanI=0,track=null,miss=99,acq=0,cand=null,tpl=null,tplD=0,patchRun=0;
   const crop=(x0,y0,L)=>{wx.drawImage(v,x0,y0,L,L,0,0,320,320);const ts=Math.max(performance.now(),lastTs+1);lastTs=ts;
     let r;try{r=det.detectForVideo(wc,ts)}catch(e){return[]}
     return(r.detections||[]).map(d=>{const bb=d.boundingBox,k=L/320,w=bb.width*k,h=bb.height*k;return{cx:x0+(bb.originX+bb.width/2)*k,cy:y0+(bb.originY+bb.height/2)*k,w,h,score:d.categories?.[0]?.score||0}})};
-  const findBall=now=>{let dets;
-    if(track&&miss<10){const L=Math.min(S,Math.max(S*.6,10*(track.d||40)));const x0=Math.max(0,Math.min(vw-L,track.cx-L/2)),y0=Math.max(0,Math.min(vh-L,track.cy-L/2));dets=crop(x0,y0,L)}
-    else{const long=Math.max(vw,vh),K=Math.max(1,Math.ceil(long/S)),pos=K===1?0:(long-S)*(scanI++%K)/(K-1);dets=vw>=vh?crop(pos,0,S):crop(0,pos,S)}
-    return pickBall(dets,track,track?.d,vh,now)};
-  const drawBall=(b,locked)=>{cx.clearRect(0,0,W,H);if(!b)return;const[x,y]=P(b.cx,b.cy),r=Math.max(14,(b.w+b.h)/4*sc);cx.lineWidth=5;cx.strokeStyle=locked?'#3DF59A':'#FFE14D';cx.beginPath();cx.arc(x,y,r*1.15,0,7);cx.stroke()};
-  const seen=[];let lastVT=-1;
+  const scan=()=>{const long=Math.max(vw,vh),K=Math.max(1,Math.ceil(long/S)),pos=K===1?0:(long-S)*(scanI++%K)/(K-1);return vw>=vh?crop(pos,0,S):crop(0,pos,S)};
+  const clampBox=(cx,cy,L)=>[Math.max(0,Math.min(vw-L,cx-L/2)),Math.max(0,Math.min(vh-L,cy-L/2))];
+  const grabPatch=(cx,cy,d)=>{const Ls=7*d,[x0,y0]=[cx-Ls/2,cy-Ls/2];px.drawImage(v,x0,y0,Ls,Ls,0,0,PZ,PZ);return lumaOf()};
+  const findBall=(now,dt,pred)=>{let dets,L;
+    if(track&&miss<12){L=Math.min(S,Math.max(150,7*track.d+2.5*Math.hypot(track.vx,track.vy)*dt));const[x0,y0]=clampBox(pred.x,pred.y,L);dets=crop(x0,y0,L);
+      let b=pickBall(dets,{x:pred.x,y:pred.y,strict:true},track.d,vh,now,Math.max(3.5*track.d,L*.3));
+      if(!b&&miss%2===1)b=pickBall(scan(),{x:pred.x,y:pred.y},track.d,vh,now,Math.max(6*track.d,vh*.25));return b}
+    return pickBall(scan(),null,0,vh,now,0)};
+  const patchBall=pred=>{if(!tpl||!track||patchRun>=10)return null;const d=tplD,Ls=7*d;px.drawImage(v,pred.x-Ls/2,pred.y-Ls/2,Ls,Ls,0,0,PZ,PZ);const img=lumaOf(),tw=Math.round(PZ/7);
+    const r=patchFind(tpl,tw,tw,img,PZ,PZ,PZ/2,PZ/2,Math.round(PZ*.36));if(!r.ok)return null;patchRun++;
+    return{cx:pred.x+(r.cx-PZ/2)*Ls/PZ,cy:pred.y+(r.cy-PZ/2)*Ls/PZ,w:d,h:d,score:.1,patch:true}};
+  const drawBall=(b,locked)=>{cx.clearRect(0,0,W,H);if(!b)return;const[x,y]=P(b.cx,b.cy),r=Math.max(14,(b.w+b.h)/4*sc);cx.lineWidth=4;cx.strokeStyle=locked?'#3DF59A':'#FFE14D';cx.beginPath();cx.arc(x,y,r*1.15,0,7);cx.stroke()};
+  let lastVT=-1;
   const step=now=>{if(v.readyState<2||v.currentTime===lastVT)return 'same';lastVT=v.currentTime;
-    const b=findBall(now);
-    if(b){const prevC=cand;cand=b;acq=prevC&&Math.hypot(b.cx-prevC.cx,b.cy-prevC.cy)<Math.max(5*(b.w+b.h)/2,vh*.25)?acq+1:1;
-      if(track||acq>=3){track={cx:b.cx,cy:b.cy,d:(b.w+b.h)/2,t:now};miss=0}}
-    else{miss++;if(miss>14){track=null;acq=0;cand=null}}
-    return{b:track&&miss===0?b:null,locked:!!track&&miss<10,miss}};
-  /* 1. show the ball to the camera */
-  msg('הראה את הכדור למצלמה');let okSince=0;
-  await animate(()=>{const o=step(performance.now());if(o==='same')return true;drawBall(o.b,o.locked);
-    if(o.locked&&o.b){msg('זיהיתי את הכדור. מתחילים...');okSince=okSince||performance.now();if(performance.now()-okSince>900)return false}else{okSince=0;msg('הראה את הכדור למצלמה. תן לו אור ורקע פשוט')}return true});
-  msg('');cx.clearRect(0,0,W,H);
-  for(const n of[3,2,1]){$('#call').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(800)}$('#call').innerHTML='';sfx.go();
+    const dt=track?Math.max(8,Math.min(140,now-track.t)):0,pred=track?{x:Math.max(0,Math.min(vw,track.cx+track.vx*dt)),y:Math.max(0,Math.min(vh,track.cy+track.vy*dt))}:null;
+    let b=findBall(now,dt,pred);
+    if(b&&!track&&b.score<.15)b=null;
+    if(!b&&track&&pred)b=patchBall(pred);
+    if(b){if(!b.patch){patchRun=0;try{tpl=null;const d0=(b.w+b.h)/2;const full=grabPatch(b.cx,b.cy,d0),tw=Math.round(PZ/7),o=(PZ-tw)>>1;tpl=[];for(let j=0;j<tw;j++)for(let i=0;i<tw;i++)tpl.push(full[(o+j)*PZ+o+i]);tplD=d0}catch(e){tpl=null}}
+      const prevC=cand;cand=b;acq=prevC&&Math.hypot(b.cx-prevC.cx,b.cy-prevC.cy)<Math.max(5*(b.w+b.h)/2,vh*.25)?acq+1:1;
+      if(track||acq>=3){const k=Math.max(8,now-(track?track.t:now-33));const nvx=track?(b.cx-track.cx)/k:0,nvy=track?(b.cy-track.cy)/k:0;
+        track={cx:b.cx,cy:b.cy,d:(b.w+b.h)/2,t:now,vx:track?track.vx*.4+nvx*.6:0,vy:track?track.vy*.4+nvy*.6:0};miss=0}}
+    else{miss++;if(miss>40){track=null;acq=0;cand=null;tpl=null}}   /* keeps following for about 1.3 s of blur or hiding before it starts a wide search */
+    return{b:track&&miss===0?{cx:track.cx,cy:track.cy,w:track.d,h:track.d}:null,locked:!!track&&miss<12,miss}};
+  const lum=()=>{try{px.drawImage(v,0,0,vw,vh,0,0,PZ,PZ);const d=px.getImageData(0,0,PZ,PZ).data;let t=0;for(let i=0;i<d.length;i+=16)t+=(d[i]+d[i+1]+d[i+2])/3;return t/(d.length/16)}catch(e){return 255}};
+  /* ---- the run, in phases: gate (show the ball) -> ready (voice) -> count (3,2,1) -> run. The ball is followed the whole time. ---- */
+  const pc=$('#pc');let phase='gate',lockSince=0,busy=true,darkSaid=false,lastHint=performance.now(),lastLost=0,lastSeen=performance.now(),smooth=null;
+  let reps=0,t0=0,end=Infinity,finished=false,nextCall=0,lastCall='',BC=null;
+  const spk=(key,text)=>cueSay(key,text);
+  const count=()=>{reps++;pc.textContent=reps;pc.classList.remove('bump');void pc.offsetWidth;pc.classList.add('bump');sfx.pop()};
+  msg('החזק את הכדור מול המצלמה');
+  spk('stepback','תחזיק את הכדור בידיים. לך שני צעדים אחורה, בזהירות, ותחזיק אותו מול המצלמה, למשך כמה שניות.').then(()=>{busy=false});
   /* 2. recording (9:16 with logo) */
   let recUrl=null,recType='';const rc=document.createElement('canvas');rc.width=720;rc.height=1280;const rx=rc.getContext('2d');let recEnd=0,chunks=[];
-  if(RUN.recWanted&&window.MediaRecorder&&rc.captureStream){try{recType=['video/mp4','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+  const startRec=()=>{if(RUN.recWanted&&window.MediaRecorder&&rc.captureStream){try{recType=['video/mp4','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
     const mr=new MediaRecorder(rc.captureStream(30),recType?{mimeType:recType}:{});mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.onstop=()=>{recUrl=URL.createObjectURL(new Blob(chunks,{type:recType||'video/webm'}))};mr.start(500);RUN.rec=mr;recEnd=performance.now()+60000;
-    const d=document.createElement('div');d.className='recdot';d.id='recDot';d.innerHTML='<i></i>REC';stage.appendChild(d)}catch(e){RUN.rec=null}}
-  /* 3. count: juggling = every up-and-down of the ball; feet = every pass from one side to the other */
-  let reps=0;const t0=performance.now(),end=cfg.sec?t0+cfg.sec*1000:Infinity;
-  const pc=$('#pc');pc.hidden=false;let finished=false;RUN.onQuit=()=>{finished=true};
-  $('#pBar').innerHTML=`<button class="btn btn-w" data-c="end">${I('check')} סיום ושמירה</button>`;RUN.input=v2=>{if(v2.kind==='btn'&&v2.v==='end')finished=true};
-  const count=()=>{reps++;pc.textContent=reps;pc.classList.remove('bump');void pc.offsetWidth;pc.classList.add('bump');sfx.pop()};
-  const BC=new BallCounter(feet?'feet':'juggle');let nextCall=0,lastCall='',smooth=null,lastSeen=performance.now(),trail=[];
-  await animate(()=>{const now=performance.now();if(finished||now>=end)return false;
-    clock(cfg.sec?(end-now)/1000:(now-t0)/1000);hud('',cfg.sec?(now-t0)/(cfg.sec*1000):0);
-    if(feet&&now>nextCall){let c;do{c=pick(CALLS)}while((c[0]+c[1])===lastCall);lastCall=c[0]+c[1];$('#call').innerHTML=c[0]?`<span class="call-color" style="background:${c[0]}"></span>`:`<span class="call-num">${c[1]}</span>`;nextCall=now+cfg.call}
+    const d=document.createElement('div');d.className='recdot';d.id='recDot';d.innerHTML='<i></i>REC';stage.appendChild(d)}catch(e){RUN.rec=null}}};
+  const goCount=async()=>{phase='ready';busy=true;msg('');await spk(feet?'ready_feet':'ready_juggle',feet?'אוקיי, הכל מוכן. תוריד את הכדור לרצפה, ותתחיל להעביר אותו מרגל לרגל.':'אוקיי, הכל מוכן. תוריד את הכדור לרצפה, ועכשיו תתחיל להקפיץ.');
+    phase='count';const vp=spk('count321','שלוש, שתיים, אחת, התחלה!');
+    for(const n of[3,2,1]){$('#call').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(800)}$('#call').innerHTML='';sfx.go();await Promise.race([vp,sleep(900)]);
+    BC=new BallCounter(feet?'feet':'juggle');smooth=null;t0=performance.now();end=cfg.sec?t0+cfg.sec*1000:Infinity;RUN.t0=t0;pc.hidden=false;startRec();
+    $('#pBar').innerHTML=`<button class="btn btn-w" data-c="end">${I('check')} סיום ושמירה</button>`;RUN.input=v2=>{if(v2.kind==='btn'&&v2.v==='end')finished=true};phase='run'};
+  RUN.onQuit=()=>{finished=true;phase='run'};
+  await animate(()=>{const now=performance.now();if(finished||(phase==='run'&&now>=end))return false;
     const o=step(now);
-    if(o!=='same'){drawBall(o.b,o.locked);
-      if(o.b){lastSeen=now;const a=feet?o.b.cx:-o.b.cy;smooth=smooth==null?a:smooth*.3+a*.7;if(BC.push(now,smooth,(o.b.w+o.b.h)/2))count();
-        trail.push([o.b.cx,o.b.cy]);if(trail.length>8)trail.shift()}
-      else if(!feet&&track&&smooth!=null&&BC.dir===1&&track.cy<vh*.2&&now-lastSeen<400){if(BC.peakGone(now,-0))count()}
-      msg(now-lastSeen>1800?'לא רואים את הכדור. תכניס אותו למסגרת':'')}
-    if(RUN.rec&&RUN.rec.state==='recording'){if(now>recEnd){RUN.rec.stop();$('#recDot')?.remove()}else{const s2=Math.max(720/vw,1280/vh);rx.save();rx.translate(720,0);rx.scale(-1,1);rx.drawImage(v,(720-vw*s2)/2,(1280-vh*s2)/2,vw*s2,vh*s2);rx.restore();
-      rx.fillStyle='rgba(0,0,0,.35)';rx.fillRect(0,1080,720,200);rx.fillStyle='#fff';rx.font='800 120px Outfit,sans-serif';rx.textAlign='center';rx.fillText(String(reps),360,1225);
-      if(LOGO.complete&&LOGO.naturalWidth){const lw=200,lh=lw*LOGO.naturalHeight/LOGO.naturalWidth;rx.drawImage(LOGO,720-lw-24,28,lw,lh)}}}
+    if(o!=='same'){drawBall(o.b,o.locked);if(o.b)lastSeen=now}
+    if(phase==='gate'){
+      if(!darkSaid&&now-lastHint>6000&&lum()<38){darkSaid=true;msg('חשוך מדי');spk('dark','חשוך לי מדי. תדליק אור או תעמוד ליד חלון.')}
+      if(o!=='same'){if(o.locked&&o.b){lockSince=lockSince||now;if(now-lockSince>1000&&!busy){goCount().catch(()=>{})}}else lockSince=0}
+      if(!busy&&now-lastHint>14000&&!lockSince){lastHint=now;spk('noball','אני לא רואה כדור. תחזיק אותו מול המצלמה, בלי להסתיר אותו, ותנסה להתקרב קצת.')}}
+    if(phase==='run'){clock(cfg.sec?(end-now)/1000:(now-t0)/1000);hud('',cfg.sec?(now-t0)/(cfg.sec*1000):0);
+      if(feet&&now>nextCall){let c;do{c=pick(CALLS)}while((c[0]+c[1])===lastCall);lastCall=c[0]+c[1];$('#call').innerHTML=c[0]?`<span class="call-color" style="background:${c[0]}"></span>`:`<span class="call-num">${c[1]}</span>`;nextCall=now+cfg.call}
+      if(o!=='same'&&o.b){const a=feet?o.b.cx:-o.b.cy;smooth=smooth==null?a:smooth*.35+a*.65;if(BC.push(now,smooth,(o.b.w+o.b.h)/2))count()}
+      else if(o!=='same'&&!feet&&track&&BC.dir===1&&track.cy<vh*.18)BC.peakGone(-0);
+      if(now-lastSeen>2500&&now-lastLost>9000){lastLost=now;msg('לא רואים את הכדור');spk('lost','לא רואה את הכדור. תכניס אותו למסגרת.')}else if(now-lastSeen<600)msg('');
+      if(RUN.rec&&RUN.rec.state==='recording'){if(now>recEnd){RUN.rec.stop();$('#recDot')?.remove()}else{const s2=Math.max(720/vw,1280/vh);rx.save();rx.translate(720,0);rx.scale(-1,1);rx.drawImage(v,(720-vw*s2)/2,(1280-vh*s2)/2,vw*s2,vh*s2);rx.restore();
+        rx.fillStyle='rgba(0,0,0,.35)';rx.fillRect(40,60,220,150);rx.fillStyle='#fff';rx.font='800 110px Outfit,sans-serif';rx.textAlign='center';rx.fillText(String(reps),150,180);
+        if(LOGO.complete&&LOGO.naturalWidth){const lw=200,lh=lw*LOGO.naturalHeight/LOGO.naturalWidth;rx.drawImage(LOGO,720-lw-24,28,lw,lh)}}}}
     return true});
+  if(!t0)t0=performance.now();
   RUN.onQuit=null;RUN.input=null;$('#call').innerHTML='';$('#pBar').innerHTML='';
   if(RUN.rec&&RUN.rec.state==='recording'){await new Promise(r=>{RUN.rec.addEventListener('stop',r,{once:true});RUN.rec.stop()})}
   if(RUN.rec){await sleep(200);let tries=0;while(!recUrl&&tries++<20)await sleep(100)}
