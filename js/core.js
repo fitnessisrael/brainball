@@ -134,3 +134,6 @@ function moveBalls(bs,R,W,top,bot,speed,dt){for(const b of bs){b.x+=b.vx*speed*d
   if(b.x<R){b.x=R;b.vx=Math.abs(b.vx)}if(b.x>W-R){b.x=W-R;b.vx=-Math.abs(b.vx)}if(b.y<top+R){b.y=top+R;b.vy=Math.abs(b.vy)}if(b.y>bot-R){b.y=bot-R;b.vy=-Math.abs(b.vy)}}}
 function spawn(n,R,W,top,bot){const bs=[];for(let i=0;i<n;i++){let b,t=0;do{b={x:rnd(R,W-R),y:rnd(top+R,bot-R)};t++}while(t<200&&bs.some(o=>Math.hypot(o.x-b.x,o.y-b.y)<R*2.6));const a=rnd(0,7);b.vx=Math.cos(a);b.vy=Math.sin(a);bs.push(b)}return bs}
 const nearest=(bs,x,y)=>{let best=null,bd=1e9;for(const b of bs){const d=Math.hypot(b.x-x,b.y-y);if(d<bd){bd=d;best=b}}return[best,bd]};
+
+/* every role (player, coach, club manager, admin): the first tap anywhere unlocks sound for beeps, explosions and voice on iPhone */
+['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,function f(){try{unlockCue()}catch(e){}document.removeEventListener(ev,f,true)},true));
