@@ -607,3 +607,7 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .res .succ{display:flex;flex-direction:column;align-items:center;gap:2px;margin:6px 0 4px;direction:rtl}
 .res .succ b{font:800 26px Outfit,Heebo,sans-serif;color:#fff}.res .succ span{font:700 15px Heebo,sans-serif;color:var(--cyan,#00E0FF)}
 .res .enc{margin:10px auto 2px;max-width:340px;text-align:center;font:600 15px/1.45 Heebo,sans-serif;color:#d9d7e6;direction:rtl}
+.ratio{display:flex;align-items:baseline;justify-content:center;gap:12px;margin:6px 0 4px;font-size:26px}
+.ratio b{font-weight:900}
+.ratio span{font-size:18px;color:var(--lime)}
+.enc{margin:12px 0 4px;font-size:16px;line-height:1.5;text-align:center;color:var(--ink,#fff)}

@@ -4,10 +4,10 @@ const ACOL={left:'#00E0FF',right:'#FF2BD6',up:'#3DF59A',down:'#FFE14D'};
 const arrowSVG=(d,c,cls='arrow')=>`<svg class="${cls}" viewBox="0 0 100 100" aria-label="${d}"><path d="${ARW[d]}" stroke="${c}" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const CAT={
  field:{name:'קוד המגרש',area:'field',ico:'display',m:G('#FF7A1A','#FFE14D'),desc:'המסך זורק צבע, חץ או מספר. אתה עונה עם הכדור.',field:true},
- juggle:{name:'מלך ההקפצות',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'המצלמה רואה אותך וסופרת כל הקפצה. כמה תגיע?',cam:true,pose:'juggle',rec:true,
+ juggle:{name:'מלך ההקפצות',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'המצלמה רואה את הכדור וסופרת כל עלייה וירידה. כמה תגיע?',cam:true,pose:'juggle',rec:true,
    tagline:'מתרחקים, נכנסים למסגרת ומקפיצים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,lbl:''},plus:{sec:60,lbl:''},pro:{sec:null,lbl:''}},
-   how:['מעמידים את הטלפון על חצובה או נשענים לקיר, מסך אליך.','מתרחקים 2 עד 3 מטר עד שכל הגוף נכנס למסגרת הירוקה.','מקפיצים. כל הקפצה נספרת עם צליל. אפשר להקליט עד דקה.']},
+   how:['מעמידים את הטלפון על חצובה או נשענים לקיר, מסך אליך.','מתרחקים 2 עד 3 מטר ומראים את הכדור למצלמה. כל כדור, בכל צבע.','מקפיצים. כל עלייה וירידה של הכדור נספרת כהקפצה אחת, עם צליל. אפשר להקליט עד דקה.']},
  reaction:{name:'רפלקס מנצח',area:'speed',ico:'bolt',m:G('#FF7A1A','#FF2BD6'),desc:'כתום על המסך? אצבע למטה. כמה מהר אתה באמת?',
    tagline:'מבחן התגובה הקלאסי. אתה מול השעון.',
    levels:{beginner:{n:10,lbl:'10 ניסיונות'},plus:{n:20,lbl:'20 ניסיונות'},pro:{n:30,lbl:'30 · הערכה'}},
@@ -51,7 +51,7 @@ const CAT={
  feetcall:{name:'החלף וקרא',area:'field',ico:'feet',m:G('#FFE14D','#00E0FF'),desc:'מסירות רגל לרגל וצועקים מה שקופץ על המסך.',cam:true,pose:'feet',
    tagline:'הרגליים עובדות, הראש קורא, הפה צועק.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,call:2500,lbl:''},plus:{sec:60,call:1800,lbl:''},pro:{sec:null,call:1200,lbl:''}},
-   how:['טלפון על חצובה, כל הגוף בתוך המסגרת.','מעבירים את הכדור מרגל לרגל במקום, מהר.','צבע או מספר קופצים בפס העליון: צועקים אותם בקול. כל נגיעה נספרת עם צפצוף.']},
+   how:['טלפון על חצובה, מסך אליך. הכדור והרגליים בתוך התמונה.','מעבירים את הכדור מרגל לרגל במקום, מהר.','צבע או מספר קופצים בפס העליון: צועקים אותם בקול. כל העברה של הכדור מצד לצד נספרת, עם צפצוף.']},
  breath:{name:'מיקוד בנשימה',area:'focus',ico:'wind',m:G('#00E0FF','#AA44FF'),desc:'דקה של שקט לפני הסערה. נושמים ונכנסים לפוקוס.',
    tagline:'לב רגוע, ראש צלול.',lvNames:{beginner:'דקה',plus:'2 דקות',pro:'3 דקות'},
    levels:{beginner:{min:1,lbl:''},plus:{min:2,lbl:''},pro:{min:3,lbl:''}},
