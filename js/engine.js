@@ -65,6 +65,17 @@ async function start(id,lv,tapOnly=false,rec=false){
     if(e!=='cancel')console.error(e)}}
 function practiceDone(){stageHTML(`<div class="st-big">החימום נגמר</div><div class="st-sub">מעכשיו זה נספר. בהצלחה!</div>`);return sleep(1200)}
 
+// "3 מתוך 10 · 30%": taken from the first grid tile written as x/y (successes out of attempts)
+function attemptsOf(r){for(const[,b]of r.grid||[]){const m=/^(\d+)\/(\d+)$/.exec(String(b));if(m&&+m[2]>0)return{ok:+m[1],n:+m[2]}}return null}
+function ratioLine(r){const a=attemptsOf(r);if(!a)return '';const pct=Math.round(a.ok/a.n*100);
+  return `<div class="ratio"><b>${a.ok} מתוך ${a.n}</b><span>${pct}% הצלחה</span></div>`}
+// always end with encouragement: remember the result and try to beat it next time
+function encLine(r,prev){const a=attemptsOf(r);let t;
+  if(a){const pct=Math.round(a.ok/a.n*100);
+    t=pct>=80?`מצוין! ${a.ok} מתוך ${a.n}, ${pct}%. תשמור על זה.`:pct>=50?`יפה! ${a.ok} מתוך ${a.n}, ${pct}%. עוד קצת והמספר יעלה.`:`${a.ok} מתוך ${a.n}, ${pct}%. זו נקודת הפתיחה שלך. בפעם הבאה נשפר.`;
+    if(prev&&prev.disp)t+=` התוצאה הקודמת: ${prev.disp}. נסה לעקוף אותה.`}
+  else t=`כל הכבוד! התוצאה: ${r.disp}. נסה לשפר אותה בפעם הבאה.`;
+  return `<p class="enc">${esc(t)}</p>`}
 function showResult(r){hud('סיום',1);clock(null);const g=CAT[r.id];
   const prev=[...hist].reverse().find(h=>h.id===r.id&&h.level===r.level&&!h.partial);let delta='';
   if(prev&&r.complete&&!r.flag&&r.unit!=null){const d=Math.round((r.primary-prev.primary)*100)/100,better=r.lowerBetter?d<0:d>0;
@@ -72,7 +83,8 @@ function showResult(r){hud('סיום',1);clock(null);const g=CAT[r.id];
   const ok=r.complete&&!r.flag;record(ok?r:{...r,partial:true,disp:r.disp||mmss(r.dur||0),label:'אימון שלא הושלם'});
   let lv=r.level;
   stageHTML(`<div class="res"><div class="k">${g.name} · ${lvName(g,r.level)}</div><div class="main grad">${esc(r.disp)}</div>
-    <div class="cap">${r.flag||r.label}${!ok&&!r.flag?' · נשמר כאימון חלקי':''}</div>${delta}
+    ${ratioLine(r)}
+    <div class="cap">${r.flag||r.label}${!ok&&!r.flag?' · נשמר כאימון חלקי':''}</div>${delta}${ok&&!r.flag?encLine(r,prev):''}
     <div class="grid">${(r.grid||[]).map(([a,b])=>`<div class="tile"><div class="l">${a}</div><div class="v" style="font-size:19px">${b}</div></div>`).join('')}</div>
     <div class="acts">${r.extra||''}
       <div class="again-box"><span class="note">הסיבוב הבא</span><div class="seg" id="agLv">${Object.keys(g.levels).map(k=>`<button data-lv="${k}" aria-pressed="${k===lv}">${lvName(g,k)}</button>`).join('')}</div>
