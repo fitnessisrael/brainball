@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0B0B0F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="icon" href="logo.png">
+<link rel="icon" href="img/b-180.png"><link rel="apple-touch-icon" href="img/b-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap">
@@ -277,6 +277,10 @@
     <h1 class="title">החשבון שלי</h1>
     <div class="box"><dl class="kv" id="accKv"></dl></div>
     <div class="switchrow" id="accShareRow" hidden><div><b style="font-family:var(--f-display)">שיתוף תוצאות עם המאמן</b><div class="note" id="accTeam"></div></div><button class="sw" role="switch" id="accShare" aria-label="שיתוף תוצאות עם המאמן"></button></div>
+    <div class="box" id="cardBox"><h3 style="font-size:18px;margin-bottom:10px">כרטיס שחקן</h3>
+      <canvas id="cardCv" class="card-cv" aria-label="כרטיס השחקן שלי"></canvas>
+      <div class="cc-row" id="cardColors"></div>
+      <div class="row2" style="margin-top:12px"><label class="file-pick"><input type="file" id="cardFile" accept="image/*"><span class="ic" data-i="image"></span><span>תמונה לכרטיס</span></label><button class="btn btn-g" id="cardSave"><span class="ic" data-i="share"></span>שמור ושתף</button></div></div>
     <div class="box" id="accPhoto"><h3 style="font-size:18px;margin-bottom:8px">תמונת פרופיל</h3><div class="photo-row"><span class="photo-prev" id="accAv"></span><label class="file-pick"><input type="file" id="accAvFile" accept="image/*"><span class="ic" data-i="image"></span><span>בחר תמונה</span></label></div></div>
     <div class="box" id="accOwn" hidden><h3 style="font-size:18px;margin-bottom:8px">הקבוצה שלי</h3><p class="note" style="margin:0 0 8px">לא בקבוצה של מאמן? אפשר לכתוב באיזו קבוצה אתה משחק ולהעלות את הלוגו שלה. זה יופיע לך בבית.</p><div class="field-row"><span>שם הקבוצה</span><input type="text" id="ownTeam" placeholder="לדוגמה בית"ר טוברוק"></div><div class="row2"><label class="file-pick"><input type="file" id="ownLogoFile" accept="image/*"><span class="ic" data-i="image"></span><span id="ownLogoTxt">לוגו הקבוצה</span></label><button class="btn btn-o" id="ownSave">שמור</button></div></div>
     <div class="box" id="accJoin" hidden><h3 style="font-size:18px;margin-bottom:8px">הצטרפות לקבוצה</h3><div class="row2"><input type="text" id="accCode" placeholder="קוד קבוצה" class="code-in"><button class="btn btn-g" id="accJoinBtn">הצטרף</button></div><div class="ferr" id="accErr"></div></div>
@@ -349,6 +353,8 @@
 <script src="js/games.js"></script>
 <script src="js/ballcount.js"></script>
 <script src="js/camera.js"></script>
+<script src="js/header.js"></script>
+<script src="js/card.js"></script>
 <script src="js/field.js"></script>
 <script src="js/catalog.js"></script>
 <script src="js/analytics.js"></script>

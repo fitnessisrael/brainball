@@ -12,10 +12,11 @@ function idx(game,score,level,dur){if(score==null||isNaN(score))return null;cons
     case'choice':case'scenarios':case'warmup':case'tracking':return clamp(s);
     case'gonogo':return clamp(100-s*1.6);
     case'sweeper':{const sec=LVL_SEC.sweeper[level]||120;return clamp(s/(sec/60)/60*100)}
-    case'juggle':return dur?clamp(s/(dur/60)/80*100):null;
+    case'juggle':return clamp(s/40*100);
+    case'header':return dur?clamp(s/(dur/60)/20*100):null;
     case'feetcall':return dur?clamp(s/(dur/60)/120*100):null;
     default:return null}}
-const DOMAINS={speed:{name:'מהירות תגובה',games:['reaction','colortask','strobe'],c:'#FF7A1A'},decision:{name:'קבלת החלטות',games:['choice','gonogo','scenarios','warmup'],c:'#00E0FF'},attention:{name:'קשב ומודעות',games:['tracking','sweeper','periph'],c:'#AA44FF'},ball:{name:'שליטה בכדור',games:['juggle','feetcall'],c:'#3DF59A'}};
+const DOMAINS={speed:{name:'מהירות תגובה',games:['reaction','colortask','strobe'],c:'#FF7A1A'},decision:{name:'קבלת החלטות',games:['choice','gonogo','scenarios','warmup'],c:'#00E0FF'},attention:{name:'קשב ומודעות',games:['tracking','sweeper','periph'],c:'#AA44FF'},ball:{name:'שליטה בכדור',games:['juggle','feetcall','header'],c:'#3DF59A'}};
 const domainOf=g=>Object.keys(DOMAINS).find(k=>DOMAINS[k].games.includes(g));
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const dayKey=d=>{const x=new Date(d);return x.getFullYear()+'-'+(x.getMonth()+1)+'-'+x.getDate()};

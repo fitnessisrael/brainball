@@ -1,5 +1,5 @@
 /* ================= routing ================= */
-var viewAs=null;let hwTask=null,curTeam=null;const FLOW=['intro','start','pending','newpass'];const BOARD_GAMES=['reaction','choice','gonogo','periph','tracking','sweeper','scenarios','juggle','feetcall','colortask','strobe'];
+var viewAs=null;let hwTask=null,curTeam=null;const FLOW=['intro','start','pending','newpass'];const BOARD_GAMES=['reaction','choice','gonogo','periph','tracking','sweeper','scenarios','juggle','feetcall','header','colortask','strobe'];
 const homeOf=()=>({coach:'coach',manager:profile?.clubStatus==='pending'?'pending':'club',admin:viewAs?.mode==='player'?'home':curClub?'club':'sys'})[profile?.role]||'home';
 function go(v){
   if(!$('#v-'+v))v='home';
@@ -138,7 +138,7 @@ $('#admList').onclick=e=>{const c=catCfg(),b=e.target.closest('button');if(!b)re
 $('#admReset').onclick=()=>pushOrder({order:DEFAULT_ORDER,hidden:[]});
 
 /* ================= account ================= */
-function renderAccount(){const p=profile||{};
+function renderAccount(){const p=profile||{};setTimeout(()=>{try{paintCard()}catch(e){}},0);
   $('#accKv').innerHTML=[['שם',p.name],['אימייל',p.email],['טלפון',p.phone],['גיל',p.age],['תפקיד',ROLE[p.role]],['קבוצה',p.team],['מועדון',p.club]].filter(x=>x[1]).map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
   $('#accShareRow').hidden=!(p.role==='player'&&p.teamId);$('#accTeam').textContent=p.team?'הקבוצה: '+p.team:'';$('#accShare').setAttribute('aria-checked',String(p.share!==false));
   $('#accAv').innerHTML=p.avatar?`<img src="${p.avatar}" alt="">`:esc((p.name||'B').trim()[0]||'B');$('#accPhoto').hidden=!DB.user;$('#accOwn').hidden=!(p.role==='player'&&!p.teamId&&DB.user);$('#ownTeam').value=p.ownTeam||'';$('#ownLogoTxt').textContent=p.ownLogo?'לוגו נבחר ✓':'לוגו הקבוצה';

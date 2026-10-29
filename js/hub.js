@@ -32,7 +32,7 @@ async function renderHub(){hubOpen=new Set();try{showTab('hubTabs','lib')}catch(
   try{hubMap=await DB.hubCats()}catch(e){}
   hubSel=hubSel.filter(x=>x.k==='g'||hubVids.some(v=>v.id===x.id));paintHub()}
 const hubHas=(k,id)=>hubSel.some(x=>x.k===k&&x.id===id);
-const DEFCAT={field:['drib'],juggle:['drib'],feetcall:['drib'],tracking:['aware'],sweeper:['aware'],periph:['aware'],breath:['aware','warm'],reaction:['react'],colortask:['react'],strobe:['react'],choice:['react'],gonogo:['react'],warmup:['warm'],scenarios:['warm']};
+const DEFCAT={field:['drib'],juggle:['drib'],feetcall:['drib'],header:['drib'],tracking:['aware'],sweeper:['aware'],periph:['aware'],breath:['aware','warm'],reaction:['react'],colortask:['react'],strobe:['react'],choice:['react'],gonogo:['react'],warmup:['warm'],scenarios:['warm']};
 let hubMap=null;const gameCats=id=>(hubMap&&hubMap[id])||DEFCAT[id]||[];
 const canAssign=()=>isAdmin()&&!(viewAs&&viewAs.mode==='player');
 function catBody(c){const vis=visible().filter(id=>CAT[id]&&gameCats(id).includes(c)),vs=hubVids.filter(v=>v.cat===c);

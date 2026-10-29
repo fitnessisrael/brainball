@@ -4,10 +4,10 @@ const ACOL={left:'#00E0FF',right:'#FF2BD6',up:'#3DF59A',down:'#FFE14D'};
 const arrowSVG=(d,c,cls='arrow')=>`<svg class="${cls}" viewBox="0 0 100 100" aria-label="${d}"><path d="${ARW[d]}" stroke="${c}" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const CAT={
  field:{name:'קוד המגרש',area:'field',ico:'display',m:G('#FF7A1A','#FFE14D'),desc:'המסך זורק צבע, חץ או מספר. אתה עונה עם הכדור.',field:true},
- juggle:{name:'מלך ההקפצות',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'המצלמה רואה את הכדור וסופרת כל עלייה וירידה. כמה תגיע?',cam:true,pose:'juggle',
-   tagline:'מתרחקים, נכנסים למסגרת ומקפיצים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
+ juggle:{name:'מלך ההקפצות',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'כמה הקפצות רצופות בלי נפילה? מחזיקים את הכדור באוויר ומודדים את השיא.',cam:true,pose:'juggle',
+   tagline:'מתרחקים, נכנסים למסגרת, ובצפצוף מקפיצים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,lbl:''},plus:{sec:60,lbl:''},pro:{sec:null,lbl:''}},
-   how:['מעמידים את הטלפון על חצובה או נשענים לקיר, מסך אליך.','מתרחקים 2 עד 3 מטר ומראים את הכדור למצלמה. כל כדור, בכל צבע.','מקפיצים. כל עלייה וירידה של הכדור נספרת כהקפצה אחת, עם צליל. אפשר להקליט עד דקה.']},
+   how:['מעמידים את הטלפון על חצובה או נשענים לקיר, מסך אליך.','מתרחקים 2 עד 3 צעדים ונכנסים למסגרת עם כל הגוף. המצלמה מראה את הגוף והכדור.','נשארים באזור קטן, וכשנשמע הצפצוף מתחילים להקפיץ. סופרים בראש הקפצות רצופות בלי נפילה, ובסוף מכניסים את המספר.']},
  reaction:{name:'רפלקס מנצח',area:'speed',ico:'bolt',m:G('#FF7A1A','#FF2BD6'),desc:'כתום על המסך? אצבע למטה. כמה מהר אתה באמת?',
    tagline:'מבחן התגובה הקלאסי. אתה מול השעון.',
    levels:{beginner:{n:10,lbl:'10 ניסיונות'},plus:{n:20,lbl:'20 ניסיונות'},pro:{n:30,lbl:'30 · הערכה'}},
@@ -48,17 +48,21 @@ const CAT={
    tagline:'לראות את החבר הפנוי בלי להזיז את הראש.',
    levels:{beginner:{n:16,flash:300,lbl:'הבזק 0.3s'},plus:{n:20,flash:180,lbl:'0.18s'},pro:{n:24,flash:100,lbl:'0.1s'}},
    how:['מסתכלים רק על הנקודה הלבנה במרכז.','עיגול מהבהב לרגע באחד הכיוונים.','לוחצים איפה שהוא הופיע.'],run:runPeriph},
- feetcall:{name:'החלף וקרא',area:'field',ico:'feet',m:G('#FFE14D','#00E0FF'),desc:'מסירות רגל לרגל וצועקים מה שקופץ על המסך.',cam:true,pose:'feet',
+ feetcall:{name:'החלף וקרא',area:'field',ico:'feet',m:G('#FFE14D','#00E0FF'),desc:'מעבירים את הכדור מצד לצד, כמעט בלי להסתכל עליו, וצועקים את הצבע או המספר שעל המסך.',cam:true,pose:'feet',
    tagline:'הרגליים עובדות, הראש קורא, הפה צועק.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,call:2500,lbl:''},plus:{sec:60,call:1800,lbl:''},pro:{sec:null,call:1200,lbl:''}},
-   how:['טלפון על חצובה, מסך אליך. הכדור והרגליים בתוך התמונה.','מעבירים את הכדור מרגל לרגל במקום, מהר.','צבע או מספר קופצים בפס העליון: צועקים אותם בקול. כל העברה של הכדור מצד לצד נספרת, עם צפצוף.']},
+   how:['טלפון על חצובה, מסך אליך. כל הגוף והכדור בתוך התמונה.','מעבירים את הכדור מרגל לרגל במקום, כמעט בלי להסתכל עליו.','צבע או מספר קופצים בפס העליון: צועקים אותם בקול. כל העברה נספרת, והסכום מופיע בסוף.']},
+ header:{name:'נגיחות',area:'field',ico:'ball',m:G('#FF2BD6','#FFE14D'),desc:'כדורים קופצים למעלה. קופצים, מנגחים ומפוצצים.',cam:true,pose:'header',
+   tagline:'הולכים אחורה, קופצים ומנגחים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',s45:'45 שנ\'',plus:'דקה',m2:'2 דקות',pro:'ללא הגבלה'},
+   levels:{beginner:{sec:30,lbl:''},s45:{sec:45,lbl:''},plus:{sec:60,lbl:''},m2:{sec:120,lbl:''},pro:{sec:null,lbl:''}},
+   how:['טלפון על חצובה, מסך אליך. הולכים 2 עד 3 צעדים אחורה, כך שהשליש העליון של המסך נשאר ריק.','כדורים מופיעים למעלה, פעם גבוה ופעם נמוך. קופצים ומנגחים בראש כדי לפוצץ אותם, בזהירות.','כל פיצוץ נשמע ונספר באמצע המסך. הסכום נשמר בסוף.']},
  breath:{name:'מיקוד בנשימה',area:'focus',ico:'wind',m:G('#00E0FF','#AA44FF'),desc:'דקה של שקט לפני הסערה. נושמים ונכנסים לפוקוס.',
    tagline:'לב רגוע, ראש צלול.',lvNames:{beginner:'דקה',plus:'2 דקות',pro:'3 דקות'},
    levels:{beginner:{min:1,lbl:''},plus:{min:2,lbl:''},pro:{min:3,lbl:''}},
    how:['יושבים או עומדים בנוח.','שואפים כשהעיגול גדל, עוצרים, ונושפים כשהוא קטן.','4 שניות שאיפה, 2 עצירה, 6 נשיפה.'],run:runBreath},
 };
-CAT.juggle.run=runPose;CAT.feetcall.run=runPose;
-const DEFAULT_ORDER=['field','juggle','reaction','choice','colortask','strobe','tracking','gonogo','scenarios','warmup','sweeper','periph','feetcall','breath'];
+CAT.juggle.run=runPose;CAT.feetcall.run=runPose;CAT.header.run=runHeader;
+const DEFAULT_ORDER=['field','juggle','reaction','choice','colortask','strobe','tracking','gonogo','scenarios','warmup','sweeper','periph','feetcall','header','breath'];
 function catCfg(){const c=S.get('catalog3',null)||{order:DEFAULT_ORDER,hidden:[]};const o=c.order.filter(id=>CAT[id]);DEFAULT_ORDER.forEach(id=>{if(!o.includes(id))o.push(id)});return{order:o,hidden:c.hidden||[]}}
 const visible=()=>{const c=catCfg();return c.order.filter(id=>!c.hidden.includes(id))};
 
@@ -78,8 +82,9 @@ const DEMOS={
  periph:[['#111017','<span style="width:16px;height:16px;border-radius:50%;background:#fff"></span>','עיניים על הנקודה',1200],['#111017','<span style="width:16px;height:16px;border-radius:50%;background:#fff"></span><span style="position:absolute;right:10%;top:16%;width:40px;height:40px;border-radius:50%;background:#FF2BD6"></span>','משהו הבהב בצד...',600],['#111017','<span style="width:16px;height:16px;border-radius:50%;background:#fff"></span><span style="position:absolute;right:10%;top:16%;width:44px;height:44px;border-radius:50%;border:3px solid #3DF59A"></span>'+RIP('right:9%;top:13%'),'לוחצים איפה שזה היה',1400]],
  colortask:[['#3DF59A','<span class="dm-big">ירוק</span>','מופיע צבע',1200],['#111017',CONE('#3DF59A')+'<div class="runL" style="position:absolute;right:16%;bottom:6%;height:80%">'+SKEL()+'</div>','ספרינט לקונוס הירוק וחזרה',1700],['#111017','<span class="lens"></span>'+HAND('','top:18%')+'<span class="dm-count">4.82</span>','יד קרובה למצלמה. השעון עוצר',1700]],
  strobe:[['#FF2BD6','','פלאש...',500],['#000','','',300],['#00E0FF','','עוד פלאש... לא זזים',500],['#000','','',300],['#3DF59A',HAND('waving'),'ירוק? מרימים יד ומנופפים',1600]],
- juggle:[['#111017','<span class="dm-frame"></span><div style="position:absolute;bottom:4%;height:84%;display:grid;place-items:end center">'+SKEL()+'</div>','נכנסים למסגרת עם כל הגוף',1700],['#111017','<div style="position:absolute;bottom:4%;height:84%;width:40%;display:grid;place-items:end center">'+SKEL('kick')+BALL('bounce','left:58%;bottom:34%')+'</div><span class="dm-count">12</span>','מקפיצים. המצלמה סופרת',2200]],
+ juggle:[['#111017','<span class="dm-frame"></span><div style="position:absolute;bottom:4%;height:84%;display:grid;place-items:end center">'+SKEL()+'</div>','נכנסים למסגרת עם כל הגוף',1700],['#111017','<div style="position:absolute;bottom:4%;height:84%;width:40%;display:grid;place-items:end center">'+SKEL('kick')+BALL('bounce','left:58%;bottom:34%')+'</div>','מקפיצים בלי נפילה, וסופרים בראש',2200]],
  feetcall:[['#111017','<div style="position:absolute;bottom:4%;height:80%;width:40%;display:grid;place-items:end center">'+SKEL()+BALL('slideX','left:38%;bottom:2%')+'</div><span style="position:absolute;top:8%;padding:0 22px;border-radius:30px;background:#FF2BD6;font:800 44px Outfit;color:#fff">7</span>','רגל לרגל, וצועקים: "שבע!"',1700],['#111017','<div style="position:absolute;bottom:4%;height:80%;width:40%;display:grid;place-items:end center">'+SKEL()+BALL('slideX','left:38%;bottom:2%')+'</div><span style="position:absolute;top:8%;width:90px;height:52px;border-radius:30px;background:#00E0FF"></span>','צבע? צועקים: "תכלת!"',1700]],
+ header:[['#111017','<span class="dm-frame"></span><div class="dm-third"></div><div style="position:absolute;bottom:4%;height:62%;display:grid;place-items:end center">'+SKEL()+'</div>','הולכים אחורה. השליש העליון נשאר ריק',1900],['#111017','<span class="dm-hb" style="left:30%;top:10%"></span><span class="dm-hb" style="left:62%;top:20%;animation-delay:.4s"></span><div style="position:absolute;bottom:4%;height:62%;display:grid;place-items:end center"><div class="hjump">'+SKEL()+'</div></div>','כדורים למעלה. קופצים ומנגחים',2000],['#111017','<span class="dm-boom" style="left:40%;top:14%"></span><span class="dm-count" style="left:50%;transform:translateX(-50%);top:34%;font-size:56px">5</span>','בום! כל פיצוץ נספר',1500]],
  breath:[['#111017','<span class="breath" style="width:42%;transform:scale(1);transition:transform 1.2s"></span>','שאיפה...',1400],['#111017','<span class="breath" style="width:42%;transform:scale(.55)"></span>','נשיפה ארוכה...',1600]],
 };
 DEMOS.warmup=DEMOS.scenarios;
@@ -89,7 +94,7 @@ function playDemo(box,cap,frames){clearTimeout(demoTimer);let i=0;const step=()=
 /* ================= voice-over scripts (about 10 seconds each) ================= */
 const VO={
  field:'מקמו את הטלפון או הטאבלט על חצובה. החליטו מראש על פעולה לכל צבע, מספר או חץ, או צעקו אותם תוך כדי התרגיל.',
- juggle:'שימו את הטלפון על חצובה, התרחקו עד שכל הגוף בתוך המסגרת הירוקה, ותתחילו להקפיץ. כל הקפצה נספרת עם צפצוף.',
+ juggle:'שימו את הטלפון על חצובה, והתרחקו עד שכל הגוף נכנס למסגרת. הישארו באזור קטן, ובצפצוף התחילו להקפיץ כדי לשבור שיא. ספרו בראש הקפצות רצופות בלי נפילה, ובסוף הכניסו את המספר.',
  reaction:'חכו שהמסך יהפוך לכתום, ואז געו בו הכי מהר שאפשר. נגיעה לפני הכתום לא נספרת.',
  choice:'במרכז המסך יופיע חץ. לחצו על הכפתור באותו כיוון, הכי מהר ובלי טעויות.',
  colortask:'שימו ארבעה קונוסים בצבעים. כשמופיע צבע, רוצו לקונוס, תחזרו, וקרבו את היד למצלמה כדי לעצור את השעון.',
@@ -100,6 +105,7 @@ const VO={
  warmup:'חמש החלטות מהירות לפני המשחק. קראו את המצב ובחרו מהר.',
  sweeper:'הרבה כדורים זזים, ואחד מהם שונה בצבע או בגודל. מצאו אותו וגעו בו.',
  periph:'הסתכלו רק על הנקודה במרכז. עיגול יהבהב בצד. לחצו איפה שהוא הופיע, הכי מהר שאפשר.',
- feetcall:'מעבירים את הכדור מרגל לרגל במקום. כשקופץ צבע או מספר בפס העליון, צועקים אותו בקול.',
+ feetcall:'מעבירים את הכדור מצד לצד, כמעט בלי להסתכל עליו. כשקופץ צבע או מספר על המסך, אומרים אותו בקול רם.',
+ header:'לכו שניים עד שלושה צעדים אחורה, כך שהשליש העליון של המסך נשאר ריק. כדורים יופיעו למעלה. קפצו ונגחו בזהירות כדי לפוצץ אותם.',
  breath:'שבו בנוח. שאפו כשהעיגול גדל, עצרו, ונשפו לאט כשהוא קטן.',
 };
