@@ -134,7 +134,7 @@ async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
     return{b:track&&miss===0?{cx:track.cx,cy:track.cy,w:track.d,h:track.d}:null,locked:!!track&&miss<12,miss}};
   const lum=()=>{try{px.drawImage(v,0,0,vw,vh,0,0,PZ,PZ);const d=px.getImageData(0,0,PZ,PZ).data;let t=0;for(let i=0;i<d.length;i+=16)t+=(d[i]+d[i+1]+d[i+2])/3;return t/(d.length/16)}catch(e){return 255}};
   /* ---- the run, in phases: gate (show the ball) -> ready (voice) -> count (3,2,1) -> run. The ball is followed the whole time. ---- */
-  const pc=$('#pc');let started=false,lastD=0,farSince=0,lastDist=0,phase='gate',lockSince=0,busy=true,darkSaid=false,lastHint=performance.now(),lastLost=0,lastSeen=performance.now(),smooth=null;
+  const pc=$('#pc');let going=false,started=false,lastD=0,farSince=0,lastDist=0,phase='gate',lockSince=0,busy=true,darkSaid=false,lastHint=performance.now(),lastLost=0,lastSeen=performance.now(),smooth=null;
   let reps=0,t0=0,end=Infinity,finished=false,nextCall=0,lastCall='',BC=null,gapT=0,gapA=0;if(feet)pc.classList.add('corner');
   const spk=(key,text)=>cueSay(key,text);
   const count=()=>{reps++;pc.textContent=reps;pc.classList.remove('bump');void pc.offsetWidth;pc.classList.add('bump');sfx.pop()};
@@ -145,9 +145,9 @@ async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
   const startRec=()=>{if(RUN.recWanted&&window.MediaRecorder&&rc.captureStream){try{recType=['video/mp4','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
     const mr=new MediaRecorder(rc.captureStream(30),recType?{mimeType:recType}:{});mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.onstop=()=>{recUrl=URL.createObjectURL(new Blob(chunks,{type:recType||'video/webm'}))};mr.start(500);RUN.rec=mr;recEnd=performance.now()+60000;
     const d=document.createElement('div');d.className='recdot';d.id='recDot';d.innerHTML='<i></i>REC';stage.appendChild(d)}catch(e){RUN.rec=null}}};
-  const goCount=async()=>{phase='ready';busy=true;msg('');await spk(feet?'ready_feet2':'ready_juggle2',feet?'הכל מוכן. תוריד את הכדור לרצפה, ותעביר אותו מצד לצד, כמעט בלי להסתכל עליו. תגיד בקול רם את הצבע או המספר שאתה רואה על המסך.':'מעולה, הכל מוכן. תוריד את הכדור לרצפה. כשתשמע את הביפ, תתחיל להקפיץ ולשבור שיא.');
-    phase='count';const vp=spk('count321','שלוש, שתיים, אחת, התחלה!');
-    for(const n of[3,2,1]){$('#call').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(800)}$('#call').innerHTML='';sfx.go();await Promise.race([vp,sleep(900)]);
+  const goCount=async()=>{phase='ready';busy=true;msg('');await spk(feet?'ready_feet3':'ready_juggle3',feet?'הכל מוכן. תוריד את הכדור לרצפה, ותעביר מצד לצד. תגיד בקול את הצבע או המספר.':'הכל מוכן. תוריד את הכדור, ובביפ תתחיל להקפיץ.');
+    phase='count';
+    for(const n of[3,2,1]){$('#call').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(650)}$('#call').innerHTML='';sfx.go();await sleep(300);
     BC=feet?new BallCounter('feet'):null;smooth=null;gapT=0;t0=performance.now();end=cfg.sec?t0+cfg.sec*1000:Infinity;RUN.t0=t0;started=true;pc.hidden=!feet;startRec();
     $('#pBar').innerHTML=`<button class="btn btn-w" data-c="end">${I('check')} סיום ושמירה</button>`;RUN.input=v2=>{if(v2.kind==='btn'&&v2.v==='end')finished=true};phase='run'};
   RUN.onQuit=()=>{finished=true;phase='run'};
@@ -156,10 +156,10 @@ async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
     if(o!=='same'){if(pose&&(++pf%2===0))detectPose(now);drawBall(o.b,o.locked,now);if(o.b){lastSeen=now;lastD=o.b.w/S}}
     if(phase==='gate'){
       if(!darkSaid&&now-lastHint>6000&&lum()<38){darkSaid=true;msg('חשוך מדי');spk('dark','חשוך לי מדי. תדליק אור או תעמוד ליד חלון.')}
-      if(o!=='same'){if(o.locked){lockSince=lockSince||now;if(now-lockSince>700&&!busy){const rt=track?track.d/S:lastD;
+      if(o!=='same'){if(o.locked){lockSince=lockSince||now;if(now-lockSince>350&&!going){const rt=track?track.d/S:lastD;
           if(rt>.2&&now-lastDist>7000){lastDist=now;msg('התרחק צעד אחורה');spk('farther','אתה קרוב מדי, ולא רואים את הכדור טוב. תתרחק צעד אחורה, כדי שנראה אותך.')}
           else if(rt<.04&&now-lastDist>7000){lastDist=now;msg('התקרב קצת');spk('closer','אתה רחוק מדי. תתקרב קצת למצלמה, כדי שנראה את הכדור.')}
-          else if(rt>=.04&&rt<=.2&&!busy){goCount().catch(()=>{})}}}else lockSince=0}
+          else if(rt>=.04&&rt<=.2){going=true;goCount().catch(()=>{})}}}else lockSince=0}
       if(!busy&&now-lastHint>14000&&!lockSince){lastHint=now;spk('noball','אני לא רואה כדור. תחזיק אותו מול המצלמה, בלי להסתיר אותו, ותנסה להתקרב קצת.')}}
     if(phase==='run'){clock(cfg.sec?(end-now)/1000:(now-t0)/1000);hud('',cfg.sec?(now-t0)/(cfg.sec*1000):0);
       if(feet&&now>nextCall){let c;do{c=pick(CALLS)}while((c[0]+c[1])===lastCall);lastCall=c[0]+c[1];$('#call').innerHTML=c[0]?`<span class="call-color" style="background:${c[0]}"></span>`:`<span class="call-num">${c[1]}</span>`;nextCall=now+cfg.call}
@@ -177,7 +177,7 @@ async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
   if(RUN.rec){await sleep(200);let tries=0;while(!recUrl&&tries++<20)await sleep(100)}
   const dur=Math.round((performance.now()-t0)/1000);
   /* juggling: the camera does not count. The player enters the longest run of hops without a drop. */
-  if(!feet&&started){stageHTML(`<div class="gate ask"><h2 style="font-size:26px">מה השיא שלך?</h2><p class="st-sub" style="margin:0">כמה הקפצות רצופות עשית בלי נפילה, הכי הרבה?</p>
+  if(!feet&&started){clock(null);stageHTML(`<div class="gate ask" style="padding-top:calc(130px + env(safe-area-inset-top,0px))"><h2 style="font-size:26px">כמה הקפצת ללא נפילה?</h2><p class="st-sub" style="margin:0">כתוב כאן את המספר הגבוה ביותר.</p>
       <input type="number" id="hopsIn" inputmode="numeric" pattern="[0-9]*" min="0" max="999" placeholder="0" style="font:700 56px var(--f-mono);text-align:center;width:180px;margin:14px auto;display:block">
       <button class="btn btn-g btn-xl full" id="hopsOk">שמור <span class="ar">←</span></button></div>`,'scroll');
     reps=await new Promise(res=>{const inp=$('#hopsIn');setTimeout(()=>inp.focus(),300);const done=()=>res(Math.max(0,Math.min(999,parseInt(inp.value,10)||0)));$('#hopsOk').onclick=done;inp.onkeydown=e=>{if(e.key==='Enter')done()}})}

@@ -17,14 +17,14 @@ async function runHeader(cfg,id){RUN.bg=true;
   /* the whole body is in view when the head and at least one knee/ankle are seen */
   const bodyIn=now=>lm&&now-lmT<600&&vis(0)&&(vis(25)||vis(26)||vis(27)||vis(28))&&(vis(23)||vis(24));
   const headTop=()=>Math.min(lm[0].y,lm[7].y-.01,lm[8].y-.01);
-  const pc=$('#pc');let phase='gate',busy=true,okSince=0,lastHint=performance.now(),lastBack=0,h0=.45,samples=[],hits=0,spawned=0,missed=0,finished=false,t0=0,end=Infinity,started=false;
+  const pc=$('#pc');let phase='gate',busy=true,okSince=0,lastHint=performance.now(),lastBack=0,h0=.45,samples=[],hits=0,spawned=0,missed=0,finished=false,t0=0,end=Infinity,started=false,going=false;
   const balls=[],parts=[];let nextSpawn=0,farSince=0,lastLost=0;
   msg('לכו אחורה, וכל הגוף למסגרת');
   spk('stepback_head','לך שניים עד שלושה צעדים אחורה, כך שכל הגוף נכנס למסגרת, והשליש העליון של המסך נשאר ריק.').then(()=>{busy=false});
   const goCount=async()=>{phase='ready';busy=true;msg('');h0=samples.length?samples.sort((a,b)=>a-b)[samples.length>>1]:.45;
-    await spk('ready_head','הכל מוכן. עוד רגע יופיעו כדורים למעלה. תקפוץ ותנגח אותם בזהירות, כדי לפוצץ.');
-    phase='count';const vp=spk('count321','שלוש, שתיים, אחת, התחלה!');
-    for(const n of[3,2,1]){$('#pm').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(800)}$('#pm').textContent='';sfx.go();await Promise.race([vp,sleep(900)]);
+    await spk('ready_head3','הכל מוכן. תקפוץ ותנגח את הכדורים, בזהירות.');
+    phase='count';
+    for(const n of[3,2,1]){$('#pm').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(650)}$('#pm').textContent='';sfx.go();await sleep(300);
     t0=performance.now();end=cfg.sec?t0+cfg.sec*1000:Infinity;RUN.t0=t0;started=true;pc.hidden=false;nextSpawn=t0+600;
     $('#pBar').innerHTML=`<button class="btn btn-w" data-c="end">${I('check')} סיום ושמירה</button>`;RUN.input=x=>{if(x.kind==='btn'&&x.v==='end')finished=true};phase='run'};
   RUN.onQuit=()=>{finished=true;phase='run'};
@@ -38,7 +38,7 @@ async function runHeader(cfg,id){RUN.bg=true;
     const fresh=detect(now);cx.clearRect(0,0,W,H);if(lm&&now-lmT<500)drawSkel(cx,lm,PN);
     if(phase==='gate'){
       if(fresh){const inn=bodyIn(now),top=inn?headTop():1;
-        if(inn&&top>=.34){okSince=okSince||now;samples.push(lm[0].y);if(samples.length>60)samples.shift();msg('מעולה, ככה');if(now-okSince>1200&&!busy)goCount().catch(()=>{})}
+        if(inn&&top>=.34){okSince=okSince||now;samples.push(lm[0].y);if(samples.length>60)samples.shift();msg('מעולה, ככה');if(now-okSince>500&&!going){going=true;goCount().catch(()=>{})}}
         else{okSince=0;samples=[];
           if(!busy&&now-lastBack>7000){if(inn&&top<.34){lastBack=now;msg('הלכו עוד צעד אחורה');spk('back_head','אתה קרוב מדי. תלך עוד צעד אחורה, כדי שהשליש העליון יישאר ריק.')}
             else if(now-lastHint>9000){lastBack=now;lastHint=now;msg('לא רואים את כל הגוף');spk('noperson','אני לא רואה אותך. תיכנס למסגרת עם כל הגוף.')}}}}
