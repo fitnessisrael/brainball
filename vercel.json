@@ -3,5 +3,22 @@
   "installCommand": "echo skip",
   "buildCommand": "echo skip",
   "outputDirectory": ".",
-  "redirects": [{"source":"/lab","destination":"/app#lab","permanent":false}]
+  "redirects": [
+    {
+      "source": "/lab",
+      "destination": "/app#lab",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/shots/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
 }
