@@ -50,7 +50,7 @@ function openIntro(id,lvForced){const g=CAT[id];let lv=lvForced||S.get('lv_'+id,
   say(VO[id]);
   $('#lvSel').onclick=e=>{const b=e.target.closest('[data-lv]');if(!b)return;lv=b.dataset.lv;$$('#lvSel button').forEach(x=>x.setAttribute('aria-pressed',x===b))};
   if(g.rec)$('#recChip').onclick=()=>{rec=!rec;S.set('rec',rec);$('#recChip').setAttribute('aria-pressed',rec)};
-  $('#goBtn').onclick=()=>{ac();hush();clearTimeout(demoTimer);S.set('lv_'+id,lv);start(id,lv,false,g.rec&&rec)}}
+  $('#goBtn').onclick=()=>{ac();unlockCue();hush();clearTimeout(demoTimer);S.set('lv_'+id,lv);start(id,lv,false,g.rec&&rec)}}
 async function countdown(el){for(const n of[3,2,1]){if(el)el.innerHTML=`<div class="cd grad">${n}</div>`;else stageHTML(`<div class="cd grad">${n}</div>`);sfx.tick();await sleep(800)}sfx.go()}
 async function runIt(id,lv,tapOnly,rec){newRun();RUN.tapOnly=tapOnly;RUN.recWanted=rec;RUN.meta={id,lv};keepAwake();const g=CAT[id];
   if(g.cam&&!g.pose&&!tapOnly){await camGate();await camStart()}

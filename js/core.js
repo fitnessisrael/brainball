@@ -43,11 +43,14 @@ function say(t){try{if(!t||!voiceOn||!sndOn)return;hush();let id=null;try{for(co
  const tts=()=>{try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='he-IL';const v=heVoice();if(v)u.voice=v;u.rate=1.0;u.pitch=1;speechSynthesis.speak(u)}catch(e){}};
  if(!id)return tts();
  const a=new Audio('audio/vo_'+id+'.mp3');_vo=a;a.onerror=()=>{if(_vo===a)tts()};const p=a.play();if(p&&p.catch)p.catch(()=>{if(_vo===a)tts()})}catch(e){}}
-/* spoken instruction clip (audio/cue_<key>.mp3, Itamar). Resolves when it ends. Falls back to the phone voice. */
+/* spoken instruction clips (audio/cue_<key>.mp3, Itamar). One shared <audio> element that is unlocked by the player's tap, because
+   iPhones refuse to play a NEW audio element later without a tap. Resolves when the clip ends; falls back to the phone voice. */
+let _cueEl=null;
+function unlockCue(){try{if(!_cueEl)_cueEl=new Audio();_cueEl.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';const p=_cueEl.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function cueSay(key,text){if(!voiceOn||!sndOn)return Promise.resolve();hush();
  return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};
   const tts=()=>{try{if(!window.speechSynthesis){fin();return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='he-IL';const v=heVoice();if(v)u.voice=v;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u)}catch(e){fin()}};
-  try{const a=new Audio('audio/cue_'+key+'.mp3');_vo=a;a.onended=fin;a.onerror=()=>{if(_vo===a)tts();else fin()};const p=a.play();if(p&&p.catch)p.catch(()=>{if(_vo===a)tts();else fin()})}catch(e){tts()}
+  try{if(!_cueEl)_cueEl=new Audio();const a=_cueEl;a.onended=fin;a.onerror=()=>{if(_vo===a)tts();else fin()};a.src='audio/cue_'+key+'.mp3';_vo=a;const p=a.play();if(p&&p.catch)p.catch(()=>{if(_vo===a)tts();else fin()})}catch(e){tts()}
   setTimeout(fin,20000)})}
 function hush(){try{if(_vo){_vo.pause();_vo=null}}catch(e){}try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}}
 

@@ -618,3 +618,6 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .cvbar .btn{height:40px;padding:0 14px;font-size:14px}
 .recdot{top:calc(116px + env(safe-area-inset-top,0px))}
 .cvmsg{top:calc(64px + env(safe-area-inset-top,0px));padding:0 110px}
+
+.bigcount.mid{top:44%;left:50%;right:auto;transform:translate(-50%,-50%);font-size:clamp(96px,32vw,190px);background:none;padding:0;opacity:.82;text-shadow:0 4px 30px rgba(0,0,0,.7)}
+.bigcount.mid.bump{animation:none}

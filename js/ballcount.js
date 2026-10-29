@@ -1,8 +1,8 @@
 /* Ball tracking + counting logic (no camera code here, so it can be tested alone).
    juggle: every rise of the ball (even a tiny one) = 1.   feet: every pass from one side to the other = 1. */
 function BallCounter(mode){
-  const feet=mode==='feet',gap=feet?130:170,minPx=3;
-  let ext=null,lo=0,hi=0,dir=0,n=0,lastT=-1e9;const ds=[];
+  const feet=mode==='feet',gap=feet?130:170,minPx=2.5;
+  let ext=null,lo=0,hi=0,dir=0,n=0,lastT=-1e9;const ds=[],hist=[];
   const med=a=>{if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y);return s[s.length>>1]};
   const hit=t=>{if(t-lastT<gap)return 0;lastT=t;n++;return 1};
   return{
@@ -10,12 +10,18 @@ function BallCounter(mode){
     /* t ms, a = position on the counted axis (juggle: up is bigger; feet: x), d = ball diameter in px */
     push(t,a,d){
       if(d>0){ds.push(d);if(ds.length>15)ds.shift()}
-      const dm=med(ds)||d||40,h=Math.max(dm*(feet?.6:.33),minPx);let c=0;
+      const dm=med(ds)||d||40,h=Math.max(dm*(feet?.45:.22),minPx);let c=0;
+      hist.push([t,a]);while(hist.length&&t-hist[0][0]>2500)hist.shift();
       if(ext===null){ext=lo=hi=a;return 0}
       if(dir===0){lo=Math.min(lo,a);hi=Math.max(hi,a);if(a-lo>h){dir=1;ext=a;c=hit(t)}else if(hi-a>h){dir=-1;ext=a;if(feet)c=hit(t)}}
       else if(dir===1){if(a>ext)ext=a;else if(ext-a>h){dir=-1;ext=a;if(feet)c=hit(t)}}
       else{if(a<ext)ext=a;else if(a-ext>h){dir=1;ext=a;c=hit(t)}}
       return c},
+    /* the ball vanished (blur, foot in front) while it was at the floor and came back 0.1-0.8 s later clearly higher than where it was: it hopped */
+    gap(t0,a0,t1,a1){if(feet)return 0;const g=t1-t0;if(g<110||g>800||dir===1||!hist.length)return 0;
+      const dm=med(ds)||40;let fl=1e9;for(const h of hist)fl=Math.min(fl,h[1]);
+      if(a0-fl>.8*dm||a1-a0<.5*dm||a1-a0>3*dm)return 0;
+      const c=hit(t1);if(c){dir=1;ext=a1}return c},
     /* ball left the picture through the top while rising: from now on it is coming down */
     peakGone(aTop){if(!feet&&dir===1){dir=-1;ext=aTop}}}}
 /* choose which detection is "the ball": the one nearest the predicted spot, otherwise the most confident */

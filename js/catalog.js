@@ -4,7 +4,7 @@ const ACOL={left:'#00E0FF',right:'#FF2BD6',up:'#3DF59A',down:'#FFE14D'};
 const arrowSVG=(d,c,cls='arrow')=>`<svg class="${cls}" viewBox="0 0 100 100" aria-label="${d}"><path d="${ARW[d]}" stroke="${c}" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const CAT={
  field:{name:'קוד המגרש',area:'field',ico:'display',m:G('#FF7A1A','#FFE14D'),desc:'המסך זורק צבע, חץ או מספר. אתה עונה עם הכדור.',field:true},
- juggle:{name:'מלך ההקפצות',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'המצלמה רואה את הכדור וסופרת כל עלייה וירידה. כמה תגיע?',cam:true,pose:'juggle',rec:true,
+ juggle:{name:'מלך ההקפצות',area:'field',ico:'ball',m:G('#3DF59A','#00E0FF'),desc:'המצלמה רואה את הכדור וסופרת כל עלייה וירידה. כמה תגיע?',cam:true,pose:'juggle',
    tagline:'מתרחקים, נכנסים למסגרת ומקפיצים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,lbl:''},plus:{sec:60,lbl:''},pro:{sec:null,lbl:''}},
    how:['מעמידים את הטלפון על חצובה או נשענים לקיר, מסך אליך.','מתרחקים 2 עד 3 מטר ומראים את הכדור למצלמה. כל כדור, בכל צבע.','מקפיצים. כל עלייה וירידה של הכדור נספרת כהקפצה אחת, עם צליל. אפשר להקליט עד דקה.']},
