@@ -2,5 +2,6 @@
   "cleanUrls": true,
   "installCommand": "echo skip",
   "buildCommand": "echo skip",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "redirects": [{"source":"/lab","destination":"/app#lab","permanent":false}]
 }

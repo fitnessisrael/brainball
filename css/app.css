@@ -637,3 +637,39 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .cc-row{display:flex;gap:10px;justify-content:center;margin-top:14px}
 .cc{width:36px;height:36px;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
 .cc[aria-pressed=true]{border-color:#fff}
+
+/* v13: glass menu + LAB */
+.menu-btn{color:#fff}
+.gmenu{position:fixed;inset:0;z-index:90}
+.gm-bg{position:absolute;inset:0;background:rgba(5,3,10,.35);opacity:0;transition:opacity .25s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.gm-panel{position:absolute;top:0;bottom:0;right:0;width:min(82vw,340px);padding:calc(18px + env(safe-area-inset-top,0px)) 22px 24px;display:flex;flex-direction:column;gap:6px;
+ background:linear-gradient(180deg,rgba(52,56,66,.62),rgba(24,24,28,.78));border-inline-start:1px solid rgba(255,255,255,.12);box-shadow:-20px 0 60px rgba(0,0,0,.5);
+ backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);transform:translateX(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.gmenu.on .gm-bg{opacity:1}.gmenu.on .gm-panel{transform:none}
+.gm-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}.gm-top img{height:30px;width:auto}
+.gm-x{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:16px}
+.gm-item{display:flex;align-items:center;gap:18px;padding:16px 4px;border:0;background:none;text-align:start;color:#fff;border-radius:14px}
+.gm-item .ic{width:28px;height:28px;color:#fff}.gm-item .ic svg{width:28px;height:28px;stroke-width:1.5}
+.gm-item b{font:500 20px var(--f-body);letter-spacing:.01em}
+.gm-item:active{background:rgba(255,255,255,.1)}
+#v-lab{padding-bottom:20px}
+.lab-hero{position:relative;padding:8px 0 4px;text-align:center}
+.lab-eeg{display:block;height:34px;margin:0 auto 10px;opacity:.8}.lab-eeg svg{width:100%;height:100%}
+.lab-eeg path{fill:none;stroke:var(--cyan,#00E0FF);stroke-width:2;stroke-linejoin:round;stroke-dasharray:600;stroke-dashoffset:600;animation:eeg 3.2s linear infinite}
+@keyframes eeg{to{stroke-dashoffset:-600}}
+.lab-h{font:800 clamp(34px,10vw,48px)/1 var(--f-display);letter-spacing:.02em;margin:0;background:linear-gradient(90deg,#00E0FF,#AA44FF,#FF2BD6);-webkit-background-clip:text;background-clip:text;color:transparent;direction:ltr}
+.lab-sub{font:600 12px var(--f-mono);letter-spacing:.22em;color:var(--dim);margin:8px 0 14px;direction:ltr}
+.lab-p{font-size:15px;line-height:1.55;color:rgba(255,255,255,.82);margin:0 auto 16px;max-width:52ch}
+.lab-caps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.lab-cap{padding:12px;border-radius:18px;background:#14141b;border:1px solid rgba(255,255,255,.1);border-top:2px solid var(--c);display:grid;gap:4px}
+.lab-cap b{font:700 11px var(--f-mono);letter-spacing:.1em;color:var(--c);direction:ltr;text-align:start}.lab-cap span{font-size:13px;line-height:1.4;color:rgba(255,255,255,.8)}
+.lab-cap.c1{--c:#00E0FF}.lab-cap.c2{--c:#FF2BD6}.lab-cap.c3{--c:#AA44FF}.lab-cap.c4{--c:#3DF59A}
+.lab-h2{font:800 22px var(--f-display);letter-spacing:.04em;margin:6px 0 4px;direction:ltr;text-align:center}
+.lab-p2{font-size:14px;line-height:1.5;color:var(--muted);text-align:center;margin:0 auto 14px;max-width:56ch}
+.lab-res{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:22px}
+.lab-card{padding:14px;border-radius:20px;background:#14141b;border:1px solid rgba(255,255,255,.1);display:grid;gap:6px;align-content:start}
+.lab-au{font:600 12px var(--f-mono);color:var(--magenta);direction:ltr;text-align:start}
+.lab-card h3{font:700 17px var(--f-display);margin:0}.lab-card p{font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.78);margin:0}
+.lab-link{justify-self:start;margin-top:4px;padding:7px 14px;border-radius:999px;border:1px solid rgba(0,224,255,.5);color:#00E0FF;font:600 13px var(--f-body);text-decoration:none}
+.lab-end{padding:16px;border-radius:24px;background:linear-gradient(160deg,rgba(170,68,255,.14),rgba(255,43,214,.08));border:1px solid rgba(255,255,255,.12)}
+@media(min-width:700px){.lab-res{grid-template-columns:1fr 1fr}.lab-caps{grid-template-columns:repeat(4,1fr)}}

@@ -16,7 +16,7 @@ function go(v){
   $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   $$('.tabs button').forEach(b=>{if(b.dataset.go===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   if(location.hash!=='#'+tab)history.replaceState(null,'','#'+tab);
-  neuro.toggle(['home','train','hub','coach','club','sys','intro','start','pending'].includes(v));
+  neuro.toggle(['home','train','hub','coach','club','sys','intro','start','pending','lab'].includes(v));
   window.paintVa&&paintVa();paintTop();
   $('#bellBtn').hidden=!(profile?.role==='player'&&profile?.teamId);
   window.scrollTo(0,0);
@@ -28,8 +28,7 @@ function openItem(id,lv){if(!CAT[id])return;if(CAT[id].field)go('field');else op
 const toast=(t)=>{let el=$('#toast');if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el)}el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2200)};
 const copyTxt=(t,btn)=>{try{navigator.clipboard.writeText(t).then(()=>toast('הועתק')).catch(()=>{})}catch(e){}};
 
-function paintTop(){const p=profile||{},av=$('#avatar'),inClub=!!(p.clubLogo&&p.role!=='admin');
-  av.innerHTML=p.avatar?`<img src="${p.avatar}" alt="">`:esc((p.name||'B').trim()[0]||'B');av.classList.toggle('has-img',!!p.avatar);
+function paintTop(){const p=profile||{},inClub=!!(p.clubLogo&&p.role!=='admin');
   const tc=$('#topClub');tc.hidden=!inClub;if(inClub)tc.src=p.clubLogo}
 /* ---------- neurons background ---------- */
 const neuro=(()=>{const c=$('#neuro'),x=c.getContext('2d');let w,h,pts=[],on=false,raf=0;const d=devicePixelRatio||1,reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -156,4 +155,6 @@ $('#accPassBtn').onclick=async()=>{const v=$('#accPass').value;if(v.length<6){$(
 $('#accOut').onclick=async()=>{await DB.logout();profile=null;S.set('profile2',null);curTeam=null;curClub=null;go('start')};
 $('#accDel').onclick=()=>{$('#pSheetBody').innerHTML=`<h2 style="font-size:24px">למחוק את החשבון?</h2><p class="st-sub" style="margin:0">החשבון, הפרטים וכל התוצאות שלך יימחקו מהשרת לתמיד. אי אפשר לבטל.</p><button class="btn btn-o full danger-btn" id="delYes">כן, למחוק לתמיד</button><button class="btn btn-g full" data-close>ביטול</button>`;$('#pSheet').hidden=false;
   $('#delYes').onclick=async()=>{try{await DB.deleteAccount();profile=null;hist=[];['profile2','hist','outbox'].forEach(k=>S.set(k,null));$('#pSheet').hidden=true;toast('החשבון נמחק');go('start')}catch(e){toast(errText(e))}}};
-$('#avatar').onclick=()=>go('account');
+const gmOpen=on=>{const m=$('#gmenu');if(on){m.hidden=false;requestAnimationFrame(()=>m.classList.add('on'))}else{m.classList.remove('on');setTimeout(()=>{m.hidden=true},260)}$('#avatar').setAttribute('aria-expanded',String(on))};
+$('#avatar').onclick=()=>gmOpen(true);$('#gmBg').onclick=$('#gmX').onclick=()=>gmOpen(false);
+$('#gmenu').onclick=e=>{const b=e.target.closest('[data-gm]');if(!b)return;gmOpen(false);go(b.dataset.gm)};

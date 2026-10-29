@@ -22,7 +22,7 @@
       <button class="icon-btn bell" id="bellBtn" data-go="inbox" aria-label="התראות" hidden><span class="ic" data-i="bell"></span><b id="bellN" hidden>0</b></button>
       <img class="top-club" id="topClub" alt="" hidden>
       <button class="icon-btn" data-share="app" aria-label="שתף עם חבר"><span class="ic" data-i="share"></span></button>
-      <button class="avatar" id="avatar" aria-label="החשבון שלי">B</button>
+      <button class="icon-btn menu-btn" id="avatar" aria-label="תפריט" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
     </div>
   </div>
 
@@ -297,6 +297,28 @@
     <p class="note" style="margin-top:14px" id="accSync"></p>
   </section>
 
+  <!-- LAB -->
+  <section class="view" id="v-lab">
+    <div class="lab-hero"><span class="lab-eeg" aria-hidden="true"><svg viewBox="0 0 300 40" preserveAspectRatio="none"><path d="M0 20h40l8-14 10 28 9-22 7 8h50l8-12 10 24 8-12h60l8-16 10 30 8-14h40" /></svg></span>
+      <h1 class="lab-h">BRAINBALL LAB</h1><div class="lab-sub">THE SCIENCE BEHIND THE GAME</div>
+      <p class="lab-p">מהירות תגובה, קשב חזותי, עיבוד מידע וקבלת החלטות הם חלק מהיכולות הקוגניטיביות המעורבות במשחק הכדורגל. האימונים של BrainBall מבוססים על עקרונות שנחקרו במדעי הקוגניציה ובמדעי הספורט.</p></div>
+    <div class="lab-caps">
+      <div class="lab-cap c1"><b>VISUAL ATTENTION</b><span>קשב חזותי - מעקב אחר מידע ותנועה בסביבה משתנה.</span></div>
+      <div class="lab-cap c2"><b>REACTION TIME</b><span>זמן תגובה - מדידת מהירות התגובה לגירויים חזותיים.</span></div>
+      <div class="lab-cap c3"><b>COGNITIVE CONTROL</b><span>שליטה קוגניטיבית - בחירת תגובות, עיכוב תגובות ושינוי כללים.</span></div>
+      <div class="lab-cap c4"><b>SPATIAL AWARENESS</b><span>מודעות מרחבית - זיהוי מיקומים ויחסים בין שחקנים במרחב.</span></div>
+    </div>
+    <h2 class="lab-h2">BACKED BY RESEARCH</h2><p class="lab-p2">מחקרים נבחרים שמסבירים את המדע שמאחורי הגישה.</p>
+    <div class="lab-res">
+      <article class="lab-card"><div class="lab-au">Romeas et al. | 2016</div><h3>אימון מעקב חזותי בכדורגל</h3><p>מחקר שבחן אימון Multiple Object Tracking בקרב שחקני כדורגל ומצא שיפור במדד קבלת החלטות במסירה בקבוצת האימון.</p><a class="lab-link" href="https://doi.org/10.1016/j.psychsport.2015.06.002" target="_blank" rel="noopener">למחקר המקורי ↗</a></article>
+      <article class="lab-card"><div class="lab-au">Musculus et al. | 2022</div><h3>גמישות קוגניטיבית ושליטה מעכבת</h3><p>מחקר שבחן משימות למדידת גמישות קוגניטיבית ושליטה מעכבת בסביבה המותאמת לכדורגל, והציג בסיס להערכת יכולות אלו אצל שחקנים.</p><a class="lab-link" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9009540/" target="_blank" rel="noopener">למחקר המקורי ↗</a></article>
+      <article class="lab-card"><div class="lab-au">Friebe et al. | 2024</div><h3>אימון קוגניטיבי ותנועה</h3><p>מחקר התערבות בקרב שחקני כדורגל שבחן שילוב של אימונים תנועתיים וקוגניטיביים. נמצאו שיפורים בחלק ממדדי הזריזות והכדרור, אך לא בכל המדדים שנבדקו.</p><a class="lab-link" href="https://doi.org/10.52082/jssm.2024.276" target="_blank" rel="noopener">למחקר המקורי ↗</a></article>
+      <article class="lab-card"><div class="lab-au">Harenberg et al. | 2022</div><h3>גבולות ההעברה למגרש</h3><p>מחקר שהראה כי שיפור בביצוע משימת מעקב חזותי אינו מבטיח בהכרח שיפור בקבלת החלטות בכדורגל.</p><a class="lab-link" href="https://doi.org/10.1080/24733938.2021.1965201" target="_blank" rel="noopener">למחקר המקורי ↗</a></article>
+    </div>
+    <div class="lab-end"><h2 class="lab-h2" style="margin-top:0">SCIENCE-INSPIRED. FOOTBALL-FOCUSED.</h2><p class="lab-p2">BrainBall מנגישה עקרונות ממדעי הקוגניציה באמצעות אימונים דיגיטליים המותאמים לעולם הכדורגל. המחקרים מציגים בסיס מדעי לגישה, אך אינם מהווים הוכחה שכל תרגיל באפליקציה משפר באופן ישיר ביצועים במגרש.</p>
+      <button class="btn btn-g btn-xl full" data-go="train">התחל אימון <span class="ar">←</span></button></div>
+  </section>
+
   <!-- FIELD SETUP -->
   <section class="view" id="v-field">
     <button class="back" data-go="train">→ חזרה</button>
@@ -324,6 +346,12 @@
   </section>
 </div>
 
+<div class="gmenu" id="gmenu" hidden><div class="gm-bg" id="gmBg"></div>
+  <nav class="gm-panel" aria-label="תפריט">
+    <div class="gm-top"><img src="logo.png" alt="BrainBall"><button class="gm-x" id="gmX" aria-label="סגור">✕</button></div>
+    <button class="gm-item" data-gm="account"><span class="ic" data-i="user"></span><b>חשבון</b></button>
+    <button class="gm-item" data-gm="lab"><span class="ic" data-i="flask"></span><b>BrainBall LAB</b></button>
+  </nav></div>
 <div class="tabs"><nav aria-label="ניווט ראשי">
   <button data-go="home"><span class="ic" data-i="home"></span>בית</button>
   <button data-go="train"><span class="ic" data-i="target"></span>אימונים</button>
