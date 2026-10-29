@@ -9,16 +9,5 @@
       "destination": "/app#lab",
       "permanent": false
     }
-  ],
-  "headers": [
-    {
-      "source": "/shots/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
-    }
   ]
 }
