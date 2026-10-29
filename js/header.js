@@ -1,7 +1,7 @@
 /* ---------- נגיחות: balls pop up in the top third, the player jumps and heads them. Body tracking only, no ball detection. ---------- */
 async function runHeader(cfg,id){RUN.bg=true;
   await camGate('allow');let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720},frameRate:{ideal:60}},audio:false})}catch(e){throw 'nocam'}
-  RUN.stream=stream;play.classList.add('bare');
+  RUN.stream=stream;audioPlayback();play.classList.add('bare');
   stageHTML(`<video class="pv" id="pv" playsinline muted autoplay></video><canvas class="cv" id="po"></canvas><div class="cvmsg" id="pm">מכין את מעקב הגוף...</div><div class="bigcount mid" id="pc" hidden>0</div><div class="cvbar" id="pBar"></div>`,'full');
   const v=$('#pv');v.srcObject=stream;await v.play();chk();
   const cv=$('#po'),cx=cv.getContext('2d'),dpr=devicePixelRatio||1,rect=stage.getBoundingClientRect(),W=rect.width,H=rect.height;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
@@ -63,6 +63,7 @@ async function runHeader(cfg,id){RUN.bg=true;
       else{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=380*dt;cx.save();cx.globalAlpha=1-k;cx.fillStyle=q.c;cx.beginPath();cx.arc(q.x,q.y,q.r*(1-k*.5),0,7);cx.fill();cx.restore()}}
     return true});
   if(!t0)t0=performance.now();
+  if(started)sfx.go();
   RUN.onQuit=null;RUN.input=null;$('#pBar').innerHTML='';play.classList.remove('bare');
   const dur=Math.round((performance.now()-t0)/1000);
   return{succ:spawned>0?[hits,spawned]:null,primary:hits,disp:String(hits),unit:'',lowerBetter:false,complete:started&&dur>=8,src:'camera',label:`נגיחות מוצלחות ב-${mmss(dur)} דקות`,

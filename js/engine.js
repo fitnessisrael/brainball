@@ -84,4 +84,4 @@ function showResult(r){hud('סיום',1);clock(null);const g=CAT[r.id];
       <button class="btn btn-o full" id="dare">${I('share')} אתגר חבר</button><button class="btn btn-o full" id="fin">סיום</button></div></div>`,'scroll');
   if(r.after)r.after();
   $('#agLv').onclick=e=>{const b=e.target.closest('[data-lv]');if(!b)return;lv=b.dataset.lv;S.set('lv_'+r.id,lv);$$('#agLv button').forEach(x=>x.setAttribute('aria-pressed',x===b))};
-  $('#again').onclick=()=>start(r.id,lv,!!RUN?.tapOnly,!!RUN?.recWanted);$('#fin').onclick=closePlay;$('#dare').onclick=()=>shareApp(`עשיתי ${r.disp} ב"${g.name}".`)}
+  $('#again').onclick=()=>{unlockCue();start(r.id,lv,!!RUN?.tapOnly,!!RUN?.recWanted)};$('#fin').onclick=closePlay;$('#dare').onclick=()=>shareApp(`עשיתי ${r.disp} ב"${g.name}".`)}

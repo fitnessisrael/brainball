@@ -19,7 +19,7 @@ const LOGO=new Image();LOGO.src='logo.png';
 let sndOn=S.get('snd',true),AC=null;
 function ac(){try{try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state!=='running'){AC.resume();if(!AC._w){AC._w=1;AC.onstatechange=()=>{if(AC.state!=='running')AC.resume()}}}return AC}catch(e){return null}}
 function tone(f,d=.12,v=.25,type='sine'){if(!sndOn)return;const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+d+.03)}
-const sfx={tick:()=>{tone(660,.14,.32);sfxEl('tick')},go:()=>{tone(1046,.32,.38);sfxEl('go')},ok:()=>{tone(880,.08,.22);setTimeout(()=>tone(1320,.14,.22),70)},bad:()=>tone(200,.2,.25,'triangle'),pop:()=>tone(990,.08,.3,'square'),swap:()=>tone(880,.1,.22),boom:()=>{if(!sndOn)return;sfxEl('boom');const a=ac();if(!a)return;const n=a.createBufferSource(),len=Math.floor(a.sampleRate*.32),b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);n.buffer=b;const g=a.createGain();g.gain.value=.45;n.connect(g).connect(a.destination);n.start();tone(150,.26,.35,'triangle');tone(560,.09,.16,'square')}};
+const sfx={tick:()=>sfxEl('tick')||tone(660,.14,.32),go:()=>sfxEl('go')||tone(1046,.32,.38),ok:()=>sfxEl('ok')||(tone(880,.08,.22),setTimeout(()=>tone(1320,.14,.22),70)),bad:()=>sfxEl('bad')||tone(200,.2,.25,'triangle'),pop:()=>sfxEl('pop')||tone(990,.08,.3,'square'),swap:()=>tone(880,.1,.22),boom:()=>{if(sfxEl('boom'))return;if(!sndOn)return;const a=ac();if(!a)return;const n=a.createBufferSource(),len=Math.floor(a.sampleRate*.32),b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);n.buffer=b;const g=a.createGain();g.gain.value=.45;n.connect(g).connect(a.destination);n.start();tone(150,.26,.35,'triangle');tone(560,.09,.16,'square')}};
 function ambient(){const a=ac();if(!a||!sndOn)return null;const out=a.createGain();out.gain.setValueAtTime(0,a.currentTime);out.gain.linearRampToValueAtTime(.09,a.currentTime+2);
   const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=700;lp.connect(out);out.connect(a.destination);
   const os=[110,164.8,220.4,277.2].map((f,i)=>{const o=a.createOscillator();o.type='sine';o.frequency.value=f;o.detune.value=i*4;const g=a.createGain();g.gain.value=i===3?.08:.25;o.connect(g).connect(lp);o.start();return o});
@@ -46,12 +46,21 @@ function say(t){try{if(!t||!voiceOn||!sndOn)return;hush();let id=null;try{for(co
 /* spoken instruction clips (audio/cue_<key>.mp3, Itamar). One shared <audio> element that is unlocked by the player's tap, because
    iPhones refuse to play a NEW audio element later without a tap. Resolves when the clip ends; falls back to the phone voice. */
 let _cueEl=null;
-/* iOS without audioSession support: WebAudio is muted by the silent switch, so beeps also go through gesture-unlocked <audio> elements */
+/* beeps are played through <audio> elements unlocked by the Start tap (the voice already proves this path works on iPhone); WebAudio is the fallback */
 const _sfxEl={};let _sfxUrl={};
+function audioPlayback(){try{if(navigator.audioSession&&navigator.audioSession.type!=='playback')navigator.audioSession.type='playback'}catch(e){}}
 function _wav(samples,sr=22050){const n=samples.length,b=new DataView(new ArrayBuffer(44+n*2));const w=(o,t)=>{for(let i=0;i<t.length;i++)b.setUint8(o+i,t.charCodeAt(i))};w(0,'RIFF');b.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');b.setUint32(16,16,true);b.setUint16(20,1,true);b.setUint16(22,1,true);b.setUint32(24,sr,true);b.setUint32(28,sr*2,true);b.setUint16(32,2,true);b.setUint16(34,16,true);w(36,'data');b.setUint32(40,n*2,true);for(let i=0;i<n;i++)b.setInt16(44+i*2,Math.max(-1,Math.min(1,samples[i]))*32767,true);return URL.createObjectURL(new Blob([b],{type:'audio/wav'}))}
-function _mk(kind){const sr=22050,t=kind==='boom'?.35:kind==='go'?.3:.14,n=Math.floor(sr*t),o=new Float32Array(n),f=kind==='go'?1046:660;for(let i=0;i<n;i++){const e=Math.pow(1-i/n,2);o[i]=(kind==='boom'?((Math.random()*2-1)*.7+Math.sin(i/sr*6.283*150)*.5):Math.sin(i/sr*6.283*f)*.6)*e}return _wav(o,sr)}
-function unlockSfx(){if(navigator.audioSession)return;for(const k of['tick','go','boom']){try{const a=_sfxEl[k]||(_sfxEl[k]=new Audio());_sfxUrl[k]=_sfxUrl[k]||_mk(k);a.src=_sfxUrl[k];a.volume=0;const p=a.play();if(p&&p.catch)p.catch(()=>{});setTimeout(()=>{try{a.pause();a.currentTime=0;a.volume=1}catch(e){}},60)}catch(e){}}}
-function sfxEl(k){if(navigator.audioSession||!sndOn)return;try{const a=_sfxEl[k];if(a){a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})}}catch(e){}}
+function _mk(kind){const sr=22050,T={boom:.38,go:.34,tick:.16,ok:.26,pop:.1,bad:.22}[kind],n=Math.floor(sr*T),o=new Float32Array(n);
+  for(let i=0;i<n;i++){const t=i/sr,e=Math.pow(1-i/n,kind==='boom'?2:1.6);let v;
+    if(kind==='boom')v=(Math.random()*2-1)*.7+Math.sin(t*6.283*150)*.5;
+    else if(kind==='go')v=Math.sin(t*6.283*1046);
+    else if(kind==='tick')v=Math.sin(t*6.283*660);
+    else if(kind==='ok')v=Math.sin(t*6.283*(i<n*.4?880:1320));
+    else if(kind==='pop')v=Math.sign(Math.sin(t*6.283*990))*.6;
+    else v=Math.sign(Math.sin(t*6.283*200))*.5;
+    o[i]=v*.7*e}return _wav(o,sr)}
+function unlockSfx(){for(const k of['tick','go','boom','ok','pop','bad']){try{const a=_sfxEl[k]||(_sfxEl[k]=new Audio());_sfxUrl[k]=_sfxUrl[k]||_mk(k);a.src=_sfxUrl[k];a.volume=0;const p=a.play();if(p&&p.catch)p.catch(()=>{});setTimeout(()=>{try{a.pause();a.currentTime=0;a.volume=1}catch(e){}},80)}catch(e){}}}
+function sfxEl(k){if(!sndOn)return true;const a=_sfxEl[k];if(!a||!_sfxUrl[k])return false;try{a.volume=1;a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{});return true}catch(e){return false}}
 function unlockCue(){unlockSfx();try{const a=ac();if(a){const b=a.createBuffer(1,1,22050),n=a.createBufferSource();n.buffer=b;n.connect(a.destination);n.start(0)}}catch(e){}try{if(!_cueEl)_cueEl=new Audio();_cueEl.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA=';const p=_cueEl.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 function cueSay(key,text){if(!voiceOn||!sndOn)return Promise.resolve();hush();
  return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res()}};
