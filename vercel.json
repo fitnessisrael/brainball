@@ -1,3 +1,6 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "installCommand": "echo skip",
+  "buildCommand": "echo skip",
+  "outputDirectory": "."
 }
