@@ -52,7 +52,7 @@ const CAT={
    tagline:'הרגליים עובדות, הראש קורא, הפה צועק.',lvNames:{beginner:'30 שנ\'',plus:'דקה',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,call:2500,lbl:''},plus:{sec:60,call:1800,lbl:''},pro:{sec:null,call:1200,lbl:''}},
    how:['טלפון על חצובה, מסך אליך. כל הגוף והכדור בתוך התמונה.','מעבירים את הכדור מרגל לרגל במקום, כמעט בלי להסתכל עליו.','צבע או מספר קופצים בפס העליון: צועקים אותם בקול. כל העברה נספרת, והסכום מופיע בסוף.']},
- header:{name:'נגיחות',area:'field',ico:'ball',m:G('#FF2BD6','#FFE14D'),desc:'כדורים קופצים למעלה. קופצים, מנגחים ומפוצצים.',cam:true,pose:'header',
+ header:{name:'מלך הנגיחות',area:'field',ico:'ball',m:G('#FF2BD6','#FFE14D'),desc:'קפוץ כדי לנגוח ולפוצץ את הכדורים.',cam:true,pose:'header',
    tagline:'הולכים אחורה, קופצים ומנגחים. בלי לגעת במסך.',lvNames:{beginner:'30 שנ\'',s45:'45 שנ\'',plus:'דקה',m2:'2 דקות',pro:'ללא הגבלה'},
    levels:{beginner:{sec:30,lbl:''},s45:{sec:45,lbl:''},plus:{sec:60,lbl:''},m2:{sec:120,lbl:''},pro:{sec:null,lbl:''}},
    how:['טלפון על חצובה, מסך אליך. הולכים 2 עד 3 צעדים אחורה, כך שהשליש העליון של המסך נשאר ריק.','כדורים מופיעים למעלה, פעם גבוה ופעם נמוך. קופצים ומנגחים בראש כדי לפוצץ אותם, בזהירות.','כל פיצוץ נשמע ונספר באמצע המסך. הסכום נשמר בסוף.']},
@@ -62,8 +62,8 @@ const CAT={
    how:['יושבים או עומדים בנוח.','שואפים כשהעיגול גדל, עוצרים, ונושפים כשהוא קטן.','4 שניות שאיפה, 2 עצירה, 6 נשיפה.'],run:runBreath},
 };
 CAT.juggle.run=runPose;CAT.feetcall.run=runPose;CAT.header.run=runHeader;
-const DEFAULT_ORDER=['field','juggle','reaction','choice','colortask','strobe','tracking','gonogo','scenarios','warmup','sweeper','periph','feetcall','header','breath'];
-function catCfg(){const c=S.get('catalog3',null)||{order:DEFAULT_ORDER,hidden:[]};const o=c.order.filter(id=>CAT[id]);DEFAULT_ORDER.forEach(id=>{if(!o.includes(id))o.push(id)});return{order:o,hidden:c.hidden||[]}}
+const DEFAULT_ORDER=['field','juggle','header','reaction','choice','colortask','strobe','tracking','gonogo','scenarios','warmup','sweeper','periph','feetcall','breath'];
+function catCfg(){const c=S.get('catalog3',null)||{order:DEFAULT_ORDER,hidden:[]};const o=c.order.filter(id=>CAT[id]);DEFAULT_ORDER.forEach(id=>{if(!o.includes(id)){if(id==='header'&&o.includes('juggle'))o.splice(o.indexOf('juggle')+1,0,id);else o.push(id)}});return{order:o,hidden:c.hidden||[]}}
 const visible=()=>{const c=catCfg();return c.order.filter(id=>!c.hidden.includes(id))};
 
 /* ================= demos (first screen of every exercise) ================= */

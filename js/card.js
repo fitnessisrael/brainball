@@ -27,8 +27,8 @@ async function drawCard(cv,o){const W=900,H=1240,x=cv.getContext('2d');cv.width=
   x.textAlign='left';x.direction='ltr';x.fillText(name,0,0);
   if(o.sub){x.font='600 40px Heebo,Outfit,sans-serif';x.globalAlpha=.75;x.fillText(o.sub,0,64);x.globalAlpha=1}x.restore();
   /* BrainBall logo bottom right */
-  const pw=330,ph2=92,px=W-pw-40,py=H-ph2-40;x.fillStyle='#17171C';rr(px,py,pw,ph2,46);x.fill();
-  if(logo){const h=54,w=h*logo.width/logo.height;x.drawImage(logo,px+(pw-w)/2,py+(ph2-h)/2,w,h)}
+  const pw=412,ph2=115,px=W-pw-36,py=H-ph2-36;x.fillStyle='#17171C';rr(px,py,pw,ph2,58);x.fill();
+  if(logo){const h=68,w=h*logo.width/logo.height;x.drawImage(logo,px+(pw-w)/2,py+(ph2-h)/2,w,h)}
   x.restore();return cv}
 function cardData(){const p=profile||{};return{photo:S.get('cardPhoto',null)||p.avatar||'',color:S.get('cardColor',CARD_COLORS[0]),name:p.name||'',sub:[p.team||p.ownTeam||p.club||''].filter(Boolean).join(' · ')}}
 let cardBusy=false;
