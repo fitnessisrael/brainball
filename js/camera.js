@@ -145,7 +145,7 @@ async function runPose(cfg,id){const g=CAT[id],feet=g.pose==='feet';RUN.bg=true;
   const startRec=()=>{if(RUN.recWanted&&window.MediaRecorder&&rc.captureStream){try{recType=['video/mp4','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
     const mr=new MediaRecorder(rc.captureStream(30),recType?{mimeType:recType}:{});mr.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};mr.onstop=()=>{recUrl=URL.createObjectURL(new Blob(chunks,{type:recType||'video/webm'}))};mr.start(500);RUN.rec=mr;recEnd=performance.now()+60000;
     const d=document.createElement('div');d.className='recdot';d.id='recDot';d.innerHTML='<i></i>REC';stage.appendChild(d)}catch(e){RUN.rec=null}}};
-  const goCount=async()=>{phase='ready';busy=true;msg('');await spk(feet?'ready_feet3':'ready_juggle3',feet?'הכל מוכן. תוריד את הכדור לרצפה, ותעביר מצד לצד. תגיד בקול את הצבע או המספר.':'הכל מוכן. תוריד את הכדור, ובביפ תתחיל להקפיץ.');
+  const goCount=async()=>{going=true;phase='ready';busy=true;msg('');await spk(feet?'ready_feet3':'ready_juggle3',feet?'הכל מוכן. תוריד את הכדור לרצפה, ותעביר מצד לצד. תגיד בקול את הצבע או המספר.':'הכל מוכן. תוריד את הכדור, ובביפ תתחיל להקפיץ.');
     phase='count';
     for(const n of[3,2,1]){$('#call').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(650)}$('#call').innerHTML='';sfx.go();await sleep(300);
     BC=feet?new BallCounter('feet'):null;smooth=null;gapT=0;t0=performance.now();end=cfg.sec?t0+cfg.sec*1000:Infinity;RUN.t0=t0;started=true;pc.hidden=!feet;startRec();

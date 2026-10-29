@@ -21,7 +21,7 @@ async function runHeader(cfg,id){RUN.bg=true;
   const balls=[],parts=[];let nextSpawn=0,farSince=0,lastLost=0;
   msg('לכו אחורה, וכל הגוף למסגרת');
   spk('stepback_head','לך שניים עד שלושה צעדים אחורה, כך שכל הגוף נכנס למסגרת, והשליש העליון של המסך נשאר ריק.').then(()=>{busy=false});
-  const goCount=async()=>{phase='ready';busy=true;msg('');h0=samples.length?samples.sort((a,b)=>a-b)[samples.length>>1]:.45;
+  const goCount=async()=>{going=true;phase='ready';busy=true;msg('');h0=samples.length?samples.sort((a,b)=>a-b)[samples.length>>1]:.45;
     await spk('ready_head3','הכל מוכן. תקפוץ ותנגח את הכדורים, בזהירות.');
     phase='count';
     for(const n of[3,2,1]){$('#pm').innerHTML=`<span class="cd-strip">${n}</span>`;sfx.tick();await sleep(650)}$('#pm').textContent='';sfx.go();await sleep(300);

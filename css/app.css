@@ -673,3 +673,6 @@ input[type=date]{font:500 16px var(--f-body);color:var(--fg);background:var(--su
 .lab-link{justify-self:start;margin-top:4px;padding:7px 14px;border-radius:999px;border:1px solid rgba(0,224,255,.5);color:#00E0FF;font:600 13px var(--f-body);text-decoration:none}
 .lab-end{padding:16px;border-radius:24px;background:linear-gradient(160deg,rgba(170,68,255,.14),rgba(255,43,214,.08));border:1px solid rgba(255,255,255,.12)}
 @media(min-width:700px){.lab-res{grid-template-columns:1fr 1fr}.lab-caps{grid-template-columns:repeat(4,1fr)}}
+
+.gate.ask{padding-top:calc(110px + env(safe-area-inset-top,0px));align-self:start}
+.gate.ask input{margin:8px auto 6px}
