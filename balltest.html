@@ -1,0 +1,24 @@
+<!doctype html><meta charset=utf-8><title>balltest</title><pre id=o style="font:14px monospace;white-space:pre-wrap">loading...</pre>
+<script type=module>
+const MP='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14',o=document.getElementById('o');let out='';
+const log=t=>{out+=t+'\n';o.textContent=out};
+try{
+const v=await import(MP+'/vision_bundle.mjs');const fs=await v.FilesetResolver.forVisionTasks(MP+'/wasm');
+const mk=async d=>v.ObjectDetector.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite',delegate:d},runningMode:'VIDEO',scoreThreshold:.05,maxResults:6,categoryAllowlist:['sports ball']});
+let det;try{det=await mk('GPU');log('delegate GPU')}catch(e){det=await mk('CPU');log('delegate CPU')}
+const ld=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=s});
+const ball=await ld('img/_balltest.png'),bg=await ld('img/intro2.webp');
+const fr=document.createElement('canvas'),wc=document.createElement('canvas');wc.width=wc.height=320;const wx=wc.getContext('2d');let ts=1;
+for(const[W,H]of[[1280,720],[720,1280]]){fr.width=W;fr.height=H;const fx=fr.getContext('2d');
+ for(const filt of['none','hue-rotate(160deg)','hue-rotate(90deg) saturate(2)','grayscale(1) brightness(.35)','hue-rotate(200deg) saturate(3)']){
+  for(const d of[30,50,80,130]){
+   fx.filter='none';const s=Math.max(W/bg.width,H/bg.height);fx.drawImage(bg,0,0,bg.width*s,bg.height*s);
+   const bx=W*.5,by=H*.55;fx.filter=filt;fx.drawImage(ball,bx-d/2,by-d/2,d,d);fx.filter='none';
+   // A: full frame
+   let r=det.detectForVideo(fr,ts+=50);const A=(r.detections||[]).map(x=>x.categories[0].score.toFixed(2)).join(',')||'-';
+   // B: square crop around the ball like the app
+   const S=Math.min(W,H),x0=Math.max(0,Math.min(W-S,bx-S/2)),y0=Math.max(0,Math.min(H-S,by-S/2));wx.drawImage(fr,x0,y0,S,S,0,0,320,320);
+   r=det.detectForVideo(wc,ts+=50);const B=(r.detections||[]).map(x=>x.categories[0].score.toFixed(2)).join(',')||'-';
+   log(`${W}x${H} d=${d} ${filt.padEnd(34)} full:${A.padEnd(10)} crop:${B}`)}}}
+log('DONE')}catch(e){log('ERR '+e)}
+</script>

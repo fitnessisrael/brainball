@@ -14,7 +14,7 @@ async function runReaction(cfg){
   const tr=[],max=Math.ceil(cfg.n*1.5);let valid=0;
   while(valid<cfg.n&&tr.length<max){hud(valid+'/'+cfg.n,valid/cfg.n);const t=await reactionTrial();tr.push(t);if(t.res==='ok')valid++}
   const rts=tr.filter(t=>t.res==='ok').map(t=>t.rt),md=Math.round(median(rts)||0),c=k=>tr.filter(t=>t.res===k).length;
-  return{primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:valid>=cfg.n,label:`זמן התגובה החציוני שלך ב-${rts.length} ניסיונות`,
+  return{succ:[valid,tr.length],primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:valid>=cfg.n,label:`זמן התגובה החציוני שלך ב-${rts.length} ניסיונות`,
     grid:[['ממוצע',Math.round(mean(rts))+' ms'],['הכי מהיר',(rts.length?Math.min(...rts):0)+' ms'],['יציבות',Math.round(sd(rts))+' ms'],['מוקדם / ניחוש',c('false_start')+c('anticipation')]]}}
 
 /* ---------- choice ---------- */
@@ -32,7 +32,7 @@ async function runChoice(cfg){const dirs=cfg.opts===2?['left','right']:['left','
   const pr=balanced(dirs,4);for(let i=0;i<4;i++){hud('חימום '+(i+1)+'/4',0);await choiceTrial(dirs,pr[i],cfg,true)}await practiceDone();
   const seq=balanced(dirs,cfg.n),tr=[];for(let i=0;i<seq.length;i++){hud((i+1)+'/'+seq.length,i/seq.length);tr.push(await choiceTrial(dirs,seq[i],cfg,false))}
   const ok=tr.filter(t=>t.res==='correct'),acc=Math.round(ok.length/tr.length*100),md=Math.round(median(ok.map(t=>t.rt))||0);
-  return{primary:acc,disp:acc+'%',unit:'%',lowerBetter:false,complete:true,label:`דיוק. זמן תגובה חציוני בתשובות נכונות: ${md} ms`,
+  return{succ:[ok.length,tr.length],primary:acc,disp:acc+'%',unit:'%',lowerBetter:false,complete:true,label:`דיוק. זמן תגובה חציוני בתשובות נכונות: ${md} ms`,
     grid:[['נכונות',ok.length+'/'+tr.length],['זמן תגובה',md+' ms'],['טעויות',tr.filter(t=>t.res==='incorrect').length],['לא הספקת',tr.filter(t=>t.res==='timeout').length]]}}
 
 /* ---------- go / no-go ---------- */
@@ -47,7 +47,7 @@ async function runGoNoGo(cfg){const pr=shuffle([1,1,1,0,0]);for(let i=0;i<5;i++)
   for(let i=0;i<seq.length;i++){hud((i+1)+'/'+seq.length,i/seq.length);tr.push(await gngTrial(!!seq[i],cfg,false))}
   const c=k=>tr.filter(t=>t.res===k).length,goN=tr.filter(t=>t.go).length,noN=tr.length-goN;
   const hr=Math.round(c('hit')/goN*100),fa=Math.round(c('false_alarm')/noN*100),md=Math.round(median(tr.filter(t=>t.res==='hit').map(t=>t.rt))||0),none=c('hit')+c('false_alarm')===0;
-  return{primary:fa,disp:fa+'%',unit:'%',lowerBetter:true,complete:!none,flag:none?'לא נרשמה אף נגיעה, אז התוצאה לא נשמרה.':null,label:`נגיעות בטעות באדום (פחות זה יותר). פגיעות בירוק: ${hr}%`,
+  return{succ:[c('hit')+noN-c('false_alarm'),goN+noN],primary:fa,disp:fa+'%',unit:'%',lowerBetter:true,complete:!none,flag:none?'לא נרשמה אף נגיעה, אז התוצאה לא נשמרה.':null,label:`נגיעות בטעות באדום (פחות זה יותר). פגיעות בירוק: ${hr}%`,
     grid:[['פגיעות בירוק',c('hit')+'/'+goN],['נגיעות באדום',c('false_alarm')+'/'+noN],['זמן תגובה',md+' ms'],['פספוסי ירוק',c('miss')]]}}
 
 /* ---------- tracking ---------- */
@@ -71,7 +71,7 @@ async function runTracking(cfg){const {cv,cx,W,H}=canvasStage();const total=10,p
     clearInterval(ci);clock(null);const hit=bs.filter(b=>b.t&&b.sel).length;draw('reveal');(hit===cfg.k?sfx.ok:sfx.bad)();$('#cvMsg').textContent=confirmed?`${hit} מתוך ${cfg.k}`:'נגמר הזמן';$('#cvBar').innerHTML='';
     if(!isP)rounds.push({hit,done:confirmed});await sleep(1300)}
   const tg=rounds.reduce((p,r)=>p+r.hit,0),all=total*cfg.k,pct=Math.round(tg/all*100);stage.className='';
-  return{primary:pct,disp:pct+'%',unit:'%',lowerBetter:false,complete:true,label:`כדורים נכונים מתוך ${all} ב-${total} סיבובים`,
+  return{succ:[tg,all],primary:pct,disp:pct+'%',unit:'%',lowerBetter:false,complete:true,label:`כדורים נכונים מתוך ${all} ב-${total} סיבובים`,
     grid:[['כדורים נכונים',tg+'/'+all],['סיבובים מושלמים',rounds.filter(r=>r.hit===cfg.k&&r.done).length+'/'+total],['לא הושלמו בזמן',rounds.filter(r=>!r.done).length],['מהירות',cfg.spd]]}}
 
 /* ---------- sweeper ---------- */
@@ -89,7 +89,7 @@ async function runSweeper(cfg){const {cv,cx,W,H}=canvasStage();let level=cfg.sta
       $('#okm').innerHTML=`<div>✓<small>+10 · ${score}</small>${up?`<small style="color:var(--cyan)">רמה ${level}</small>`:''}</div>`;await sleep(650);$('#okm').innerHTML=''}
     else{score=Math.max(0,score-5);miss++;streak=0;sfx.bad();$('#cvMsg').textContent=`-5 · ${score}`;await sleep(450);$('#cvMsg').textContent=''}}
   stage.className='';clock(null);
-  return{primary:score,disp:score+' נק\'',unit:' נק\'',lowerBetter:false,complete:true,label:`ניקוד ב-${cfg.sec} שניות. הגעת לרמה ${level}`,
+  return{succ:hits+miss?[hits,hits+miss]:null,primary:score,disp:score+' נק\'',unit:' נק\'',lowerBetter:false,complete:true,label:`ניקוד ב-${cfg.sec} שניות. הגעת לרמה ${level}`,
     grid:[['זיהויים נכונים',hits],['טעויות',miss],['רמה אחרונה',level],['זמן זיהוי',(rts.length?(median(rts)/1000).toFixed(1):'-')+' s']]}}
 
 /* ---------- peripheral ---------- */
@@ -105,7 +105,7 @@ async function runPeriph(cfg){const pos=Array.from({length:8},(_,i)=>{const a=i/
     if(!p&&good){ok++;rts.push(r.t-t0)}
     stageHTML(box(ring(target)+(good&&!p?`<div style="position:absolute;inset:0;display:grid;place-items:center;pointer-events:none"><span class="mono" style="font-size:26px;font-weight:700;color:#fff;margin-top:60px">${Math.round(r.t-t0)} ms</span></div>`:'')),good?'flash-ok':'flash-no');await sleep(550)}
   const md=Math.round(mean(rts)),acc=Math.round(ok/cfg.n*100);
-  return{primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:rts.length>=Math.ceil(cfg.n/2),label:`זמן תגובה ממוצע לתשובה נכונה. דיוק ${acc}%`,
+  return{succ:[ok,cfg.n],primary:md,disp:md+' ms',unit:' ms',lowerBetter:true,complete:rts.length>=Math.ceil(cfg.n/2),label:`זמן תגובה ממוצע לתשובה נכונה. דיוק ${acc}%`,
     grid:[['דיוק',acc+'%'],['נכונות',ok+'/'+cfg.n],['הכי מהיר',(rts.length?Math.round(Math.min(...rts)):0)+' ms'],['משך הבזק',cfg.flash+' ms']]}}
 
 /* ---------- scenarios ---------- */
@@ -133,7 +133,7 @@ async function runScenarios(cfg){const set=shuffle([...SCN]).slice(0,cfg.n);let 
     stage.querySelector('.tbar').outerHTML=`<p class="st-sub" style="text-align:right;margin-top:12px"><b style="color:${good?'var(--go)':'var(--nogo)'}">${good?'בדיוק!':r.timeout?'נגמר הזמן.':'לא הפעם.'}</b> ${s.e}</p><button class="btn btn-g full" data-c="next" style="margin-top:8px">הבא <span class="ar">←</span></button>`;
     await waitInput(null,v=>v.kind==='btn'&&v.v==='next')}
   const pct=Math.round(ok/set.length*100);
-  return{primary:pct,disp:pct+'%',unit:'%',lowerBetter:false,complete:true,label:`החלטות נכונות מתוך ${set.length} מצבים`,grid:[['נכונות',ok+'/'+set.length],['זמן החלטה',times.length?(median(times)/1000).toFixed(1)+' s':'-']]}}
+  return{succ:[ok,set.length],primary:pct,disp:pct+'%',unit:'%',lowerBetter:false,complete:true,label:`החלטות נכונות מתוך ${set.length} מצבים`,grid:[['נכונות',ok+'/'+set.length],['זמן החלטה',times.length?(median(times)/1000).toFixed(1)+' s':'-']]}}
 
 /* ---------- breathing ---------- */
 async function runBreath(cfg){RUN.bg=true;RUN.wantAmb=true;RUN.amb=ambient();

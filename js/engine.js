@@ -67,12 +67,16 @@ function practiceDone(){stageHTML(`<div class="st-big">החימום נגמר</di
 
 function showResult(r){hud('סיום',1);clock(null);const g=CAT[r.id];
   const prev=[...hist].reverse().find(h=>h.id===r.id&&h.level===r.level&&!h.partial);let delta='';
-  if(prev&&r.complete&&!r.flag&&r.unit!=null){const d=Math.round((r.primary-prev.primary)*100)/100,better=r.lowerBetter?d<0:d>0;
+  let betterThanPrev=null;
+  if(prev&&r.complete&&!r.flag&&r.unit!=null){const d=Math.round((r.primary-prev.primary)*100)/100,better=r.lowerBetter?d<0:d>0;betterThanPrev=d===0?null:better;
     delta=d===0?`<span class="delta up">בדיוק כמו בפעם הקודמת</span>`:`<span class="delta ${better?'up':'dn'}">${better?'שיפור של':'שינוי של'} ${Math.abs(d)}${r.unit} מהפעם הקודמת</span>`}
   const ok=r.complete&&!r.flag;record(ok?r:{...r,partial:true,disp:r.disp||mmss(r.dur||0),label:'אימון שלא הושלם'});
   let lv=r.level;
-  stageHTML(`<div class="res"><div class="k">${g.name} · ${lvName(g,r.level)}</div><div class="main grad">${esc(r.disp)}</div>
-    <div class="cap">${r.flag||r.label}${!ok&&!r.flag?' · נשמר כאימון חלקי':''}</div>${delta}
+  const sc=r.succ&&r.succ[1]>0?r.succ:null,pct=sc?Math.round(sc[0]/sc[1]*100):null;
+  const succHTML=sc?`<div class="succ"><b>${sc[0]} מתוך ${sc[1]}</b><span>${pct}% הצלחה</span></div>`:'';
+  const enc=!ok?'':betterThanPrev===true?'שיפור! זה יותר טוב מהפעם הקודמת. בפעם הבאה נשבור גם את זה.':prev?`זוכרים את התוצאה (${esc(r.disp)}) ובפעם הבאה מנסים לשפר אותה. אתה בדרך הנכונה.`:`זו נקודת ההתחלה שלך: ${esc(r.disp)}. נזכור אותה ובפעם הבאה ננסה לשפר.`;
+  stageHTML(`<div class="res"><div class="k">${g.name} · ${lvName(g,r.level)}</div><div class="main grad">${esc(r.disp)}</div>${succHTML}
+    <div class="cap">${r.flag||r.label}${!ok&&!r.flag?' · נשמר כאימון חלקי':''}</div>${delta}${enc?`<div class="enc">${enc}</div>`:''}
     <div class="grid">${(r.grid||[]).map(([a,b])=>`<div class="tile"><div class="l">${a}</div><div class="v" style="font-size:19px">${b}</div></div>`).join('')}</div>
     <div class="acts">${r.extra||''}
       <div class="again-box"><span class="note">הסיבוב הבא</span><div class="seg" id="agLv">${Object.keys(g.levels).map(k=>`<button data-lv="${k}" aria-pressed="${k===lv}">${lvName(g,k)}</button>`).join('')}</div>
