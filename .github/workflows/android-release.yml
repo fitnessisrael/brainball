@@ -1,6 +1,8 @@
 name: Android release (unsigned AAB for Google Play)
 on:
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   aab:
     runs-on: ubuntu-latest
@@ -43,3 +45,10 @@ jobs:
         with:
           name: brainball-unsigned-aab
           path: android/app/build/outputs/bundle/release/*.aab
+      - name: Publish AAB as release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_NO: ${{ github.run_number }}
+        run: |
+          cp android/app/build/outputs/bundle/release/app-release.aab brainball-unsigned.aab
+          gh release create "android-$RUN_NO" brainball-unsigned.aab --title "Android build $RUN_NO (unsigned AAB)" --notes "Unsigned AAB, signed outside CI before upload to Google Play."
